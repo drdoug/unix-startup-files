@@ -1,0 +1,245 @@
+#-=-=-=-=-=-=-=-=
+
+#
+# bashrc-hostSpecificSetup
+#
+#
+
+function _CommonSLACSettings
+        {
+
+        EPICS_VERSION="R7.0.3.1-1.0"
+        PYTHON_VERSION="3.7.2"
+
+        export EPICS_BASE=${EPICS_BASE:-"/afs/slac/g/lcls/epics/base/${EPICS_VERSION}"}
+        EPICS_SETUP="/afs/slac/g/lcls/epics/setup"
+        if [[ -r ${EPICS_SETUP}/epicsenv-${EPICS_VERSION}.bash ]];
+        then
+                source ${EPICS_SETUP}/epicsenv-${EPICS_VERSION}.bash
+        fi
+        #
+        # assume redhat 6 if HOST not set
+        #
+        export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"rhel6-x86_64"}
+        addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
+
+        export PACKAGE_TOP=${PACKAGE_TOP-"/afs/slac/g/lcls/package"}
+        export GIT_ROOT=${GIT_ROOT-'/afs/slac/g/cd/swe/git/repos'}
+
+        inspath -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/bin
+        inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib
+        inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib/python3.7/lib-dynload
+        addpath -q /afs/slac/g/lcls/package/hdf5/1.10.8/$EPICS_HOST_ARCH/bin
+        addpath -q /afs/slac/package/net/bin
+        }
+
+function hostSpecificSetup
+        {
+
+        HOSTNAME=$(hostname)
+        shopt -s extglob
+        case "$HOSTNAME" in
+                MurrayMacBookPro )
+                        #
+                        # Personal Laptop
+                        #
+                        ;;
+                PC99382 )
+                        #
+                        # SLAC MacBook Pro
+                        #
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addpath /usr/local/opt/python@3.11/libexec/bin
+                        ;;
+                PC99383 )
+                        #
+                        # Dell Desktop Machine Ubuntu
+                        #
+                        _CommonSLACSettings
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        ;;
+                rhel6-64* )
+                        _CommonSLACSettings
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        export EPICS_CA_AUTO_ADDR_LIST=NO
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        export EPICS_PVA_ADDR_LIST="$EPICS_CA_ADDR_LIST"
+                        ;;
+                sdf* )
+                        export EPICS_BASE=/sdf/home/d/drm/src/epics/epics-base
+                        export EPICS_CA_ADDR_LIST="134.79.219.255 172.26.97.63"
+                        export EPICS_PVA_ADDR_LIST="134.79.151.21"
+                        export EPICS_PVA_BROADCAST_PORT=5169
+                        export EPICS_PVA_AUTO_ADDR_LIST=NO
+                        export EPICS_PVA_SERVER_PORT=5168
+                        if [[ -r ${EPICS_BASE}/startup/EpicsHostArch ]];
+                        then
+                                export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        fi
+                        inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        ;;
+                lcls-dev3 )
+                        _CommonSLACSettings
+
+                        #
+                        # evil script sets prompt and other aliases. bad script.
+                        #
+                        _x="${PS1}"
+                        source /afs/slac/g/lcls/tools/script/ENVS64.bash
+                        PS1="${_x}"
+                        unset _x
+                        printf "The message above (%s) comes from ENVS64.bash and should be fixed.\n" "-bash: [: too many arguments"
+                        #DM prompt green user @ Green host sp Gray2 time Orange Gitb sp White hist sp Red Ret White .
+                        export PYEPICS_LIBCA=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libca.so
+                        export PYEPICS_LIBCOM=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libCom.so
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        ;;
+                aird-b50-srv01 )
+                        export EPICS_HOST_ARCH="rhel7-x86_64"
+                        _CommonSLACSettings
+                        #
+                        # DANGER: sourcing this wonderful script
+                        #         twice will remove PATH, making
+                        #         this current session unusable
+                        #
+                        # source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        #
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        export JAVA_VERS=jdk-11.0.2
+                        export JAVA_HOME=/afs/slac/g/lcls/package/java/$JAVA_VERS
+                        export MAVEN_VERS=3.6.0
+                        export MAVEN_HOME=/afs/slac/g/lcls/package/maven/$MAVEN_VERS
+                        addpath -q ${JAVA_HOME}/bin
+                        addpath -q ${MAVEN_HOME}/bin
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        addpath -q /afs/slac/g/lcls/epics/extensions/R1.1.1/bin/rhel7-x86_64
+                        addpath -q /afs/slac/g/lcls/epics/extensions/pvxs/R1.2.2-0.1.0/bin/rhel7-x86_64
+                        ;;
+                mccas0 )
+                        _CommonSLACSettings
+                        #
+                        # HDF5 tools and BSAS-NC FileWriter monitoring
+                        #
+                        addpath /afs/slac/g/lcls/package/anaconda/envs/python3_rhel7_env/bin
+                        addpath /afs/slac/g/lcls/package/bsasStore/current/bsasFileWriterMonitor
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        ;;
+                lcls-daemon0 )
+                        _CommonSLACSettings
+
+                        #
+                        # production network, uid laci; need python path for iocConsole
+                        #
+                        newlist py PYTHONPATH -e
+                        inspy /usr/local/lcls/epics/base/base-cpp-R4-6-0/pvaPy/lib/python/2.7/linux-x86
+                        inspy /usr/local/lcls/tools/python/toolbox
+                        inspy /usr/local/lcls/epics/base/base-cpp-R4-4-0/pvaPy/lib/linux-x86
+
+                        #
+                        # production network, uid laci; EPICS subnets
+                        #
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca 172.27.3.255:5068
+                        addca mcc-dmz
+                        addca 172.21.40.63:5064
+                        addca 172.27.72.24:5070
+                        addca 172.27.131.255:5068
+                        addca 172.27.43.255:5068
+                        ;;
+                testfac-srv01 )
+                        _CommonSLACSettings
+                        export ACCTEST_ROOT=/afs/slac/g/acctest
+                        source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
+                        ;;
+                testfac-camsrv01 )
+                        _CommonSLACSettings
+                        export ACCTEST_ROOT=/afs/slac/g/acctest
+                        source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
+                        ;;
+                testfac-camsrv02 )
+                        _CommonSLACSettings
+                        export ACCTEST_ROOT=/afs/slac/g/acctest
+                        source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
+                        ;;
+                testfac-asta-cs01 )
+                        _CommonSLACSettings
+                        export ACCTEST_ROOT=/afs/slac/g/acctest
+                        source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
+                        ;;
+                lcls-dev2 )
+                        _CommonSLACSettings
+                        source /afs/slac/g/lcls/tools/script/ENVS.bash
+                        export JAVAVER=1.7.0_01
+                        source /afs/slac/g/lcls/epics/setup/go_epics_3-14-12.bash
+                        export JAVA_HOME=/afs/slac/g/lcls/package/java/jdk1.7.0_01
+                        export PATH=$JAVA_HOME/bin:$PATH
+                        export NETBEANS_HOME=/afs/slac/g/lcls/package/netbeans/netbeans-7.0.1
+                        export PATH=$NETBEANS_HOME/bin:$PATH
+                        export CSS_EPICS_VER=3.1.0
+                        export CSS_EPICS_HOME=/afs/slac/g/lcls/package/CSS/CSS_EPICS_$CSS_EPICS_VER
+                        export PATH=$CSS_EPICS_HOME:$PATH:/usr/afsws/bin
+                        export PATH=$PACKAGE_TOP/python/current/bin:$PATH
+                        inslib $PACKAGE_TOP/python/current/lib
+                        inslib $PACKAGE_TOP/python/current/lib/python2.7/lib-dynload
+                        ;;
+                rdsrv300 )
+                        _CommonSLACSettings
+                        /usr/bin/aklog
+                        /usr/bin/klist
+                        /usr/bin/tokens
+                        source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        ;;
+                rdsrv315 )
+                        _CommonSLACSettings
+                        /usr/bin/aklog
+                        /usr/bin/klist
+                        /usr/bin/tokens
+                        ;;
+                rdsrv223 )
+                        _CommonSLACSettings
+                        source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        ;;
+                *)
+                        _CommonSLACSettings
+                        if [[ -r /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash ]];
+                        then
+                                source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        fi
+                        export JAVA_HOME=/afs/slac/g/lcls/package/java/jdk1.7.0_01
+                        export PATH=$JAVA_HOME/bin:$PATH
+                        export NETBEANS_HOME=/afs/slac/g/lcls/package/netbeans/netbeans-7.0.1
+                        export PATH=$NETBEANS_HOME/bin:$PATH:/usr/afsws/bin
+                        ;;
+        esac
+        }

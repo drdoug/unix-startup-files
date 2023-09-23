@@ -1,0 +1,29 @@
+
+umask 022
+
+#
+# not interactive, don't continue
+#
+if [[ ! $- =~ i ]];
+then
+        export TERM=${TERM:-"dumb"}
+        return
+fi
+
+#
+# get rid of MacOS annoying reminder to use zsh
+#
+if [ "$(uname -s)" = "Darwin" ];
+then
+        export BASH_SILENCE_DEPRECATION_WARNING=1
+fi
+
+#
+# set up for interactive session
+#
+if [ -r ~/.bashrc ];
+then
+        source ~/.bashrc
+fi
+
+printf "\n     Welcome to Bash Land\n\n"

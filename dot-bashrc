@@ -1,0 +1,444 @@
+#
+# doug murray : 23-Jan-2020
+#
+# Change History
+#       16-Nov-96 cleared ancient history entries to 23-Jan-81
+#       07-Mar-18 finally updated echo to printf where possible
+#
+
+#
+# Common startup for POSIX shells
+#   ksh, bash; not zsh because of (primarily) IFS differences
+#
+#   Functions starting with '_' are meant to be private
+#
+
+#
+# customizable settings
+#
+MAXDIRS=20                # default numbered directory aliases; change with sdirs cmd
+HISTSIZE=1000             # maximum history size per session
+HISTFILESIZE=1000         # maximum size of saved history file
+
+USECOLOR=true             # let 'ls' and 'grep' use color if available
+WINDOWHEADER="yes"        # display CWD in xterm/sun-cmd window header
+SHOWGITBRANCH="yes"       # display git branch in xterm/sun-cmd window header
+
+USERID=${UID:-"$(id -u)"} # will check for root or reserved IDs
+OSTYPE="$(uname -s)"      # Linux, Darwim (MacOS), no longer check for Solaris, HPUX
+TTY=$(tty)                # will check for interactive session
+
+function setupCommands
+        {
+        #
+        # not interactive, be terse
+        #
+        if [[ ! $- =~ i ]];
+        then
+                WINDOWHEADER="no"
+                SHOWGITBRANCH="no"
+        fi
+
+        #
+        # check for background/daemon caller
+        #
+        TTY="${TTY:-".bkgrd"}"
+        if [[ "$TTY" = "not a tty" ]];
+        then
+                TTY=".bkgrd"
+        fi
+
+        if [[ "$TTY" != ".bkgrd" ]];
+        then
+                if [[ "$OSTYPE" = "Linux" ]];
+                then
+                        stty erase ^? kill ^U intr '^C' susp '^Z'
+                else
+                        stty erase '^H' kill '^?' intr '^C' susp '^Z'
+                fi
+                stty echok echoe echoke
+        fi
+
+        #
+        # Several things need TERM to be set.
+        # Assume we have a modern 256 color instance.
+        #
+        export TERM=${TERM:-"xterm-256color"}
+
+        #
+        # if the user has a personal group ID, then don't mask
+        # the group write bit.  Only if not a system user ID.
+        #
+        if [[ $USERID -gt 99 ]];
+        then
+                #
+                # in case this system doesn't name groups
+                #
+                _gname=$(id -gn &>/dev/null)
+                err=$?
+                if (( $err == 0 ))
+                then
+                        if [[ "$_gname" == "$(id -un)" ]];
+                        then
+                                umask 002
+                        else
+                                umask 022
+                        fi
+                fi
+        fi
+
+        #
+        # Check on how we've been invoked.
+        # This is done differently on MacOS,
+        # Linux, Solaris, etc.
+        #
+        if [[ ${0:0:1} = "-" ]];
+        then
+                SHELLNAME="${0:1}"
+        else
+                SHELLNAME="${0}"
+        fi
+        if [[ "$SHELLNAME" = "su"  ]];
+        then
+                SHELLNAME=${SHELL:-"bash"}
+        fi
+
+        SHELLNAME=$(basename "$SHELLNAME")
+
+        #
+        # set various options depending
+        # on which shell is running.
+        #
+        case $SHELLNAME in
+                "bash"|"-bash")
+                        shopt -s expand_aliases
+                        alias whence=which
+                        FCEDIT=$(type vi)
+                        ;;
+                "ksh"|"-ksh")
+                        if [[ $(whence id) == "" ]];
+                        then
+                                USER="$LOGNAME"
+                        else
+                                USER=$(id|sed 's/[^)]*(\([^)]*\).*/\1/')
+                        fi
+                        FCEDIT=$(whence vi)
+                        ;;
+                *)
+                        FCEDIT=$(type vi)
+                        ;;
+        esac
+
+        #
+        # Use VI mode when editting command line.
+        #
+        set -o vi
+
+        #
+        # important command variants
+        #
+        alias up=uptime
+        alias cp='cp -i'
+        alias mv='mv -i'
+        alias rm='rm -i'
+        alias j='jobs -l'
+        alias h='history -20'
+        alias z='printf "%s\n" "pid=$$ $SHELLNAME";suspend'
+        alias gitl="git log --graph --decorate --oneline --all"
+
+        #alias whide="printf "%s" $'\e'[2t"
+        #alias wlower='printf "%s" $'\e'"[6t"'
+        #alias wraise='printf "%s" $'\e'"[5t"'
+        #alias wsize="printf "%s" $'\e''[8;42;80t'"
+        #alias wmaxh='printf "%s" $'\e'"[3;0;t\033[8;0;80t"'
+        #alias wmaxw='printf "%s" $'\e'"[3;0;t\033[8;24;0t"'
+        #alias wmax='printf "%s" $'\e'"[3;0;t\033[8;0;0t"'
+
+        export CVSROOT=${CVSROOT:-"/usr/local/Repository"}
+        export EXINIT='se ai nohls report=2 terse'
+        export EDITOR=vi
+
+        #
+        # set up directory management feature
+        #
+        if type setDirectoryManagement &>/dev/null
+        then
+                setDirectoryManagement
+                unset -f setDirectoryManagement
+                alias cd=customChangeDirectory
+
+                #
+                # Add the current directory to the directory array
+                #
+                customChangeDirectory "`pwd`"
+        fi
+
+        #
+        # set up color usage
+        # setColors checks USECOLOR variable
+        #
+        if type setColors &>/dev/null
+        then
+                setColors
+        fi
+        }
+
+#
+# print a list of defined functions
+#
+function showFunctions
+        {
+
+        compgen -A function
+        }
+
+#
+# read commands from file if present
+#
+function _checkAndRead
+        {
+
+        for fileName in "$@";
+        do
+                if [[ -r "$fileName" ]];
+                then
+                        source "$fileName"
+                fi
+        done
+        }
+
+#
+# bring job to foreground
+#
+function f
+        {
+        "fg" "%"${1}
+        }
+
+#
+# csh persists
+#
+function setenv
+        {
+
+        export $1="$2"
+        }
+
+function noinsertmode
+        {
+
+        printf "%s" '\033[4l'
+        }
+
+#
+# adjust window size
+# usage: wsize cols rows
+#
+function wsize
+        {
+        printf "%s" "\033[8;$1;$2t"
+        }
+
+function ws
+        {
+        printf "%s" "\033[8;24;80t"
+        }
+
+function setLists
+        {
+
+        #
+        # Set up lists for standard environment variables.
+        # Colors are set in the setColors function if
+        # .bash-colors.bash is available and color usage is enabled
+        #
+        newlist lib    LD_LIBRARY_PATH
+        newlist man    MANPATH
+        newlist path   PATH
+        newlist class  CLASSPATH -n
+        newlist cd     CDPATH
+        newlist ca     EPICS_CA_ADDR_LIST -s' ' -e
+        newlist pva    EPICS_PVA_ADDR_LIST -s' ' -e
+        newlist edm    EDMDATAFILES -e
+        newlist py     PYTHONPATH -e
+
+        #
+        # Add to various lists
+        #
+        addlib -q /usr/local/lib
+
+        inspath -q /usr/local/bin
+        inspath -q /usr/local/opt/bison/bin
+        inspath -q /usr/local/opt/python/libexec/bin
+        inspath -q /usr/local/opt/sphinx-doc/bin
+        addpath -q ~/bin
+        addpath -q /bin
+        addpath -q /usr/bin
+        addpath -q /usr/afsws/bin
+        addpath -q /sw/bin
+        addpath -q /opt/Qt/6.1.0/clang_64/bin
+        addca 134.79.219.255
+        addca 172.26.97.63
+
+        #
+        # Support for Wine
+        #
+        addpath -q /opt/usr/bin
+
+        if [[ $USERID -eq 0 ]];
+        then
+                addpath -q /sw/sbin
+                addpath -q /sbin
+                addpath -q /usr/sbin
+                addpath -q ~/sbin
+        fi
+
+        insman -q /usr/local/man
+        addman -q /usr/share/man
+        addman -q /usr/kerberos/man
+        addman -q /usr/share/doc/libtiff-devel-3.7.1/html/man
+        addman -q /usr/share/doc/PyXML-0.8.4/man
+        addman -q /usr/share/doc/xorg-x11-doc-6.8.2/man
+        addman -q /usr/share/doc/kernel-doc-2.6.12/Documentation/DocBook/man
+        addman -q /usr/share/doc/festival-devel-1.95/speech_tools/doc/man
+        addman -q /usr/share/man
+        addman -q /usr/share/linuxdoc-tools/dist/linuxdoc-tools/man
+        addman -q /usr/share/pvm3/man
+        addman -q /usr/share/eclipse/plugins/org.python.pydev_0.9.3/PySrc/ThirdParty/logilab/pylint/man
+        addman -q /usr/local/src/openafs-1.2.13/src/man
+        addman -q /usr/local/share/man
+        addman -q /var/cache/man
+        addman -q /etc/gconf/gconf.xml.defaults/schemas/desktop/gnome/url-handlers/man
+        addman -q /etc/gconf/gconf.xml.defaults/desktop/gnome/url-handlers/man
+        addman -q /home/rtems/rtems4.7/man
+        addman -q /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man
+
+        case "$OSTYPE" in
+                "Linux")
+                        if type gvim &>/dev/null
+                        then
+                                alias vi='gvim'
+                        else
+                                if type vim &>/dev/null
+                                then
+                                        alias vi='vim'
+                                else
+                                        unalias vi &>/dev/null
+                                fi
+                        fi
+                        ;;
+                "Darwin")
+                        if type mvim &>/dev/null
+                        then
+                                alias vi='mvim'
+                        else
+                                if type vim &>/dev/null
+                                then
+                                        alias vi='vim'
+                                else
+                                        unalias vi &>/dev/null
+                                fi
+                        fi
+
+                        newlist maclib DYLD_LIBRARY_PATH
+                        addmaclib -q ~/Dropbox/src/xcode-local/lib
+                        addmaclib -q ~/Dropbox/src/lib
+                        #
+                        # check for local EPICS
+                        #
+                        export EPICS_BASE=${EPICS_BASE:-"/usr/local/epics/base"}
+                        if [[ -d "${EPICS_BASE}" ]];
+                        then
+                                EPICS_SETUP=${EPICS_BASE}/config/epicsSetup.bash
+                                if [[ -e $EPICS_SETUP ]];
+                                then
+                                        source $EPICS_SETUP
+                                else
+                                        export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"darwin-x86"}
+                                        addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
+                                fi
+                        fi
+
+                        #
+                        # Support for OpenDDS
+                        #
+                        if [[ -d ~/Dropbox/OpenDDS ]];
+                        then
+                                export DANCE_ROOT=unused
+                                export CIAO_ROOT=unused
+                                export DDS_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12
+                                export ACE_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers
+                                export TAO_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers/TAO
+                                export MPC_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers/MPC
+                                addmaclib -q ${DDS_ROOT}/lib
+                                addpath -q ${DDS_ROOT}/bin
+                                addmaclib -q ${ACE_ROOT}/lib
+                                addpath -q ${ACE_ROOT}/bin
+                        fi
+
+                        #
+                        # Support for RTI DDS
+                        #
+                        if [[ -d /Applications/rti_connext_dds-5.3.1 ]];
+                        then
+                                export NDDSHOME=/Applications/rti_connext_dds-5.3.1
+                                addpath -q ${NDDSHOME}/bin
+                                addlib -q ${NDDSHOME}/lib/x64Darwin17clang9.0/
+                                addmaclib -q ${NDDSHOME}/lib/x64Darwin17clang9.0/
+                        fi
+                        ;;
+                *)
+                        if type vim &>/dev/null
+                        then
+                                alias vi='vim'
+                        else
+                                unalias vi &>/dev/null
+                        fi
+                        ;;
+        esac
+        }
+
+#-=-=-=-=-=-=-=-=
+# bash-sdirs
+_checkAndRead .bash-sdirs.bash
+
+#-=-=-=-=-=-=-=-=
+# bash-lists
+_checkAndRead .bash-lists.bash
+
+#-=-=-=-=-=-=-=-=
+# bashrc-git
+_checkAndRead .bash-git.bash
+
+#-=-=-=-=-=-=-=-=
+# bashrc-colors
+_checkAndRead .bash-colors.bash
+
+#-=-=-=-=-=-=-=-=
+# bashrc-colors
+_checkAndRead .bash-prompt.bash
+
+#-=-=-=-=-=-=-=-=
+
+#
+# the fun start here
+#
+setupCommands
+
+#-=-=-=-=-=-=-=-=
+# bashrc-hostSpecificSetup
+_checkAndRead .bash-hostSpecificSetup.bash
+
+#-=-=-=-=-=-=-=-=
+
+setLists
+
+#-=-=-=-=-=-=-=-=
+
+#
+# Set up host-specific environment variables
+#
+if type hostSpecificSetup &>/dev/null
+then
+        hostSpecificSetup
+fi
