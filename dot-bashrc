@@ -170,7 +170,7 @@ function setupCommands
                 #
                 # Add the current directory to the directory array
                 #
-                customChangeDirectory "`pwd`"
+                customChangeDirectory "$(pwd)"
         fi
 
         #
@@ -247,71 +247,48 @@ function ws
 function setLists
         {
 
-        #
-        # Set up lists for standard environment variables.
-        # Colors are set in the setColors function if
-        # .bash-colors.bash is available and color usage is enabled
-        #
-        newlist lib    LD_LIBRARY_PATH
-        newlist man    MANPATH
-        newlist path   PATH
-        newlist class  CLASSPATH -n
-        newlist cd     CDPATH
-        newlist ca     EPICS_CA_ADDR_LIST -s' ' -e
-        newlist pva    EPICS_PVA_ADDR_LIST -s' ' -e
-        newlist edm    EDMDATAFILES -e
-        newlist py     PYTHONPATH -e
-
-        #
-        # Add to various lists
-        #
-        addlib -q /usr/local/lib
-
-        inspath -q /usr/local/bin
-        inspath -q /usr/local/opt/bison/bin
-        inspath -q /usr/local/opt/python/libexec/bin
-        inspath -q /usr/local/opt/sphinx-doc/bin
-        addpath -q ~/bin
-        addpath -q /bin
-        addpath -q /usr/bin
-        addpath -q /usr/afsws/bin
-        addpath -q /sw/bin
-        addpath -q /opt/Qt/6.4.0/macos/bin
-        addca 134.79.219.255
-        addca 172.26.97.63
-
-        #
-        # Support for Wine
-        #
-        addpath -q /opt/usr/bin
-
-        if [[ $USERID -eq 0 ]];
+        if ! type newlist &>/dev/null
         then
-                addpath -q /sw/sbin
-                addpath -q /sbin
-                addpath -q /usr/sbin
-                addpath -q ~/sbin
-        fi
+                #
+                # no lists? add the basics
+                #
+                export PATH=${PATH:-"~/bin:/usr/local/bin:/usr/bin:/bin"}
+        else
+                #
+                # Set up lists for standard environment variables.
+                # Colors are set in the setColors function if
+                # .bash-colors.bash is available and color usage is enabled
+                #
+                newlist path   PATH
+                newlist cd     CDPATH
+                newlist man    MANPATH
+                newlist class  CLASSPATH -n
+                newlist py     PYTHONPATH -e
+                newlist lib    LD_LIBRARY_PATH
+                newlist edm    EDMDATAFILES -e
+                newlist ca     EPICS_CA_ADDR_LIST -s' ' -e
+                newlist pva    EPICS_PVA_ADDR_LIST -s' ' -e
 
-        insman -q /usr/local/man
-        addman -q /usr/share/man
-        addman -q /usr/kerberos/man
-        addman -q /usr/share/doc/libtiff-devel-3.7.1/html/man
-        addman -q /usr/share/doc/PyXML-0.8.4/man
-        addman -q /usr/share/doc/xorg-x11-doc-6.8.2/man
-        addman -q /usr/share/doc/kernel-doc-2.6.12/Documentation/DocBook/man
-        addman -q /usr/share/doc/festival-devel-1.95/speech_tools/doc/man
-        addman -q /usr/share/man
-        addman -q /usr/share/linuxdoc-tools/dist/linuxdoc-tools/man
-        addman -q /usr/share/pvm3/man
-        addman -q /usr/share/eclipse/plugins/org.python.pydev_0.9.3/PySrc/ThirdParty/logilab/pylint/man
-        addman -q /usr/local/src/openafs-1.2.13/src/man
-        addman -q /usr/local/share/man
-        addman -q /var/cache/man
-        addman -q /etc/gconf/gconf.xml.defaults/schemas/desktop/gnome/url-handlers/man
-        addman -q /etc/gconf/gconf.xml.defaults/desktop/gnome/url-handlers/man
-        addman -q /home/rtems/rtems4.7/man
-        addman -q /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man
+                #
+                # Setup common paths
+                #
+                if [[ $USERID -eq 0 ]];
+                then
+                        addpath -q /usr/sbin
+                        addpath -q /sbin
+                fi
+
+                addlib -q /usr/local/lib
+                addlib -q /usr/lib
+
+                addpath -q ~/bin
+                addpath -q /usr/local/bin
+                addpath -q /usr/bin
+                addpath -q /bin
+
+                addman -q /usr/local/share/man
+                addman -q /usr/share/man
+        fi
 
         case "$OSTYPE" in
                 "Linux")
@@ -340,51 +317,9 @@ function setLists
                                 fi
                         fi
 
-                        newlist maclib DYLD_LIBRARY_PATH
-                        addmaclib -q ~/Dropbox/src/xcode-local/lib
-                        addmaclib -q ~/Dropbox/src/lib
-                        #
-                        # check for local EPICS
-                        #
-                        export EPICS_BASE=${EPICS_BASE:-"/usr/local/epics/base"}
-                        if [[ -d "${EPICS_BASE}" ]];
+                        if type newlist &>/dev/null
                         then
-                                EPICS_SETUP=${EPICS_BASE}/config/epicsSetup.bash
-                                if [[ -e $EPICS_SETUP ]];
-                                then
-                                        source $EPICS_SETUP
-                                else
-                                        export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"darwin-x86"}
-                                        addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
-                                fi
-                        fi
-
-                        #
-                        # Support for OpenDDS
-                        #
-                        if [[ -d ~/Dropbox/OpenDDS ]];
-                        then
-                                export DANCE_ROOT=unused
-                                export CIAO_ROOT=unused
-                                export DDS_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12
-                                export ACE_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers
-                                export TAO_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers/TAO
-                                export MPC_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers/MPC
-                                addmaclib -q ${DDS_ROOT}/lib
-                                addpath -q ${DDS_ROOT}/bin
-                                addmaclib -q ${ACE_ROOT}/lib
-                                addpath -q ${ACE_ROOT}/bin
-                        fi
-
-                        #
-                        # Support for RTI DDS
-                        #
-                        if [[ -d /Applications/rti_connext_dds-5.3.1 ]];
-                        then
-                                export NDDSHOME=/Applications/rti_connext_dds-5.3.1
-                                addpath -q ${NDDSHOME}/bin
-                                addlib -q ${NDDSHOME}/lib/x64Darwin17clang9.0/
-                                addmaclib -q ${NDDSHOME}/lib/x64Darwin17clang9.0/
+                                newlist maclib DYLD_LIBRARY_PATH
                         fi
                         ;;
                 *)
