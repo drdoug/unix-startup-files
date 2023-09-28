@@ -17,7 +17,7 @@ function _CommonSLACSettings
         # if AFS and /usr/local both exist,
         # get EPICS from /usr/local.
         #
-        if [[ -d "/usr/local/lcls/epics/base/${EPICS_VERSION}" ]];
+        if [[ -d "/usr/local/lcls/${epicsDir}" ]];
         then
                 export EPICS_BASE=${EPICS_BASE:-"/usr/local/lcls/${epicsDir}"}
         fi
@@ -50,21 +50,46 @@ function _CommonSLACSettings
         # assume redhat 6 if HOST not set
         #
         export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"rhel6-x86_64"}
-        addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
-
-        export PACKAGE_TOP=${PACKAGE_TOP-"/afs/slac/g/lcls/package"}
-        export GIT_ROOT=${GIT_ROOT-'/afs/slac/g/cd/swe/git/repos'}
 
         if ! type newlist &>/dev/null
         then
                 printf ".bash-hostSpecificSetup.bash: this script was used without calling .bash-lists.bash first."
+                return
         fi
 
-        inspath -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/bin
-        inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib
-        inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib/python3.7/lib-dynload
-        addpath -q /afs/slac/g/lcls/package/hdf5/1.10.8/$EPICS_HOST_ARCH/bin
-        addpath -q /afs/slac/package/net/bin
+        #
+        # At this point, we know
+        # path support is available
+        #
+        addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
+
+        #
+        # if AFS and /usr/local both exist,
+        # get Python from /usr/local.
+        #
+        if [[ -d "/usr/local/lcls/package" ]];
+        then
+                export PACKAGE_TOP=${PACKAGE_TOP-"/usr/local/lcls/package"}
+                inspath -q $PACKAGE_TOP/anaconda/envs/python3_rhel7_env/bin
+                inslib -q $PACKAGE_TOP/anaconda/envs/python3_rhel7_env/lib
+                inslib -q $PACKAGE_TOP/anaconda/envs/python3_rhel7_env/lib/python3.7/lib-dynload
+        fi
+
+        if [[ -d "/afs/slac/g/lcls/package" ]];
+        then
+                export PACKAGE_TOP=${PACKAGE_TOP-"/afs/slac/g/lcls/package"}
+                inspath -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/bin
+                inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib
+                inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib/python3.7/lib-dynload
+
+                #
+                # HDF5 and net tools support
+                #
+                addpath -q /afs/slac/g/lcls/package/hdf5/1.10.8/$EPICS_HOST_ARCH/bin
+                addpath -q /afs/slac/package/net/bin
+        fi
+
+        export GIT_ROOT=${GIT_ROOT-'/afs/slac/g/cd/swe/git/repos'}
         }
 
 function hostSpecificSetup

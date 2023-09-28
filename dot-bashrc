@@ -17,8 +17,8 @@
 # customizable settings
 #
 MAXDIRS=20                # default numbered directory aliases; change with sdirs cmd
-HISTSIZE=1000             # maximum history size per session
-HISTFILESIZE=1000         # maximum size of saved history file
+HISTSIZE=5000             # maximum history size per session
+HISTFILESIZE=5000         # maximum size of saved history file
 
 USECOLOR=true             # let 'ls' and 'grep' use color if available
 WINDOWHEADER="yes"        # display CWD in xterm/sun-cmd window header
@@ -142,7 +142,7 @@ function setupCommands
         alias mv='mv -i'
         alias rm='rm -i'
         alias j='jobs -l'
-        alias h='history -20'
+        alias h='history 30'
         alias z='printf "%s\n" "pid=$$ $SHELLNAME";suspend'
         alias gitl="git log --graph --decorate --oneline --all"
 
