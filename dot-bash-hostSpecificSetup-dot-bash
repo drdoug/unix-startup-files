@@ -11,12 +11,41 @@ function _CommonSLACSettings
         EPICS_VERSION="R7.0.3.1-1.0"
         PYTHON_VERSION="3.7.2"
 
-        export EPICS_BASE=${EPICS_BASE:-"/afs/slac/g/lcls/epics/base/${EPICS_VERSION}"}
-        EPICS_SETUP="/afs/slac/g/lcls/epics/setup"
+        epicsDir="epics/base/${EPICS_VERSION}"
+
+        #
+        # if AFS and /usr/local both exist,
+        # get EPICS from /usr/local.
+        #
+        if [[ -d "/usr/local/lcls/epics/base/${EPICS_VERSION}" ]];
+        then
+                export EPICS_BASE=${EPICS_BASE:-"/usr/local/lcls/${epicsDir}"}
+        fi
+
+        if [[ -d "/afs/slac/g/lcls/${epicsDir}" ]];
+        then
+                export EPICS_BASE=${EPICS_BASE:-"/afs/slac/g/lcls/${epicsDir}"}
+        fi
+        unset epicsDir
+
+        #
+        # find the host architecture
+        #
+        if [[ -r ${EPICS_BASE}/startup/EpicsHostArch ]];
+        then
+                export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+        fi
+ 
+        #
+        # set up other local variables relating to
+        # modules, extensions and the facility
+        #
+        EPICS_SETUP="${EPICS_BASE}/../../setup"
         if [[ -r ${EPICS_SETUP}/epicsenv-${EPICS_VERSION}.bash ]];
         then
                 source ${EPICS_SETUP}/epicsenv-${EPICS_VERSION}.bash
         fi
+
         #
         # assume redhat 6 if HOST not set
         #
@@ -25,6 +54,11 @@ function _CommonSLACSettings
 
         export PACKAGE_TOP=${PACKAGE_TOP-"/afs/slac/g/lcls/package"}
         export GIT_ROOT=${GIT_ROOT-'/afs/slac/g/cd/swe/git/repos'}
+
+        if ! type newlist &>/dev/null
+        then
+                printf ".bash-hostSpecificSetup.bash: this script was used without calling .bash-lists.bash first."
+        fi
 
         inspath -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/bin
         inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib
@@ -142,7 +176,7 @@ function hostSpecificSetup
                         alias gtgrey="gnome-terminal --profile='DougM Gray'"
                         alias gtblue="gnome-terminal --profile='DougM Blue'"
                         alias gtbrown="gnome-terminal --profile='DougM Brown'"
-                        alias gtburg="gnome-terminal --profile='DougM Burgandy'"
+                        alias gtburg="gnome-terminal --profile='DougM Burgundy'"
                         alias gtgreen="gnome-terminal --profile='DougM Green'"
                         alias gtindigo="gnome-terminal --profile='DougM Indigo'"
                         alias gtteal="gnome-terminal --profile='DougM Teal'"
@@ -182,8 +216,8 @@ function hostSpecificSetup
                         addca 172.26.97.63
                         ;;
                 aird-b50-srv01 )
-                        export EPICS_HOST_ARCH="rhel7-x86_64"
                         _CommonSLACSettings
+                        export EPICS_HOST_ARCH="rhel7-x86_64"
                         #
                         # DANGER: sourcing this wonderful script
                         #         twice will remove PATH, making
