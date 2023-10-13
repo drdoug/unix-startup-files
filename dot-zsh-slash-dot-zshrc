@@ -1837,12 +1837,12 @@ function presetPromptHelp
         promptOptions=(
                 'display simple prompt'
                 'display color prompt'
-                'display color prompt with right-side indicators'
                 'display color prompt with right-side indicators and git details'
+                'display color prompt with right-side indicators and version control info'
                 'display vivid simple prompt'
                 'display vivid prompt'
-                'display vivid prompt with right-side indicators'
                 'display vivid prompt with right-side indicators and git details'
+                'display vivid prompt with right-side indicators and version control info'
                 )
         echo "p: select a preset format for command line prompts:"
         echo ""
