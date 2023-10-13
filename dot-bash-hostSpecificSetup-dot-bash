@@ -196,6 +196,14 @@ function hostSpecificSetup
                         addca 172.26.97.63
                         export EPICS_PVA_ADDR_LIST="$EPICS_CA_ADDR_LIST"
                         ;;
+                sdfiana* )
+                        export EPICS_BASE=/sdf/home/d/drm/src/epics/base
+                        if [[ -r ${EPICS_BASE}/startup/EpicsHostArch ]];
+                        then
+                                export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        fi
+                        inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        ;;
                 sdf* )
                         alias gtgray="gnome-terminal --profile='DougM Gray'"
                         alias gtgrey="gnome-terminal --profile='DougM Gray'"
@@ -206,7 +214,7 @@ function hostSpecificSetup
                         alias gtindigo="gnome-terminal --profile='DougM Indigo'"
                         alias gtteal="gnome-terminal --profile='DougM Teal'"
                         alias gt="gtgrey;gtblue;gtbrown;gtburg;gtgreen;gtindigo;gtteal"
-                        export EPICS_BASE=/sdf/home/d/drm/src/epics/epics-base
+                        export EPICS_BASE=/sdf/home/d/drm/src/epics/base
                         export EPICS_CA_ADDR_LIST="134.79.219.255 172.26.97.63"
                         export EPICS_PVA_ADDR_LIST="134.79.151.21"
                         export EPICS_PVA_BROADCAST_PORT=5169
