@@ -2354,7 +2354,7 @@ function SLACHostSetup()
                         export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
                         inspath "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
 
-                        export EPICS_PVA_AUTO_ADDR_LIST=TRUE
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
                         addca lcls-daemon0
                         addca lcls-prod01:5068
                         addca lcls-prod01:5063
@@ -2366,7 +2366,7 @@ function SLACHostSetup()
                         /usr/bin/aklog
                         _CommonSLACSettings
                         #source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
-                        export EPICS_PVA_AUTO_ADDR_LIST=TRUE
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
                         export JAVA_VERS=jdk-11.0.2
                         export JAVA_HOME=/afs/slac/g/lcls/package/java/$JAVA_VERS
                         export PATH=$JAVA_HOME/bin:$PATH
@@ -2383,7 +2383,7 @@ function SLACHostSetup()
                         ;;
                 "rhel6-64*" )
                         _CommonSLACSettings
-                        export EPICS_PVA_AUTO_ADDR_LIST=TRUE
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
                         export EPICS_CA_AUTO_ADDR_LIST=NO
                         addca lcls-daemon0
                         addca lcls-prod01:5068
@@ -2408,7 +2408,7 @@ function SLACHostSetup()
                         prompt green user @ Green host sp Gray2 time Orange Gitb sp White hist sp Red Ret White .
                         export PYEPICS_LIBCA=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libca.so
                         export PYEPICS_LIBCOM=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libCom.so
-                        export EPICS_PVA_AUTO_ADDR_LIST=TRUE
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
                         addca lcls-daemon0
                         addca lcls-prod01:5068
                         addca lcls-prod01:5063
@@ -2420,7 +2420,7 @@ function SLACHostSetup()
                         /usr/bin/aklog
                         _CommonSLACSettings
                         source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
-                        export EPICS_PVA_AUTO_ADDR_LIST=TRUE
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
                         export JAVA_VERS=jdk-11.0.2
                         export JAVA_HOME=/afs/slac/g/lcls/package/java/$JAVA_VERS
                         export PATH=$JAVA_HOME/bin:$PATH
@@ -2437,7 +2437,7 @@ function SLACHostSetup()
                         ;;
                 "mccas0" )
                         _CommonSLACSettings
-                        export EPICS_PVA_AUTO_ADDR_LIST=TRUE
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
                         addca lcls-daemon0
                         addca lcls-prod01:5068
                         addca lcls-prod01:5063
@@ -2459,7 +2459,7 @@ function SLACHostSetup()
                         #
                         # production network, uid laci; EPICS subnets
                         #
-                        export EPICS_PVA_AUTO_ADDR_LIST=TRUE
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
                         addca 172.27.3.255:5068
                         addca mcc-dmz
                         addca 172.21.40.63:5064
