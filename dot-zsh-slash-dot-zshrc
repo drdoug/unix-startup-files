@@ -2346,9 +2346,23 @@ function SLACHostSetup()
 
         HOSTNAME=$(hostname)
         case $HOSTNAME in
+                "PC102884" )
+                        #
+                        # SLAC MacBook Pro 2023
+                        #
+                        export EPICS_BASE=${HOME}/Dropbox/SLAC/Technical/EPICS/epics-base
+                        export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        inspath -q /opt/homebrew/bin
+
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        ;;
                 "PC99382" )
                         #
-                        # SLAC MacBook Pro
+                        # SLAC MacBook Pro 2021
                         #
                         export EPICS_BASE=${HOME}/Dropbox/SLAC/Technical/EPICS/epics-base
                         export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
