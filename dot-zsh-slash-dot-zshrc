@@ -29,8 +29,21 @@ COMPLETION_WAITING_DOTS="true"
 HISTFILE=${ZDOTDIR}/zsh-history
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 
-PROMPT_RIGHT_DIVIDER='\uE0B2'
-PROMPT_LEFT_DIVIDER='\uE0B0'
+PROMPT_L_ARROW_TRANSITION='\uE0B0'
+PROMPT_R_ARROW_TRANSITION='\uE0B2'
+PROMPT_L_CURVE_TRANSITION='\uE0B4'
+PROMPT_R_CURVE_TRANSITION='\uE0B6'
+PROMPT_L_PIXEL_TRANSITION='\uE0C4'
+PROMPT_R_PIXEL_TRANSITION='\uE0C5'
+PROMPT_L_FLAME_TRANSITION='\uE0C0'
+PROMPT_R_FLAME_TRANSITION='\uE0C2'
+PROMPT_L_SPIKE_TRANSITION='\uE0C8'
+PROMPT_R_SPIKE_TRANSITION='\uE0CA'
+PROMPT_L_DOWN_TRANSITION='\uE0B8'
+PROMPT_R_DOWN_TRANSITION='\uE0BE'
+PROMPT_BLOCK_TRANSITION='\uE0CC'
+PROMPT_L_UP_TRANSITION='\uE0BC'
+PROMPT_R_UP_TRANSITION='\uE0BA'
 PROMPT_CENTOS='\uF304'
 PROMPT_REDHAT='\uF316'
 PROMPT_UBUNTU='\uF31B'
@@ -46,11 +59,12 @@ unsetopt notify
 setopt PROMPT_SUBST
 
 autoload -Uz vcs_info
-zstyle ':vcs_info:*' stagedstr '+'
-zstyle ':vcs_info:*' unstagedstr '*'
-zstyle ':vcs_info:*' enable git svn cvs hg
-zstyle ':vcs_info:*' formats "%u%c %i[%b]"
-zstyle ':vcs_info:*' actionformats "%u%c %i %a [%b]"
+zstyle ':vcs_info:*' stagedstr '>'
+zstyle ':vcs_info:*' unstagedstr '+'
+zstyle ':vcs_info:*' enable git hg svn
+zstyle ':vcs_info:git:*' formats '[%b] %u%c'
+zstyle ':vcs_info:(hg|svn):*' formats "%u%c %i[%b]"
+zstyle ':vcs_info:(hg|svn):*' actionformats "%u%c %i %a [%b]"
 
 zstyle :compinstall filename '${ZDOTDIR}/.zshrc'
 autoload -Uz compinit
@@ -1134,12 +1148,14 @@ function promptHelp
         echo "                and 246 more; type 'showColors' to see them."
         echo "        NNN   - select color number NNN (from 0 to 255)"
         echo "        NOTE:   If 2 colors are provided in sequence, the second one"
-        echo "                is used as a background color.\n"
+        echo "                is used as a background color.  A transition symbol"
+        echo "                can be specified before a new foreground/background"
+        echo "                pair to highlight the change; see Transitions below.\n"
 
         echo "  Snippets:"
 
-        echo "        $     - add '#' if root, otherwise add '$'"
         echo "        .     - add '#' if root, otherwise add '>'"
+        echo "        ,     - add '#' if root, otherwise add '$'"
         echo "        B     - (or 'b') toggle Bold text mode"
         echo "        date  - day, month, date: Tue Jan 23"
         echo "        Date  - YYYY-MM-DD: 1996-01-23"
@@ -1168,11 +1184,20 @@ function promptHelp
         echo "        user  - user name"
         echo "        vcs   - version control branch information for git, hg, svn, cvs"
         echo "     <other>  - include <other> literally in the prompt"
-        echo "   Example:"
-        echo "        prompt Green user @ host sp Grey30 time sp White hist sp Red Ret White ."
-        echo " Currently:"
+        echo "Transitions:"
+        echo "        '>' or '<' - arrow transition to new colors (default)"
+        echo "        ')' or '(' - curve transition to new colors"
+	echo "        #     - pixel block transition to new colors"
+	echo "        /     - upward slant transition to new colors"
+	echo "        \     - downward slant transition to new colors"
+	echo "        ~     - flame transition to new colors"
+	echo "        =     - spike transition to new colors"
+	echo "        +     - block transition to new colors"
+        echo "    Example:"
+        echo "        prompt Green user @ host sp Grey30 time sp White hist sp Red Ret White ';'"
+        echo "  Currently:"
         echo "         L:     ${pstr}"
-        echo "         R:               ${rpstr}"
+        echo "         R:     ${rpstr}"
         }
 
 #
@@ -1388,19 +1413,25 @@ function promptSegment
 
         if [[ -z $_fg ]];
         then
+                #
+                # no foreground color yet, set it now
+                #
                 _fg=$_color
                 _seg+="%F{$_fg}"
         else
+                #
+                # foreground color has been set, set the background color
+                #
                 if [[ -z ${_bg} ]];
                 then
                         #
                         # this is first segment
                         #
                         _bg="$_color"
-                        if [[ ! -z $_rightPrompt ]];
+                        if [[ ! -z $_buildRightPrompt ]];
                         then
                                 _seg+="%F{$_bg}"
-                                _seg+="$(print $PROMPT_RIGHT_DIVIDER)"
+                                _seg+="$(print $_rpromptTransition)"
                                 _seg+="%F{$_fg}"
                         fi
                         _seg+="%K{$_bg}"
@@ -1408,7 +1439,7 @@ function promptSegment
                         #
                         # close off this current segment and save it
                         #
-                        if [[ -z $_rightPrompt ]];
+                        if [[ -z $_buildRightPrompt ]];
                         then
                                 _seg+="%F{$_bg}"
                         fi
@@ -1449,7 +1480,7 @@ function promptSegment
                         _seg=''
                         _bg="$_color"
 
-                        if [[ ! -z $_rightPrompt ]];
+                        if [[ ! -z $_buildRightPrompt ]];
                         then
                                 #
                                 # draw arrow first with foreground color
@@ -1457,14 +1488,14 @@ function promptSegment
                                 # in a new segment
                                 #
                                 _seg+="%F{$_bg}"
-                                _seg+="$(print $PROMPT_RIGHT_DIVIDER)"
+                                _seg+="$(print $_rpromptTransition)"
                                 _seg+="%K{$_bg}"
                         else
                                 #
                                 # start a new segment on the left
                                 #
                                 _seg+="%K{$_bg}"
-                                _seg+="$(print $PROMPT_LEFT_DIVIDER)"
+                                _seg+="$(print $_lpromptTransition)"
                         fi
                         _seg+="%F{$_fg}"
                 fi
@@ -1518,12 +1549,13 @@ function promptSegment
 
 pstr=''
 rpstr=''
-_rightPrompt=''
+_buildRightPrompt=''
 
 function prompt
         {
 
-        _rightPrompt=''
+        _lpromptTransition="$PROMPT_L_ARROW_TRANSITION"
+        _buildRightPrompt=''
         _commonPrompt $@
         return $?
         }
@@ -1531,7 +1563,8 @@ function prompt
 function rprompt
         {
 
-        _rightPrompt=true
+        _rpromptTransition="$PROMPT_R_ARROW_TRANSITION"
+        _buildRightPrompt=true
         _commonPrompt $@
         return $?
         }
@@ -1549,7 +1582,7 @@ function _commonPrompt
 
         case $1 in
         -p)
-                if [[ ! -z $_rightPrompt ]];
+                if [[ ! -z $_buildRightPrompt ]];
                 then
                         if [[ ! -z $rpstr ]];
                         then
@@ -1569,7 +1602,7 @@ function _commonPrompt
                 fi
                 ;;
         -v)
-                if [[ ! -z $_rightPrompt ]];
+                if [[ ! -z $_buildRightPrompt ]];
                 then
                         if [[ -z $_rpromptSource ]];
                         then
@@ -1592,7 +1625,7 @@ function _commonPrompt
                 return 0
                 ;;
         -)
-                if [[ ! -z $_rightPrompt ]];
+                if [[ ! -z $_buildRightPrompt ]];
                 then
                         RPS1=''
                 else
@@ -1601,7 +1634,7 @@ function _commonPrompt
                 return 0
                 ;;
         *)
-                if [[ ! -z $_rightPrompt ]];
+                if [[ ! -z $_buildRightPrompt ]];
                 then
                         _rpromptSource="$@"
                 else
@@ -1626,7 +1659,7 @@ function _commonPrompt
 
         _segIndex=$PSV_StartSegment
 
-        if [[ ! -z $_rightPrompt ]];
+        if [[ ! -z $_buildRightPrompt ]];
         then
                 _pSource=(${(s/ /)_rpromptSource})
         else
@@ -1646,7 +1679,7 @@ function _commonPrompt
                 fi
 
                 #
-                # check for color indexes next
+                # then check for color indexes
                 #
                 if [[ $cmd =~ '^[0-9]+$' ]];
                 then
@@ -1657,6 +1690,9 @@ function _commonPrompt
                         fi
                 fi
 
+                #
+                # finally check for symbols
+                #
                 case $cmd in
                 b|B)
                         if (( $VERSION_MAJOR == 5 && $VERSION_MINOR >= 4 ))
@@ -1749,10 +1785,83 @@ function _commonPrompt
                 sp)     _seg+=" "                    ;;
                 time)   _seg+="%D{%I:%M %p}"         ;;
                 Time)   _seg+="%T"                   ;;
+                tty)    _seg+="%y"                   ;;
                 user)   _seg+="%n"                   ;;
-                $)      _seg+="\$"                   ;;
+                ,)      _seg+="\$"                   ;;
                 .)      _seg+="%(#.# .>)"            ;;
-                *)      _seg+="${cmd}"               ;;
+                #
+                # transitions
+                #
+                '>'|'<')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_ARROW_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_ARROW_TRANSITION"
+                        fi
+                        ;;
+                ')'|'(')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_CURVE_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_CURVE_TRANSITION"
+                        fi
+                        ;;
+                '#')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_PIXEL_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_PIXEL_TRANSITION"
+                        fi
+                        ;;
+                '/')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_UP_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_UP_TRANSITION"
+                        fi
+                        ;;
+                '\')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_DOWN_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_DOWN_TRANSITION"
+                        fi
+                        ;;
+                '~')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_FLAME_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_FLAME_TRANSITION"
+                        fi
+                        ;;
+                '=')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_SPIKE_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_SPIKE_TRANSITION"
+                        fi
+                        ;;
+                '+')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_BLOCK_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_BLOCK_TRANSITION"
+                        fi
+                        ;;
+                #
+                # anything else
+                #
+                *)
+                        _seg+="${cmd}"
+                        ;;
                 esac
                 _fg=''
         done
@@ -1766,7 +1875,7 @@ function _commonPrompt
 
         if [[ ! -z $_bg ]];
         then
-                if [[ -z $_rightPrompt ]];
+                if [[ -z $_buildRightPrompt ]];
                 then
                         _seg+="%F{$_bg}"
                 fi
@@ -1792,9 +1901,9 @@ function _commonPrompt
                 esac
                 (( _segIndex++ ))
                 _seg="%k"
-                if [[ -z $_rightPrompt ]];
+                if [[ -z $_buildRightPrompt ]];
                 then
-                        _seg+="$(print $PROMPT_LEFT_DIVIDER)"
+                        _seg+="$(print $_lpromptTransition)"
                 fi
         else
                 _seg+="%k"
@@ -1813,7 +1922,7 @@ function _commonPrompt
                         TMP_PROMPT+="${psvar[$index]}"
                 fi
         done
-        if [[ ! -z $_rightPrompt ]];
+        if [[ ! -z $_buildRightPrompt ]];
         then
                 RPS1=${TMP_PROMPT}
         else
@@ -1883,118 +1992,133 @@ function p
         let prevChoice=${CHOSEN_PRESET_PROMPT}
         let CHOSEN_PRESET_PROMPT=$1
         case $1 in
-        8)
+        9)
                 #
-                # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon] [retCode] [VCS] [lock] date time
+                # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
                 #
                 pstr=''
-                pstr+='Black Khaki os '
-                pstr+='B Black Lime sp user Grey35 B @ host sp '
-                pstr+='White Blue3 sp dir2 sp '
-                pstr+='DarkBlue Tan sp hist sp '
+                pstr+='White Black sp os sp '
+                pstr+=') B White Blue3 sp user Grey70 @ host sp '
+                pstr+='~ B White DodgerBlue sp dir2 sp '
+                pstr+='> B Black Turquoise sp hist sp '
                 pstr+='White Maroon id'
                 prompt -p
 
                 rpstr=''
                 rpstr+='Black Gold sp vi sp '
                 rpstr+='White Maroon sp Ret sp '
-                rpstr+='White DarkOrange1 sp vcs sp '
                 rpstr+='Black Orange sp lock sp '
-                rpstr+='NavyBlue Honeydew sp date sp '
-                rpstr+='Black SeaGreen sp time sp '
+                rpstr+='B White DarkGreen vcs sp gito sp '
+                rpstr+='Black SeaGreen2 sp date sp '
+                rpstr+='Black DarkSeaGreen2 sp time sp '
+                rprompt -p
+                ;;
+        8)
+                #
+                # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
+                #
+                pstr=''
+                pstr+='White Black sp os sp '
+                pstr+='B White Wheat1 sp user Cornsilk @ host sp '
+                pstr+='B White DarkGoldenrod sp dir2 sp '
+                pstr+='B Black Tan sp hist sp '
+                pstr+='White Maroon id'
+                prompt -p
+
+                rpstr=''
+                rpstr+='Black Gold sp vi sp '
+                rpstr+='White Maroon sp Ret sp '
+                rpstr+='Black Orange sp lock sp '
+                rpstr+='< B White Purple3 vcs sp gito sp '
+                rpstr+='( White MediumPurple sp date sp '
+                rpstr+='White Purple1 sp time sp '
                 rprompt -p
                 ;;
         7)
                 #
-                # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][GIT][lock] date time
+                # sys dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] time
                 #
                 pstr=''
-                pstr+='Black Khaki os '
-                pstr+='B Black Lime sp user Grey35 B @ host sp '
-                pstr+='White Blue3 sp dir2 sp '
-                pstr+='DarkBlue Tan sp hist sp '
-                pstr+='White Maroon id'
+                pstr+='B White Blue3 sp host sp '
+                pstr+='~ B White DodgerBlue sp dir sp '
+                pstr+='> B Black Turquoise sp hist sp '
+                pstr+='White Red id'
                 prompt -p
 
                 rpstr=''
                 rpstr+='Black Gold sp vi sp '
                 rpstr+='White Maroon sp Ret sp '
-                rpstr+='White DarkOrange1 sp Gitb sp '
                 rpstr+='Black Orange sp lock sp '
-                rpstr+='NavyBlue Honeydew sp date sp '
-                rpstr+='Black SeaGreen sp time sp '
+                rpstr+='B White DarkGreen vcs sp gito sp '
+                rpstr+='Black DarkSeaGreen2 sp time sp '
                 rprompt -p
                 ;;
         6)
                 #
                 # user histnum [rootIcon]               time
                 #
-                prompt 'Black Lime sp user Grey39 @ host sp DarkBlue Tan sp hist sp White Maroon id'
-                rprompt 'Black SeaGreen sp time sp '
+                prompt 'White Blue3 sp user Grey70 @ host sp Black Turquoise sp hist sp White Red id'
+                rprompt 'B White DarkGreen vcs sp gito sp Black SeaGreen sp time sp '
                 ;;
         5)
                 #
                 # user histnum [rootIcon]
                 #
-                prompt 'Black Lime sp user sp DarkBlue Tan sp hist sp White Maroon id'
+                prompt 'White Blue3 sp user sp dir sp hist sp White Maroon id'
                 rprompt -
                 ;;
         4)
                 #
-                # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [VCS] [lock] date time
+                # for Dark Screen
+                # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
                 #
                 pstr=''
                 pstr+='Lime user Green @ host '
-                pstr+='sp Grey74 dir2 '
+                pstr+='sp Grey70 dir2 '
                 pstr+='sp White hist .'
                 prompt -p
 
                 rpstr=''
                 rpstr+='Gold sp vi sp '
                 rpstr+='Maroon sp Ret sp '
-                rpstr+='Yellow sp vcs sp '
                 rpstr+='Orange sp lock sp '
+                rpstr+='Yellow sp vcs sp gito sp '
                 rpstr+='Grey74 sp date sp '
                 rpstr+='SeaGreen sp time sp '
                 rprompt -p
                 ;;
         3)
                 #
-                # user@sys parent/dir histnum rootSym         [viIcon][retCode][GIT][lock] date time
+                # for Light Screen
+                # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
                 #
                 pstr=''
-                pstr+='Lime user Green @ host '
-                pstr+='sp Grey74 dir2 '
-                pstr+='sp White hist .'
+                pstr+='Blue3 user Navy @ host '
+                pstr+='sp Black dir2 '
+                pstr+='sp Purple4 hist .'
                 prompt -p
 
                 rpstr=''
                 rpstr+='Gold sp vi sp '
                 rpstr+='Maroon sp Ret sp '
-                rpstr+='Yellow sp Gitb sp '
                 rpstr+='Orange sp lock sp '
-                rpstr+='Grey74 sp date sp '
-                rpstr+='SeaGreen sp time sp '
+                rpstr+='Purple4 sp vcs sp gito sp '
+                rpstr+='Maroon sp date sp '
+                rpstr+='Blue3 sp time sp '
                 rprompt -p
                 ;;
         2)
                 #
                 # user@sys time histnum rootSym
                 #
-                pstr=''
-                pstr+='Lime user Green @ host '
-                pstr+='sp Grey74 time '
-                pstr+='sp White hist .'
-                prompt -p
-
+                prompt 'B Aquamarine user @ host sp Maroon time sp PaleTurquoise hist .'
                 rprompt -
                 ;;
         1)
                 #
                 # user@sys histnum rootSym
                 #
-                prompt 'Lime user sp White hist .'
-
+                prompt 'White user sp hist .'
                 rprompt -
                 ;;
         *)
