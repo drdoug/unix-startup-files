@@ -40,8 +40,13 @@ function _isBackgroundDark
         return 0
         }
 
-declare -a _colorNames
-declare -A _colorTable
+declare -ga _colorNames
+declare -gA _colorTable=( \
+                        [Black]=0 [Maroon]=1   [Green]=2 [Olive]=3 \
+                        [Navy]=4  [Magenta]=5  [Cyan]=6  [Silver]=7 \
+                        [Grey]=8  [Red]=9      [Lime]=10 [Yellow]=11 \
+                        [Blue]=12 [Fuchsia]=13 [Aqua]=14 [White]=15 \
+                        )
 _gotColors=''
 
 #
@@ -50,7 +55,7 @@ _gotColors=''
 function getColors
         {
         local i
-        local _color
+        #local _color
 
         if [[ ! -z $_gotColors ]];
         then
@@ -91,6 +96,7 @@ function showColors
                 ;;
         esac
 
+        #for (( _index=0; _index<=${#_colorTable[@]}; _index++ ))
         for _index in {0..255} ;
         do
                 let fgrd=16
@@ -103,9 +109,11 @@ function showColors
                 fi
 
                 let i=$_index+1
+                #_color=${!_colorTable[$_index]}
                 _color=${_colorNames[$i]}
 
-                printf "$(tput setaf ${fgrd})$(tput setab ${_index}) %16.16s [%3d] $(tput sgr0) " $_color $_index
+                printf "$(tput setaf ${fgrd})$(tput setab ${_index}) %16.16s [%3d] $(tput sgr0) " $_color ${_colorTable[$_color]}
+                #printf "$(tput setaf ${fgrd})$(tput setab ${_index}) %16.16s [%3d] $(tput sgr0) " $_color $_index
                 if (( _index == 7 )) || (( _index == 15 )) || ( (( _index > 15 )) && (( (_index-15) % 6 == 0 )) );
                 then
                         printf "$(tput sgr0)\n";
