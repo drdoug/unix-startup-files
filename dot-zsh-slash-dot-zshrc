@@ -2111,7 +2111,7 @@ function p
                 #
                 # user@sys time histnum rootSym
                 #
-                prompt 'B Aquamarine user @ host sp Maroon time sp PaleTurquoise hist .'
+                prompt 'B DodgerBlue user @ host sp SkyBlue time sp White hist .'
                 rprompt -
                 ;;
         1)
