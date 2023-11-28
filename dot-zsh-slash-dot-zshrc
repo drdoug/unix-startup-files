@@ -2079,7 +2079,7 @@ function p
                 rpstr+='Gold sp vi sp '
                 rpstr+='Maroon sp Ret sp '
                 rpstr+='SandyBrown sp lock sp '
-                rpstr+='CornflowerBlue sp vcs sp gito sp '
+                rpstr+='LightSkyBlue sp vcs sp gito sp '
                 rpstr+='DodgerBlue sp date sp '
                 rpstr+='SkyBlue sp time sp '
                 rprompt -p
