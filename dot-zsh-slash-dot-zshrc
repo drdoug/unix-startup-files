@@ -2072,19 +2072,15 @@ function p
                 # for Dark Screen
                 # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
                 #
-                pstr=''
-                pstr+='Lime user Green @ host '
-                pstr+='sp Grey70 dir2 '
-                pstr+='sp White hist .'
-                prompt -p
+                prompt 'B DodgerBlue user @ host sp SkyBlue time sp White hist .'
 
                 rpstr=''
                 rpstr+='Gold sp vi sp '
                 rpstr+='Maroon sp Ret sp '
-                rpstr+='Orange sp lock sp '
-                rpstr+='Yellow sp vcs sp gito sp '
-                rpstr+='Grey74 sp date sp '
-                rpstr+='SeaGreen sp time sp '
+                rpstr+='SandyBrown sp lock sp '
+                rpstr+='CornflowerBlue sp vcs sp gito sp '
+                rpstr+='DodgerBlue sp date sp '
+                rpstr+='SkyBlue sp time sp '
                 rprompt -p
                 ;;
         3)
