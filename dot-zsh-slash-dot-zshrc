@@ -1952,6 +1952,7 @@ function presetPromptHelp
                 'display vivid prompt'
                 'display vivid prompt with right-side indicators and git details'
                 'display vivid prompt with right-side indicators and version control info'
+                'display vivid blue prompt with green right-side indicators and version control info'
                 )
         echo "p: select a preset format for command line prompts:"
         echo ""
@@ -2072,7 +2073,7 @@ function p
                 # for Dark Screen
                 # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
                 #
-                prompt 'B DodgerBlue user @ host sp SkyBlue time sp White hist .'
+                prompt 'B DodgerBlue user @ host CornflowerBlue sp dir2 SkyBlue sp time sp White hist .'
 
                 rpstr=''
                 rpstr+='Gold sp vi sp '
