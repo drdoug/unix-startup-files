@@ -2471,7 +2471,7 @@ function SLACHostSetup()
                         #
                         # SLAC MacBook Pro 2023
                         #
-                        export EPICS_BASE=${HOME}/Dropbox/SLAC/Technical/EPICS/epics-base
+                        export EPICS_BASE=/usr/local/epics/epics-base
                         export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
                         inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
                         inspath -q /opt/homebrew/bin
