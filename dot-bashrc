@@ -154,9 +154,13 @@ function setupCommands
         #alias wmaxw='printf "%s" $'\e'"[3;0;t\033[8;24;0t"'
         #alias wmax='printf "%s" $'\e'"[3;0;t\033[8;0;0t"'
 
+        #
+        # BUILDKIT refers to docker build utility
+        #
         export CVSROOT=${CVSROOT:-"/usr/local/Repository"}
         export EXINIT='se ai nohls report=2 terse'
         export EDITOR=vi
+        export BUILDKIT_COLORS="run=cyan:cancel=yellow:warning=red"
 
         #
         # set up directory management feature

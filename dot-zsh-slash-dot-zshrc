@@ -91,7 +91,11 @@ function systemSetup
         alias up=uptime
         alias z='printf "%s\n" "pid=$$ $SHELLNAME";suspend'
 
+        #
+        # BUILDKIT refers to docker build utility
+        #
         export EDITOR=vi
+        export BUILDKIT_COLORS="run=cyan:cancel=yellow:warning=red"
 
         OSTYPE="$(uname -s)"
 
