@@ -173,16 +173,14 @@ function hostSpecificSetup
                         ;;
                 PC99383 )
                         #
-                        # Dell Desktop Machine Ubuntu
+                        # Dell Desktop Machine Rocky Linux 9
                         #
                         _CommonSLACSettings
-                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        export EPICS_PVA_AUTO_ADDR_LIST=NO
                         addca lcls-daemon0
                         addca lcls-prod01:5068
                         addca lcls-prod01:5063
                         addca mcc-dmz
-                        addca 134.79.219.255
-                        addca 172.26.97.63
                         ;;
                 rhel6-64* )
                         _CommonSLACSettings
