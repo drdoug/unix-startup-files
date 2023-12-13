@@ -95,7 +95,7 @@ function _CommonSLACSettings
 function hostSpecificSetup
         {
 
-        HOSTNAME=$(hostname)
+        HOSTNAME=$(hostname -s)
         shopt -s extglob
         case "$HOSTNAME" in
                 MurrayMacBookPro )
@@ -171,7 +171,7 @@ function hostSpecificSetup
                         addca lcls-prod01:5063
                         addpath /usr/local/opt/python@3.11/libexec/bin
                         ;;
-                PC99383 )
+                pc99383 )
                         #
                         # Dell Desktop Machine Rocky Linux 9
                         #
