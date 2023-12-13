@@ -1997,25 +1997,48 @@ function p
         let prevChoice=${CHOSEN_PRESET_PROMPT}
         let CHOSEN_PRESET_PROMPT=$1
         case $1 in
+        0)
+                #
+                # user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
+                #
+                pstr=''
+                pstr+='B Turquoise Grey27 user @ host '
+                pstr+='> Black Grey46 > B Grey78 Grey27 dir2 '
+                pstr+='> Black Grey46 > B White Grey27 hist '
+                pstr+='> B Black Grey46 '
+                pstr+='White Maroon id'
+                prompt -p
+
+                rpstr=''
+                rpstr+='< Black Grey46 < '
+                rpstr+='Gold Grey27 vi '
+                rpstr+='DarkOrange Grey27 Ret '
+                rpstr+='Orange Grey27 lock '
+                rpstr+='B Turquoise Grey27 vcs gito '
+                rpstr+='Grey78 Grey27 date '
+                rpstr+='< Black Grey46 < '
+                rpstr+='White Grey27 time '
+                rprompt -p
+                ;;
         9)
                 #
                 # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
                 #
                 pstr=''
-                pstr+='White Black sp os sp '
-                pstr+=') B White Blue3 sp user Grey70 @ host sp '
-                pstr+='~ B White DodgerBlue sp dir2 sp '
-                pstr+='> B Black Turquoise sp hist sp '
+                pstr+='White Black os '
+                pstr+=') B White Blue3 user Grey70 @ host '
+                pstr+='~ B White DodgerBlue dir2 '
+                pstr+='> B Black Turquoise hist '
                 pstr+='White Maroon id'
                 prompt -p
 
                 rpstr=''
-                rpstr+='Black Gold sp vi sp '
-                rpstr+='White Maroon sp Ret sp '
-                rpstr+='Black Orange sp lock sp '
-                rpstr+='B White DarkGreen vcs sp gito sp '
-                rpstr+='Black SeaGreen2 sp date sp '
-                rpstr+='Black DarkSeaGreen2 sp time sp '
+                rpstr+='Black Gold vi '
+                rpstr+='White Maroon Ret '
+                rpstr+='Black Orange lock '
+                rpstr+='B White DarkGreen vcs gito '
+                rpstr+='Black SeaGreen2 date '
+                rpstr+='Black DarkSeaGreen2 time '
                 rprompt -p
                 ;;
         8)
