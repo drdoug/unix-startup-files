@@ -176,7 +176,14 @@ function hostSpecificSetup
                         # Dell Desktop Machine Rocky Linux 9
                         #
                         _CommonSLACSettings
+                        export EPICS_BASE=/usr/local/epics/base
+                        if [[ -f ${EPICS_BASE}/startup/EpicsHostArch ]];
+                        then
+                                export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        fi
                         export EPICS_PVA_AUTO_ADDR_LIST=NO
+                        inspath ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}
+                        inslib ${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
                         addca lcls-daemon0
                         addca lcls-prod01:5068
                         addca lcls-prod01:5063
