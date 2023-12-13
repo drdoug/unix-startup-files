@@ -2469,7 +2469,7 @@ function _CommonSLACSettings
 function SLACHostSetup()
         {
 
-        HOSTNAME=$(hostname)
+        HOSTNAME=$(hostname -s)
         case $HOSTNAME in
                 "PC102884" )
                         #
@@ -2498,7 +2498,7 @@ function SLACHostSetup()
                         addca lcls-prod01:5068
                         addca lcls-prod01:5063
                         ;;
-                "PC99383" )
+                "pc99383" )
                         #
                         # Dell Desktop Machine Rocky Linux 9
                         #
