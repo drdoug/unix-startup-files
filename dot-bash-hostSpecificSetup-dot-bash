@@ -209,6 +209,17 @@ function hostSpecificSetup
                         fi
                         inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
                         ;;
+                nx* )
+                        alias gtgray="gnome-terminal --profile='DougM Gray'"
+                        alias gtgrey="gnome-terminal --profile='DougM Gray'"
+                        alias gtblue="gnome-terminal --profile='DougM Blue'"
+                        alias gtbrown="gnome-terminal --profile='DougM Brown'"
+                        alias gtburg="gnome-terminal --profile='DougM Burgundy'"
+                        alias gtgreen="gnome-terminal --profile='DougM Green'"
+                        alias gtindigo="gnome-terminal --profile='DougM Indigo'"
+                        alias gtteal="gnome-terminal --profile='DougM Teal'"
+                        alias gt="gtgrey;gtblue;gtbrown;gtburg;gtgreen;gtindigo;gtteal"
+                        ;;
                 sdf* )
                         alias gtgray="gnome-terminal --profile='DougM Gray'"
                         alias gtgrey="gnome-terminal --profile='DougM Gray'"
