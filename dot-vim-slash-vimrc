@@ -5,69 +5,9 @@
 " 05-Jul-22
 "
 
-if !exists("syntax-on")
-	syntax on
+if &t_Co > 2
+        syntax enable
 endif
-syntax enable
-syntax reset
-highlight clear
-highlight Normal                cterm=none        ctermbg=black             ctermfg=white
-
-highlight Comment               cterm=none        ctermbg=black             ctermfg=yellow
-highlight Constant              cterm=none        ctermbg=black             ctermfg=green
-highlight   String              cterm=none        ctermbg=black             ctermfg=green
-highlight   Character           cterm=none        ctermbg=black             ctermfg=green
-highlight Error                 cterm=none        ctermbg=black             ctermfg=red
-highlight Identifier            cterm=none        ctermbg=black             ctermfg=magenta
-highlight   Function            cterm=none        ctermbg=black             ctermfg=lightblue
-highlight Statement             cterm=none        ctermbg=black             ctermfg=green
-highlight PreProc               cterm=none        ctermbg=black             ctermfg=blue
-highlight Type                  cterm=none        ctermbg=black             ctermfg=green
-highlight Special               cterm=none        ctermbg=black             ctermfg=blue
-highlight   Tag                 cterm=underline   ctermbg=black             ctermfg=lightblue
-highlight Todo                  cterm=bold        ctermbg=black             ctermfg=red
-highlight Folded                cterm=bold        ctermbg=black             ctermfg=blue
-highlight FoldColumn            cterm=bold        ctermbg=black             ctermfg=blue
-highlight cIf0                  cterm=underline   ctermbg=black             ctermfg=blue
-
-highlight Cursor                cterm=none        ctermbg=yellow            ctermfg=black
-highlight   ChangesCursor       cterm=none        ctermbg=red               ctermfg=lightgreen
-highlight   CommandCursor       cterm=none        ctermbg=darkred           ctermfg=black
-
-highlight DiffChange            cterm=none        ctermbg=gray              ctermfg=darkyellow
-highlight DiffText              cterm=underline   ctermbg=gray              ctermfg=red
-highlight DiffAdd               cterm=none        ctermbg=gray              ctermfg=yellow
-highlight DiffDelete            cterm=none        ctermbg=gray              ctermfg=darkred
-
-highlight Directory             cterm=none        ctermbg=black             ctermfg=lightgreen
-highlight ErrorMsg              cterm=none        ctermbg=darkred           ctermfg=white
-highlight IncSearch             cterm=bold        ctermbg=yellow            ctermfg=black
-highlight LineNr                cterm=none        ctermbg=black             ctermfg=red
-highlight Menu                  cterm=none        ctermbg=lightblue         ctermfg=white
-highlight MoreMsg               cterm=bold        ctermbg=blue              ctermfg=white
-highlight ModeMsg               cterm=none        ctermbg=blue              ctermfg=cyan
-highlight NonText               cterm=none        ctermbg=black             ctermfg=lightgreen
-highlight Question              cterm=bold        ctermbg=lightblue         ctermfg=white
-highlight Scrollbar             cterm=none        ctermbg=lightblue         ctermfg=white
-highlight Search                cterm=italic      ctermbg=blue              ctermfg=yellow
-highlight SpecialKey            cterm=none        ctermbg=black             ctermfg=white
-highlight StatusLine            cterm=none        ctermbg=darkgray          ctermfg=yellow
-highlight StatusLineNC          cterm=none        ctermbg=darkgray          ctermfg=yellow
-highlight Title                 cterm=none        ctermbg=black             ctermfg=white
-highlight Visual                cterm=none        ctermbg=black             ctermfg=yellow
-highlight WarningMsg            cterm=none        ctermbg=darkgray          ctermfg=red
-highlight User1                 cterm=bold        ctermbg=darkgray          ctermfg=white
-highlight User2                 cterm=none        ctermbg=darkgray          ctermfg=white
-highlight User3                 cterm=bold        ctermbg=darkgray          ctermfg=white
-
-highlight HtmlLink              cterm=underline   ctermbg=darkBlue          ctermfg=yellow
-highlight HtmlBold              cterm=bold
-highlight HtmlBoldUnderline     cterm=bold,underline
-highlight HtmlBoldItalic        cterm=bold,italic
-highlight HtmlBoldUnderlineItalic cterm=bold,italic,underline
-highlight HtmlUnderline         cterm=underline
-highlight HtmlUnderlineItalic   cterm=italic,underline
-highlight HtmlItalic            cterm=italic
 
 set wrap
 set ruler
@@ -79,6 +19,7 @@ set incsearch
 set mousehide
 set showmatch
 set expandtab
+set cursorline
 set splitbelow
 set autoindent
 set nohlsearch
@@ -91,20 +32,24 @@ set scrolloff=0
 set cmdheight=1
 set laststatus=2
 set wrapmargin=0
+" set colorcolumn=60
 set formatoptions=roq
 set guioptions=aiglmpRt
 set backspace=indent,start
 set cpoptions=aAbBcdeEfFjlLmorsStwWx$!%
-set viminfo='100,%,<1000,:100,n~/.viminfo
+set viminfo='100,%,<1000,:100,n~/.vim/viminfo
 set printoptions=paper:letter,portrait:y,duplex:off
 set sessionoptions=buffers,globals,help,blank,options,winpos,resize,winsize,sesdir,slash
 set guicursor=i-r:ver30-changesCursor,o:hor50-changesCursor-blinkwait100-blinkoff100-blinkon100,c-ci-cr:block-commandCursor
-set statusline=%-15.30(%<%f\ %1*%M%0*%)
-set statusline+=%-30.30(Line\ %l\ of\ %L\ (%p%%)%)
-set statusline+=%-20.20(%2*\<buf\ %n%Y%H\>%0*\ %3*%r%0*%)
-set statusline+=%=Cursor\=0%b
-set statusline+=\ \(Col\ %c%V\)
+set statusline=%1*%-30.40(%f\ %2*%M%1*%<%)
+set  statusline+=%-30.30(%3*Line\ %l\ of\ %L\ (%p%%)%1*%)
+set  statusline+=%-20.20(%3*\[buf\ %n\]\ \ %4*%y%H%1*\ %2*%r%1*%)
+set  statusline+=%=%5*Cursor\=0%b
+set  statusline+=\ \(Col\ %c%V\)
 set titlestring=%t%r\ %y\ %a\ \ \ \ \ \ \(%F\)
+
+" identify the highlight groups of the item under the cursor:
+"command! SynStack echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
 
 "
 " default files to use for grep
@@ -131,7 +76,7 @@ if has("unix") && !has("gui_gtk") && !has("mac")
 	"  Mapping for SUN Type 4,5 Keyboards
 	"           +-------------------+-------------------+-------------------+-------------------+
 	" Key:      |F1                 |F2                 |F3                 |F4                 |
-	" Meta:     |help               |                   |                   |Quit VIM (Gnome)   |
+	" Meta:     |help               |                   |Show line numbers  |Quit VIM (Gnome)   |
 	" Control:  |help               |make <file>.o      |Show "make" prompt |Prompt for grep fil|
 	" Shift:    |Cycle Font Size    |make install       |Current Error Mesg |Prompt for grep pat|
 	" Function: |Cycle Menu/Toolbar |make               |List Errors        |Grep for *cursor   |
@@ -276,7 +221,7 @@ elseif has("mac")
 	"
 	"           +-------------------+-------------------+-------------------+-------------------+
 	" Key:      |F1                 |F2                 |F3                 |F4                 |
-	" Meta:     |help               |make distclean     |                   |Quit VIM (Windows) |
+	" Meta:     |help               |make distclean     |Show line numbers  |Quit VIM (Windows) |
 	" Control:  |help               |make <file>.o      |Show "make" prompt |Prompt for grep fil|
 	" Shift:    |Cycle Font Size    |make install       |List Errors        |Prompt for grep pat|
 	" Function: |Cycle Menu/Toolbar |make               |Current Error Mesg |Grep for *cursor   |
@@ -318,10 +263,12 @@ elseif has("mac")
 	let s:KeyMake =                      "<F2>"
 	let s:KeyMakeInstall =               "<S-F2>"
 	let s:KeyMakeObject =                "<C-F2>"
+	let s:KeyMakeDistClean =             "<M-F2>"
 
 	let s:KeyCurrentInList =             "<F3>"
 	let s:KeyShowList =                  "<S-F3>"
 	let s:KeyMakeFromPrompt =            "<C-F3>"
+        let s:KeyShowLineNums =              "<M-F3>"
 
 	let s:KeyGrepFromCursor =            "<F4>"
 	let s:KeyGrepFromPrompt =            "<S-F4>"
@@ -366,7 +313,7 @@ else
 	"
 	"           +-------------------+-------------------+-------------------+-------------------+
 	" Key:      |F1                 |F2                 |F3                 |F4                 |
-	" Meta:     |help               |                   |                   |Quit VIM (Windows) |
+	" Meta:     |help               |make distclean     |Show line numbers  |Quit VIM (Windows) |
 	" Control:  |help               |make <file>.o      |Show "make" prompt |Prompt for grep fil|
 	" Shift:    |Cycle Font Size    |make install       |Current Error Mesg |Prompt for grep pat|
 	" Function: |Cycle Menu/Toolbar |make               |List Errors        |Grep for *cursor   |
@@ -408,10 +355,12 @@ else
 	let s:KeyMake =                      "<F2>"
 	let s:KeyMakeInstall =               "<S-F2>"
 	let s:KeyMakeObject =                "<C-F2>"
+	let s:KeyMakeDistClean =             "<M-F2>"
 
 	let s:KeyShowList =                  "<F3>"
 	let s:KeyCurrentInList =             "<S-F3>"
 	let s:KeyMakeFromPrompt =            "<C-F3>"
+        let s:KeyShowLineNums =              "<M-F3>"
 
 	let s:KeyGrepFromCursor =            "<F4>"
 	let s:KeyGrepFromPrompt =            "<S-F4>"
@@ -549,7 +498,7 @@ endfunction
 " requesting a pattern for grep
 "
 function! GrepFromPrompt()
-	execute "grep " . inputdialog( "Enter Pattern for SEARCH") . " " . s:GrepFilesToSearch
+	execute "grep -r " . inputdialog( "Enter Pattern for SEARCH") . " " . s:GrepFilesToSearch
 endfunction
 
 "
@@ -822,6 +771,9 @@ endif
 if exists( "s:KeyMakeDepend")
 	execute "map " s:KeyMakeDepend               " :make depend<CR>"
 endif
+if exists( "s:KeyMakeDistClean")
+	execute "map " s:KeyMakeDistClean            " :make distclean<CR>"
+endif
 if exists( "s:KeyMakeFromPrompt")
 	execute "map " s:KeyMakeFromPrompt           " :call MakeFromPrompt()<CR>"
 endif
@@ -872,6 +824,9 @@ if exists( "s:KeySessionSave")
 endif
 if exists( "s:KeyShowCFunctions")
 	execute "map " s:KeyShowCFunctions           " :call ShowCFunctions()<CR>"
+endif
+if exists( "s:KeyShowLineNums")
+	execute "map " s:KeyShowLineNums             " :set number!<CR>"
 endif
 if exists( "s:KeyShowList")
 	execute "map " s:KeyShowList                 " :clist<CR>"

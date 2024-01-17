@@ -181,27 +181,6 @@ function systemSetup
                                 err=$?
                                 if (( $err == 0 ))
                                 then
-                                        #
-                                        # set defaults for GNU 'ls' colors on black background
-                                        #
-#                                        newlist color  LS_COLORS -e
-#
-#                                        addcolor 'di=01;33'
-#                                        addcolor 'ln=01;32'
-#                                        addcolor 'pi=40;33'
-        #                                addcolor 'so=01;35'
-        #                                addcolor 'do=01;35'
-        #                                addcolor 'bd=40;33;01'
-        #                                addcolor 'cd=40;33;01'
-        #                                addcolor 'or=40;31;01'
-        #                                addcolor 'su=37;41'
-        #                                addcolor 'sg=30;43'
-        #                                addcolor 'ca=30;41'
-        #                                addcolor 'tw=30;42'
-        #                                addcolor 'ow=01;09'
-        #                                addcolor 'st=37;44'
-#                                        addcolor 'ex=01;32'
-
                                         alias ls='ls --color=auto -F'
                                 fi
                         else
@@ -2025,20 +2004,20 @@ function p
                 # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
                 #
                 pstr=''
-                pstr+='White Black os '
-                pstr+=') B White Blue3 user Grey70 @ host '
-                pstr+='~ B White DodgerBlue dir2 '
-                pstr+='> B Black Turquoise hist '
+                pstr+='White Black sp os sp '
+                pstr+=') B White Blue3 sp user Grey70 @ host sp '
+                pstr+='~ B White DodgerBlue sp dir2 sp '
+                pstr+='> B Black Turquoise sp hist sp '
                 pstr+='White Maroon id'
                 prompt -p
 
                 rpstr=''
-                rpstr+='Black Gold vi '
-                rpstr+='White Maroon Ret '
-                rpstr+='Black Orange lock '
-                rpstr+='B White DarkGreen vcs gito '
-                rpstr+='Black SeaGreen2 date '
-                rpstr+='Black DarkSeaGreen2 time '
+                rpstr+='Black Gold sp vi sp '
+                rpstr+='White Maroon sp Ret sp '
+                rpstr+='Black Orange sp lock sp '
+                rpstr+='B White DarkGreen vcs sp gito sp '
+                rpstr+='Black SeaGreen2 sp date sp '
+                rpstr+='Black DarkSeaGreen2 sp time sp '
                 rprompt -p
                 ;;
         8)

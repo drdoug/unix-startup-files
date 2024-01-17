@@ -72,6 +72,7 @@ updateFile dot-zsh-slash-dot-zshrc              ~/.zsh/.zshrc
 
 updateFile dot-vim-slash-vimrc		        ~/.vim/vimrc
 updateFile dot-vim-slash-gvimrc        		~/.vim/gvimrc
+updateFile dot-vim-colors-aurora.vim            ~/.vim/colors/aurora.vim
 
 if [[ $_OUTOFDATE -eq 0 ]];
 then
