@@ -6,6 +6,8 @@
 #
 #  -numbered directory history for quick return
 #   command               action
+#     v [-q] n          switch MAXDIRS to be n, and list previous directories
+#                        (this creates "n" aliases, numbered 1 through n)
 #     v                 (verbose) list previous directories visited (MAXDIRS)
 #     b                 go back to previous directory (most recent directory)
 #     B                 go backwards through directory list
@@ -13,8 +15,6 @@
 #     2                 switch with directory numbered 2 (second to previous directory)
 #     3                 switch with directory numbered 3 (third to previous directory)
 #     n                 switch with directory numbered n (nth previous directory, up to MAXDIRS)
-#     sdirs [-q] n      switch MAXDIRS to be n, and list previous directories
-#                        (this creates "n" aliases, numbered 1 through n)
 #
 
 #
@@ -89,66 +89,94 @@ function _showDirName
         }
 
 #
-# function to create array of visited directories.
+# verbose; function to list all visited directories.
+# Also used to create array of visited directories.
 # Array can be adjusted larger or smaller.
 #
-# usage: sdirs [-q] DirectoryArraySize
+# usage: v [-q][DirectoryArraySize]
 #
-function sdirs
+function v
         {
         let quiet=0
         let existing=$MAXDIRS
 
-        while [[ $1 ]];
-        do
+        #
+        # check for size adjustments
+        #
+        if (( $# >= 1 ))
+        then
+                #
+                # typically -q only used when initializing the directory array
+                #
                 if [[ $1 = "-q" ]];
                 then
                         let quiet=1
                         shift
-                        continue
+                        if (( $# <= 0 ))
+                        then
+                                return 0
+                        fi
                 fi
 
-                if (( $1 > 0 && $1 < 100 ))
+                #
+                # somewhat arbitrary limit
+                #
+                if (( $1 > 1 && $1 < 99 ))
                 then
+                        if (( $quiet != 1 ))
+                        then
+                                printf "%s: Changing number of saved directories from %d to %d\n" "${FUNCNAME[0]}" "$MAXDIRS" "$1"
+                        fi
                         MAXDIRS=$1;
                         shift
-                        break
+                else
+                        printf "%s: number of saved directories must be between 2 and 99\n" "${FUNCNAME[0]}"
+                        return 1
                 fi
-                printf "sdirs: number of saved directories must be between 1 and 100.\n"
-                return 1
-        done
 
-        for (( index = 0; index <= $MAXDIRS; index++ ))
-        do
-                if [[ ! "${_DIRS[$index]}" ]];
+                #
+                # check for extra args
+                #
+                if (( $# > 0 ))
                 then
-                        _DIRS[$index]=~
+                        printf "%s: ignoring extra arguments\n" "${FUNCNAME[0]}"
                 fi
-        done
 
-        #
-        # remove residual aliases if new DIRS is smaller than before
-        #
-        while [[ $index -le $existing ]];
-        do
-                unalias $index
-                let index=$index+1;
-        done
+                #
+                # set empty directoy slots to home
+                #
+                for (( index = 0; index <= $MAXDIRS; index++ ))
+                do
+                        if [[ ! "${_DIRS[$index]}" ]];
+                        then
+                                _DIRS[$index]=~
+                        fi
 
-        _newDirectoryAliases
-        if (( $quiet != 1 ))
-        then
-                v
+                        #
+                        # Generate an alias for each number between 0 and MAXDIRS,
+                        # each of which will chdir to the numbered entry in the
+                        # array, then swap the contents with the top entry of the array.
+                        #
+                        if (( $index > 0 ))
+                        then
+                                alias $index='"cd" "${_DIRS['$index']}";DIR="${_DIRS['$index']}";_DIRS['$index']="${_DIRS[0]}";_DIRS[0]="$DIR";_showDirName;printf "%s\n" "${_DIRS[0]}"'
+                        fi
+                done
+
+                #
+                # remove residual aliases if new DIRS is smaller than before
+                #
+                while [[ $index -le $existing ]];
+                do
+                        unalias $index
+                        let index=$index+1;
+                done
         fi
-        }
 
-#
-# verbose; function to list all visited directories
-#
-# usage: v
-#
-function v
-        {
+        if (( $quiet != 0 ))
+        then
+                return 0
+        fi
 
         printf "%7.7s: %s\n" "now-> " "${PWD}"
         for (( index = 1; index <= $MAXDIRS; index++ ))
@@ -164,25 +192,6 @@ function v
                         continue
                 fi
                 printf "%7.7s: %s\n" "$index" "${_DIRS[$index]}"
-        done
-        }
-
-#
-# Generate an alias for each number between 0 and N - 1, each of
-# which will chdir to the numbered entry in the array, then swap
-# the contents with the top entry of the array.
-#
-function _newDirectoryAliases
-        {
-        let index=0
-        for DIR in "${_DIRS[@]}";
-        do
-                alias $index='"cd" "${_DIRS['$index']}";DIR="${_DIRS['$index']}";_DIRS['$index']="${_DIRS[0]}";_DIRS[0]="$DIR";_showDirName;printf "%s\n" "${_DIRS[0]}"'
-                let index=$index+1;
-                if [[ $index -gt $MAXDIRS ]];
-                then
-                        break
-                fi
         done
         }
 
@@ -329,5 +338,5 @@ function setDirectoryManagement
         #
         # Finally, set the number of expected directory entries
         #
-        sdirs -q $MAXDIRS
+        v -q $MAXDIRS
         }
