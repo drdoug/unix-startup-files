@@ -1029,7 +1029,7 @@ function git-slac()
         git config --global user.email 'drm@slac.stanford.edu'
         }
 
-alias gits='git-text;git status'
+alias gits='git-text;printf " ";git status'
 alias gitl="git log --graph --decorate --oneline --all"
 alias gitadd='git add $(git diff --name-only|sort -u)'
 
@@ -1377,7 +1377,7 @@ function precmd
         then
                 if [[ ! -z $(git-branch-name) ]];
                 then
-                        psvar[${PSV_GIT}]="$(printf "${PROMPT_GIT_FORMAT}" "$(git-branch-name)" "$(git-offset)")"
+                        psvar[${PSV_GIT}]="$(printf "${PROMPT_GIT_FORMAT}" "$(git-branch-name)" "$(_git-ahead-behind)")"
                 else
                         psvar[${PSV_GIT}]=''
                 fi
@@ -1757,7 +1757,7 @@ function _commonPrompt
                 dir2)   _seg+="%2d"                  ;;
                 dir3)   _seg+="%3d"                  ;;
                 gitb)   _seg+='$(git-branch)'        ;;
-                gito)   _seg+='$(git-offset)'        ;;
+                gito)   _seg+='$(_git-ahead-behind)' ;;
                 hist)   _seg+="%h"                   ;;
                 Hist)   _seg+="%i"                   ;;
                 host)   _seg+="%m"                   ;;
@@ -1963,7 +1963,7 @@ function presetPromptHelp
 # create some
 # predefined prompts
 #
-let CHOSEN_PRESET_PROMPT=2
+let CHOSEN_PRESET_PROMPT=4
 function p
         {
 
@@ -2158,17 +2158,17 @@ p $CHOSEN_PRESET_PROMPT
 #  -numbered directory history for quick return
 #   command               action
 #     v                 (verbose) list previous directories visited (MAXDIRS)
+#     v [-q] n          (verbose) switch MAXDIRS to be n, and list previous directories
+#                        (this creates "n" functions, named 1 through n)
 #     b                 go back to previous directory (most recent directory)
 #     B                 go backwards through directory list
 #     1                 switch with directory numbered 1 (previous directory)
 #     2                 switch with directory numbered 2 (second to previous directory)
 #     3                 switch with directory numbered 3 (third to previous directory)
 #     n                 switch with directory numbered n (nth previous directory, up to MAXDIRS)
-#     dirs n            switch MAXDIRS to be n, and list previous directories
-#                        (this creates "n" functions, named 1 through n)
 #
 
-MAXDIRS=20              # default numbered directory aliases; change with dirs cmd
+MAXDIRS=20              # default numbered directory aliases; change with v cmd
 
 #
 # not interactive, be terse
@@ -2251,72 +2251,99 @@ function _windowHeaderUpdate
         }
 
 #
-# function to create or adjust array of visited
-# directories. Can be adjusted larger or smaller.
+# verbose; function to list all visited directories.
+# Also used to create array of visited directories.
+# Array can be adjusted larger or smaller.
 #
-# usage: dirs [-q] DirectoryArraySize
+# usage: v [-q][DirectoryArraySize]
 #
-function dirs
+function v
         {
-        let quiet=0
         let index=0
+        let quiet=0
         let existing=$MAXDIRS
 
-        if [[ ! -z $1 ]];
+        #
+        # check for size adjustments
+        #
+        if (( $# >= 1 ))
         then
+                #
+                # typically -q only used when initializing the directory array
+                #
                 if [[ $1 = "-q" ]];
                 then
                         let quiet=1
                         shift
-                fi
-        fi
-
-        if [[ ! -z $1 ]];
-        then
-                if [[ $1 =~ "^[0-9]+$" ]];
-                then
-                        MAXDIRS=$1;
-                        if (( $MAXDIRS < 3 ))
+                        if (( $# <= 0 ))
                         then
-                                printf "$0: number of directories must be 3 or larger.  Using 3.\n"
-                                MAXDIRS=3
+                                return 0
                         fi
-                else
-                        printf "The number of requested directories must be supplied.\nUsage: $0 [-q] NumDirectoriesToRecord\n"
-                        return 1
                 fi
-        fi
 
-        for (( index = 1; index <= $MAXDIRS; index++ ))
-        do
-                if [[ -z "${_DIRS[$index]}" ]];
+                #
+                # somewhat arbitrary limit
+                #
+                if [[ "$1" =~ "^[0-9]+$" ]];
                 then
-                        _DIRS[$index]=~
+                        if (( $1 > 2 && $1 < 99 ))
+                        then
+                                if (( $quiet != 1 ))
+                                then
+                                        printf "%s: Changing number of saved directories from %d to %d\n" "$0" "$MAXDIRS" "$1"
+                                fi
+                                MAXDIRS=$1;
+                                shift
+                        else
+                                printf "%s: number of saved directories must be between 3 and 99\n" "$0"
+                                return 1
+                        fi
                 fi
-        done
 
-        #
-        # asked to shrink the array;
-        # remove the residual entries
-        #
-        _DIRS[index,$existing]=()
-        _newDirectoryAliases
-        if (( $quiet != 1 ))
-        then
-                v
+                #
+                # check for extra args
+                #
+                if (( $# > 0 ))
+                then
+                        printf "Unrecognized argument.\nUsage: $0 [-q][NumDirectoriesToRemember]\n"
+                fi
+
+                #
+                # set empty directoy slots to home
+                #
+                for (( index = 1; index <= $MAXDIRS; index++ ))
+                do
+                        if [[ -z "${_DIRS[$index]}" ]];
+                        then
+                                _DIRS[$index]=~
+                        fi
+
+                        #
+                        # Generate a function for each number between 1 and MAXDIRS,
+                        # each of which will chdir to the numbered entry in the
+                        # array, then swap the contents with the top entry of the array.
+                        #
+                        eval "function $index { _visitListedDirectory $index ; }"
+                done
+
+                #
+                # remove residual functions if new DIRS is smaller than before
+                #
+                while [[ $index -le $existing ]];
+                do
+                        ${_DIRS[$index]}=()
+                        unset -f "$index"
+                        let index=$index+1;
+                done
         fi
-        }
 
-#
-# verbose; function to list all visited directories
-#
-# usage: v
-#
-function v
-        {
+        if (( $quiet != 0 ))
+        then
+                return 0
+        fi
 
         printf "%7.7s: %s\n" "now-> " "${PWD}"
-        for (( index = 1; index <= ${#_DIRS}; index++ ))
+        for (( index = 1; index <= ${MAXDIRS}; index++ ))
         do
                 if (( $index == 1 ))
                 then
@@ -2343,22 +2370,30 @@ function chpwd
         # check if triggered by numeric function (ie 1 to $MAXDIRS)
         #
         _windowHeaderUpdate
-        if [[ $0 = '_visitListedDirectory' ]];
+
+        #
+        # if a simple swap of directories was made with
+        # an existing entry, don't push anything
+        #
+        if [[ "${funcstack[2]}" = '_visitListedDirectory' ]];
         then
                 return 0
         fi
 
-        if [[ $0 = 'b' ]];
+        if [[ "${funcstack[2]}" = 'b' ]];
         then
                 _DIRS[1,-2]=(${_DIRS[2,-1]})
-                _DIRS[-1]=${OLDPWD}
+                _DIRS[-1]="${OLDPWD}"
         else
                 #
-                # 'B' or cd/chdir
+                # Whether 'B' or an explicit 'cd' command,
+                # push that previous directory on the stack
+                # and drop the last directory from the end
                 #
                 _DIRS[2,-1]=(${_DIRS[1,-2]})
-                _DIRS[1]=${OLDPWD}
+                _DIRS[1]="${OLDPWD}"
         fi
+        return 0;
         }
 
 #
@@ -2387,18 +2422,12 @@ function B
         }
 
 #
-# Called by each of the created functions,
+# Common code called by each of the created functions,
 # named 1 through $MAXDIRS, to reduce their size
 #
 function _visitListedDirectory
         {
 
-        #
-        # We won't check for valid arguments:
-        # in the interest of speed, let's
-        # assume there are no bugs (!) in the
-        # _newDirectoryAliases function below.
-        #
         _newDir="${1:-1}"
         chdir "${_DIRS[$_newDir]}"
         err=$?
@@ -2409,29 +2438,14 @@ function _visitListedDirectory
         fi
         DIR="${_DIRS[$_newDir]}"
         _DIRS[$_newDir]="${OLDPWD}"
-        }
-
-#
-# Generate a function for each number between 1 and N, each of
-# which will chdir to the numbered entry in the array, then swap
-# the contents with the top entry of the array.
-#
-function _newDirectoryAliases
-        {
-
-        for (( index = 1; index <= ${#_DIRS}; index++ ))
-        do
-                eval "function $index { _visitListedDirectory $index ; }"
-        done
+        return 0
         }
 
 set -A _DIRS
 
-disable dirs
-
 _initDirName ; unset -f _initDirName
 _windowHeaderUpdate
-dirs -q $MAXDIRS
+v -q $MAXDIRS
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
