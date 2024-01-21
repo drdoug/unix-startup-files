@@ -69,6 +69,7 @@ updateFile dot-bash-sdirs-dot-bash		~/.bash-sdirs.bash
 updateFile dot-zshenv                           ~/.zshenv
 updateFile dot-zsh-slash-colorTable             ~/.zsh/colorTable
 updateFile dot-zsh-slash-dot-zshrc              ~/.zsh/.zshrc
+updateFile dot-zsh-slash-dot-zlogout            ~/.zsh/.zlogout
 
 updateFile dot-vim-slash-vimrc		        ~/.vim/vimrc
 updateFile dot-vim-slash-gvimrc        		~/.vim/gvimrc

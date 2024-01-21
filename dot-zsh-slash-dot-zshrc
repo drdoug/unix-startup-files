@@ -28,6 +28,7 @@ ZDOTDIR=${ZDOTDIR:-~/.zsh}
 COMPLETION_WAITING_DOTS="true"
 HISTFILE=${ZDOTDIR}/zsh-history
 DISABLE_UNTRACKED_FILES_DIRTY="true"
+PREVIOUS_DIRS="${ZDOTDIR}/previousDirs"
 
 PROMPT_L_ARROW_TRANSITION='\uE0B0'
 PROMPT_R_ARROW_TRANSITION='\uE0B2'
@@ -2251,6 +2252,27 @@ function _windowHeaderUpdate
         }
 
 #
+# Read previous directory list from local
+# file saved at last interactive logout.
+#
+function _getPreviousDirs
+        {
+
+        if [[ -r "${PREVIOUS_DIRS}" ]];
+        then
+                read -A _DIRS<"${PREVIOUS_DIRS}"
+        else
+                for (( index = 1; index <= $MAXDIRS; index++ ))
+                do
+                        if [[ -z "${_DIRS[$index]}" ]];
+                        then
+                                _DIRS[$index]=~
+                        fi
+                done
+        fi
+        }
+
+#
 # verbose; function to list all visited directories.
 # Also used to create array of visited directories.
 # Array can be adjusted larger or smaller.
@@ -2445,6 +2467,7 @@ set -A _DIRS
 
 _initDirName ; unset -f _initDirName
 _windowHeaderUpdate
+_getPreviousDirs
 v -q $MAXDIRS
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
