@@ -56,20 +56,19 @@ while getopts "dF" opt; do
         esac
 done
 
-updateFile dot-bashrc		                ~/.bashrc
 updateFile dot-bash-profile		        ~/.bash_profile
-
-updateFile dot-bash-colors-dot-bash		~/.bash-colors.bash
-updateFile dot-bash-git-dot-bash		~/.bash-git.bash
-updateFile dot-bash-hostSpecificSetup-dot-bash	~/.bash-hostSpecificSetup.bash
-updateFile dot-bash-lists-dot-bash		~/.bash-lists.bash
-updateFile dot-bash-prompt-dot-bash		~/.bash-prompt.bash
-updateFile dot-bash-sdirs-dot-bash		~/.bash-sdirs.bash
+updateFile config-bash-bashrc		        ~/.config/bash/bashrc
+updateFile config-bash-git.bash		        ~/.config/bash/git.bash
+updateFile config-bash-sdirs.bash		~/.config/bash/sdirs.bash
+updateFile config-bash-lists.bash		~/.config/bash/lists.bash
+updateFile config-bash-colors.bash		~/.config/bash/colors.bash
+updateFile config-bash-prompt.bash		~/.config/bash/prompt.bash
+updateFile config-bash-hostSpecificSetup.bash	~/.config/bash/hostSpecificSetup.bash
 
 updateFile dot-zshenv                           ~/.zshenv
-updateFile dot-zsh-slash-colorTable             ~/.zsh/colorTable
-updateFile dot-zsh-slash-dot-zshrc              ~/.zsh/.zshrc
-updateFile dot-zsh-slash-dot-zlogout            ~/.zsh/.zlogout
+updateFile config-zsh-zshrc                     ~/.config/zsh/.zshrc
+updateFile config-zsh-zlogout                   ~/.config/zsh/.zlogout
+updateFile config-zsh-colorTable                ~/.config/zsh/colorTable
 
 updateFile dot-vim-slash-vimrc		        ~/.vim/vimrc
 updateFile dot-vim-slash-gvimrc        		~/.vim/gvimrc

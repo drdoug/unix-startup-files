@@ -817,10 +817,10 @@ if exists( "s:KeySearchHighlight")
 	execute "map " s:KeySearchHighlight          " :call HighlightSearch()<CR>"
 endif
 if exists( "s:KeySessionLoad")
-	execute "map " s:KeySessionLoad              " :source ./.vim.session<CR>"
+	execute "map " s:KeySessionLoad              " :source ./.vim/vim.session<CR>"
 endif
 if exists( "s:KeySessionSave")
-	execute "map " s:KeySessionSave              " :mksession! ./.vim.session<CR>"
+	execute "map " s:KeySessionSave              " :mksession! ./.vim/vim.session<CR>"
 endif
 if exists( "s:KeyShowCFunctions")
 	execute "map " s:KeyShowCFunctions           " :call ShowCFunctions()<CR>"
