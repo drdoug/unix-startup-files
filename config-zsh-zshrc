@@ -40,6 +40,7 @@ PROMPT_MACOS='\uF302'
 PROMPT_UBUNTU='\uF31B'
 PROMPT_REDHAT='\uF316'
 PROMPT_CENTOS='\uF304'
+PROMPT_GIT_BRANCH='\uE0A0'
 PROMPT_R_UP_TRANSITION='\uE0BA'
 PROMPT_L_UP_TRANSITION='\uE0BC'
 PROMPT_BLOCK_TRANSITION='\uE0CC'
@@ -57,17 +58,16 @@ PROMPT_R_ARROW_TRANSITION='\uE0B2'
 PROMPT_L_ARROW_TRANSITION='\uE0B0'
 #PROMPT_COMMIT='\uF151'         #stagedstr
 #PROMPT_STAGE='\uF01B'          #unstagedstr
+#PROMPT_BRANCH='\uE725'         #branch
 
 unsetopt notify
 setopt PROMPT_SUBST
 
 autoload -Uz vcs_info
-zstyle ':vcs_info:*' stagedstr '>'
-zstyle ':vcs_info:*' unstagedstr '+'
-zstyle ':vcs_info:*' enable git hg svn
-zstyle ':vcs_info:git:*' formats ' %b %u%c'
-zstyle ':vcs_info:(hg|svn):*' formats "%u%c %i[%b]"
-zstyle ':vcs_info:(hg|svn):*' actionformats "%u%c %i %a [%b]"
+zstyle ':vcs_info:git*' enable git
+zstyle ':vcs_info:git*' stagedstr '>'
+zstyle ':vcs_info:git*' unstagedstr '+'
+zstyle ':vcs_info:git*' formats '%b %u%c'
 
 zstyle :compinstall filename '${ZDOTDIR}/.zshrc'
 autoload -Uz compinit
@@ -1373,7 +1373,12 @@ function precmd
         if [[ ! -z $_vcsPromptUsed ]];
         then
                 vcs_info
-                psvar[${PSV_VCS}]="${vcs_info_msg_0_}"
+                if [[ -n $vcs_info_msg_0_ ]];
+                then
+                        psvar[${PSV_VCS}]="$(print ${PROMPT_GIT_BRANCH}$vcs_info_msg_0_)"
+                else
+                        psvar[${PSV_VCS}]=''
+                fi
         fi
 
         if [[ ! -z $_gitPromptUsed ]];
@@ -2088,7 +2093,7 @@ function p
                 rpstr+='Gold sp vi sp '
                 rpstr+='Maroon sp Ret sp '
                 rpstr+='SandyBrown sp lock sp '
-                rpstr+='LightSkyBlue sp vcs sp gito sp '
+                rpstr+='sp LightSkyBlue vcs sp gito sp '
                 rpstr+='DodgerBlue sp date sp '
                 rpstr+='SkyBlue sp time sp '
                 rprompt -p
