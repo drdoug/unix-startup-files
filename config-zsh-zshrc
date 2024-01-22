@@ -65,7 +65,7 @@ autoload -Uz vcs_info
 zstyle ':vcs_info:*' stagedstr '>'
 zstyle ':vcs_info:*' unstagedstr '+'
 zstyle ':vcs_info:*' enable git hg svn
-zstyle ':vcs_info:git:*' formats '[%b] %u%c'
+zstyle ':vcs_info:git:*' formats ' %b %u%c'
 zstyle ':vcs_info:(hg|svn):*' formats "%u%c %i[%b]"
 zstyle ':vcs_info:(hg|svn):*' actionformats "%u%c %i %a [%b]"
 
@@ -1984,22 +1984,22 @@ function p
                 # user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
                 #
                 pstr=''
-                pstr+='B Turquoise Grey27 user @ host '
-                pstr+='> Black Grey46 > B Grey78 Grey27 dir2 '
-                pstr+='> Black Grey46 > B White Grey27 hist '
-                pstr+='> B Black Grey46 '
-                pstr+='White Maroon id'
+                pstr+='Grey85 Blue3 user @ White host sp '
+                pstr+='> Grey85 SkyBlue > B White Blue3 dir2 '
+                pstr+='> Grey85 SkyBlue > White Blue3 hist '
+                pstr+='> Grey85 SkyBlue '
+                pstr+='White DodgerBlue id'
                 prompt -p
 
                 rpstr=''
                 rpstr+='< Black Grey46 < '
-                rpstr+='Gold Grey27 vi '
-                rpstr+='DarkOrange Grey27 Ret '
-                rpstr+='Orange Grey27 lock '
-                rpstr+='B Turquoise Grey27 vcs gito '
-                rpstr+='Grey78 Grey27 date '
+                rpstr+='B Gold Blue2 vi '
+                rpstr+='B DarkOrange Blue2 Ret '
+                rpstr+='B Orange Blue2 lock '
+                rpstr+='B White Blue2 vcs gito '
+                rpstr+='Grey78 Blue2 date '
                 rpstr+='< Black Grey46 < '
-                rpstr+='White Grey27 time '
+                rpstr+='White Blue2 time '
                 rprompt -p
                 ;;
         9)
