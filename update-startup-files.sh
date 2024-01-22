@@ -64,11 +64,11 @@ updateFile config-bash-lists.bash		~/.config/bash/lists.bash
 updateFile config-bash-colors.bash		~/.config/bash/colors.bash
 updateFile config-bash-prompt.bash		~/.config/bash/prompt.bash
 updateFile config-bash-hostSpecificSetup.bash	~/.config/bash/hostSpecificSetup.bash
+updateFile config-bash-colorTable               ~/.config/bash/colorTable
 
 updateFile dot-zshenv                           ~/.zshenv
 updateFile config-zsh-zshrc                     ~/.config/zsh/.zshrc
 updateFile config-zsh-zlogout                   ~/.config/zsh/.zlogout
-updateFile config-zsh-colorTable                ~/.config/zsh/colorTable
 
 updateFile dot-vim-slash-vimrc		        ~/.vim/vimrc
 updateFile dot-vim-slash-gvimrc        		~/.vim/gvimrc

@@ -16,6 +16,10 @@
 #
 # customizable settings
 #
+
+BASH_CONFIG=~/.config/bash
+HISTFILE="${BASH_CONFIG}/history"
+
 MAXDIRS=20                # default numbered directory aliases; change with sdirs cmd
 HISTSIZE=5000             # maximum history size per session
 HISTFILESIZE=5000         # maximum size of saved history file
@@ -339,23 +343,23 @@ function setLists
 
 #-=-=-=-=-=-=-=-=
 # bash-sdirs
-_checkAndRead .bash-sdirs.bash
+_checkAndRead "${BASH_CONFIG}"/sdirs.bash
 
 #-=-=-=-=-=-=-=-=
 # bash-lists
-_checkAndRead .bash-lists.bash
+_checkAndRead "${BASH_CONFIG}"/lists.bash
 
 #-=-=-=-=-=-=-=-=
 # bashrc-git
-_checkAndRead .bash-git.bash
+_checkAndRead "${BASH_CONFIG}"/git.bash
 
 #-=-=-=-=-=-=-=-=
 # bashrc-colors
-_checkAndRead .bash-colors.bash
+_checkAndRead "${BASH_CONFIG}"/colors.bash
 
 #-=-=-=-=-=-=-=-=
 # bashrc-colors
-_checkAndRead .bash-prompt.bash
+_checkAndRead "${BASH_CONFIG}"/prompt.bash
 
 #-=-=-=-=-=-=-=-=
 
@@ -366,7 +370,7 @@ setupCommands
 
 #-=-=-=-=-=-=-=-=
 # bashrc-hostSpecificSetup
-_checkAndRead .bash-hostSpecificSetup.bash
+_checkAndRead "${BASH_CONFIG}"/hostSpecificSetup.bash
 
 #-=-=-=-=-=-=-=-=
 

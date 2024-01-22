@@ -1,2 +1,2 @@
 unsetopt GLOBAL_RCS
-export ZDOTDIR=~/.zsh
+export ZDOTDIR=~/.config/zsh

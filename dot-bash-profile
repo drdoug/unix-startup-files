@@ -21,9 +21,9 @@ fi
 #
 # set up for interactive session
 #
-if [ -r ~/.bashrc ];
+if [ -r ~/.config/bash/bashrc ];
 then
-        source ~/.bashrc
+        source ~/.config/bash/bashrc
 fi
 
 printf "\n     Welcome to Bash Land\n\n"

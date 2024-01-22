@@ -68,7 +68,7 @@ function getColors
                 _colorNames[$i]=$_color
                 _colorTable[$_color]=$_index
                 (( i++ ))
-        done < ~/.zsh/colorTable
+        done < ~/.config/bash/colorTable
         _gotColors=true
         }
 
