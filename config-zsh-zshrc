@@ -1064,12 +1064,12 @@ function zle-keymap-select zle-line-init
         vicmd)
                 EDIT_MODE_PROMPT="E"
                 psvar[${PSV_VI}]=$EDIT_MODE_PROMPT
-                print -n -- "\E]50;CursorShape=1\C-G"  # line cursor
+                print -n -- "\E]50;CursorShape=0\C-G"  # block cursor
                 ;;
         viins)
                 EDIT_MODE_PROMPT='I'
                 psvar[${PSV_VI}]=$EDIT_MODE_PROMPT
-                print -n -- "\E]50;CursorShape=0\C-G"  # block cursor
+                print -n -- "\E]50;CursorShape=1\C-G"  # line cursor
                 ;;
         main)
                 EDIT_MODE_PROMPT=''
@@ -1131,7 +1131,7 @@ function promptHelp
 
         echo "    Colors:"
         echo "                Black Blue Cyan Grey Green Magenta Red Yellow White"
-        echo "                and 246 more; type 'showColors' to see them."
+        echo "                and 246 more; type 'showcolors' to see them."
         echo "        NNN   - select color number NNN (from 0 to 255)"
         echo "        NOTE:   If 2 colors are provided in sequence, the second one"
         echo "                is used as a background color.  A transition symbol"
@@ -1257,7 +1257,7 @@ function getColors
 #
 # display colors with names and index numbers
 #
-function showColors
+function showcolors
         {
         local _color
         local _verbose=''
@@ -1375,7 +1375,7 @@ function precmd
                 vcs_info
                 if [[ -n $vcs_info_msg_0_ ]];
                 then
-                        psvar[${PSV_VCS}]="$(print ${PROMPT_GIT_BRANCH}$vcs_info_msg_0_)"
+                        psvar[${PSV_VCS}]="$(print ${PROMPT_GIT_BRANCH} $vcs_info_msg_0_)"
                 else
                         psvar[${PSV_VCS}]=''
                 fi
@@ -1627,9 +1627,11 @@ function _commonPrompt
         *)
                 if [[ ! -z $_buildRightPrompt ]];
                 then
-                        _rpromptSource="$@"
+                        rpstr="$@"
+                        _rpromptSource=$rpstr
                 else
-                        _lpromptSource="$@"
+                        pstr="$@"
+                        _lpromptSource=$pstr
                 fi
                 ;;
         esac
@@ -1935,20 +1937,21 @@ function presetPromptHelp
         # prompt refers to case 1) and so forth.
         #
         promptOptions=(
-                'display simple prompt'
-                'display color prompt'
-                'display color prompt with right-side indicators and git details'
-                'display color prompt with right-side indicators and version control info'
-                'display vivid simple prompt'
-                'display vivid prompt'
-                'display vivid prompt with right-side indicators and git details'
-                'display vivid prompt with right-side indicators and version control info'
-                'display vivid blue prompt with green right-side indicators and version control info'
+                'vivid prompt; blue left and right side with arrows'
+                'simple prompt; username and history number'
+                'color prompt; username, host, directory and history number'
+                'color prompt with right-side indicators and git details'
+                'color prompt with right-side indicators and version control info'
+                'vivid simple prompt'
+                'vivid prompt'
+                'vivid prompt with right-side indicators and git details'
+                'vivid prompt with right-side indicators and version control info'
+                'vivid blue prompt with green right-side indicators and version control info'
                 )
         echo "p: select a preset format for command line prompts:"
         echo ""
 
-        let index=1
+        let index=0
         for txt in "${promptOptions[@]}";
         do
                 if (( $CHOSEN_PRESET_PROMPT == $index ))
@@ -1963,8 +1966,8 @@ function presetPromptHelp
         echo "p -h - display this message"
         echo "Use 'prompt' to adjust prompt details."
         echo " Currently:"
-        echo "         L:     ${pstr}"
-        echo "         R:               ${rpstr}"
+        echo "         L:  ${pstr}"
+        echo "         R:  ${rpstr}"
         }
 
 #
@@ -1990,20 +1993,20 @@ function p
                 #
                 pstr=''
                 pstr+='Grey85 Blue3 user @ White host sp '
-                pstr+='> Grey85 SkyBlue > B White Blue3 dir2 '
-                pstr+='> Grey85 SkyBlue > White Blue3 hist '
-                pstr+='> Grey85 SkyBlue '
+                pstr+='> Grey85 Grey39 > B White Blue3 dir2 '
+                pstr+='> Grey85 Grey39 > White Blue3 hist '
+                pstr+='> Grey85 Grey39 '
                 pstr+='White DodgerBlue id'
                 prompt -p
 
                 rpstr=''
-                rpstr+='< Black Grey46 < '
+                rpstr+='< Black Grey39 < '
                 rpstr+='B Gold Blue2 vi '
                 rpstr+='B DarkOrange Blue2 Ret '
                 rpstr+='B Orange Blue2 lock '
                 rpstr+='B White Blue2 vcs gito '
                 rpstr+='Grey78 Blue2 date '
-                rpstr+='< Black Grey46 < '
+                rpstr+='< Black Grey39 < '
                 rpstr+='White Blue2 time '
                 rprompt -p
                 ;;
@@ -2087,13 +2090,13 @@ function p
                 # for Dark Screen
                 # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
                 #
-                prompt 'B DodgerBlue user @ host CornflowerBlue sp dir2 SkyBlue sp time sp White hist .'
+                prompt 'B DodgerBlue user @ host CornflowerBlue sp dir2 SkyBlue sp White hist .'
 
                 rpstr=''
                 rpstr+='Gold sp vi sp '
                 rpstr+='Maroon sp Ret sp '
                 rpstr+='SandyBrown sp lock sp '
-                rpstr+='sp LightSkyBlue vcs sp gito sp '
+                rpstr+='LightSkyBlue vcs sp gito sp '
                 rpstr+='DodgerBlue sp date sp '
                 rpstr+='SkyBlue sp time sp '
                 rprompt -p
