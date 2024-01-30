@@ -359,6 +359,7 @@ _checkAndRead "${BASH_CONFIG}"/colors.bash
 
 #-=-=-=-=-=-=-=-=
 # bashrc-colors
+#_checkAndRead "${BASH_CONFIG}"/prompt-ZSH.bash
 _checkAndRead "${BASH_CONFIG}"/prompt.bash
 
 #-=-=-=-=-=-=-=-=
