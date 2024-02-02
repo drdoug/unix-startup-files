@@ -313,7 +313,7 @@ function _ListMgrShow
         for component in $COMMON;
         do
                 let index=$index+1;
-                printf "%3.2s: " "$index"
+                printf "%4.3s: " "$index"
                 if (( $needExist == 1 ))
                 then
                         if (( $needDir == 1 ))

@@ -29,7 +29,7 @@ WINDOWHEADER="yes"        # display CWD in xterm/sun-cmd window header
 SHOWGITBRANCH="yes"       # display git branch in xterm/sun-cmd window header
 
 USERID=${UID:-"$(id -u)"} # will check for root or reserved IDs
-OSTYPE="$(uname -s)"      # Linux, Darwim (MacOS), no longer check for Solaris, HPUX
+OSTYPE="$(uname -s)"      # Linux, Darwin (MacOS), no longer check for Solaris, HPUX
 TTY=$(tty)                # will check for interactive session
 
 function setupCommands
