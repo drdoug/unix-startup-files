@@ -1232,6 +1232,9 @@ function getColors
         local i
         local _color
 
+        #
+        # already retrieved, return now
+        # 
         if [[ ! -z $_gotColors ]];
         then
                 return 0
@@ -1246,12 +1249,12 @@ function getColors
         done < "${COLORTABLE}"
 
         _gotColors=true
+
         if (( $i == 1 ))
         then
                 _colorNames=("Black" "Red" "Green" "Yellow" "Blue" "Purple" "Cyan" "White" "Grey")
                 _colorTables=("0" "1" "2" "3" "4" "5" "6" "7" "236")
         fi
-
         }
 
 #
@@ -1409,89 +1412,100 @@ function promptSegment
                 #
                 _fg=$_color
                 _seg+="%F{$_fg}"
-        else
+                return
+        fi
+
+        #
+        # foreground color has been set, this must be a background color
+        #
+        if [[ -z ${_bg} ]];
+        then
                 #
-                # foreground color has been set, set the background color
+                # this is first segment
                 #
-                if [[ -z ${_bg} ]];
+                _bg="$_color"
+                if [[ ! -z $_buildRightPrompt ]];
                 then
-                        #
-                        # this is first segment
-                        #
-                        _bg="$_color"
-                        if [[ ! -z $_buildRightPrompt ]];
-                        then
-                                _seg+="%F{$_bg}"
-                                _seg+="$(print $_rpromptTransition)"
-                                _seg+="%F{$_fg}"
-                        fi
-                        _seg+="%K{$_bg}"
-                else
-                        #
-                        # close off this current segment and save it
-                        #
-                        if [[ -z $_buildRightPrompt ]];
-                        then
-                                _seg+="%F{$_bg}"
-                        fi
-
-                        #
-                        # don't include hidden segments
-                        # until they're enabled
-                        #
-                        case $_checkHiddenSegment in
-                        Ret)
-                                psvar[$_segIndex]="%(${PSV_RET}V.${_seg}.)"
-                                ;;
-                        lock)
-                                psvar[$_segIndex]="%(${PSV_LOCK}V?${_seg}?)"
-                                ;;
-                        vcs)
-                                psvar[$_segIndex]="%(${PSV_VCS}V?${_seg}?)"
-                                ;;
-                        git)
-                                psvar[$_segIndex]="%(${PSV_GIT}V?${_seg}?)"
-                                ;;
-                        vi)
-                                psvar[$_segIndex]="%(${PSV_VI}V?${_seg}?)"
-                                ;;
-                        id)
-                                psvar[$_segIndex]="%(${PSV_ID}V?${_seg}?)"
-                                ;;
-                        *)
-                                psvar[$_segIndex]="$_seg"
-                                ;;
-                        esac
-                        _checkHiddenSegment=''
-
-                        #
-                        # close out and save previous segment
-                        #
-                        (( _segIndex++ ))
-                        _seg=''
-                        _bg="$_color"
-
-                        if [[ ! -z $_buildRightPrompt ]];
-                        then
-                                #
-                                # draw arrow first with foreground color
-                                # set to previous background on right side
-                                # in a new segment
-                                #
-                                _seg+="%F{$_bg}"
-                                _seg+="$(print $_rpromptTransition)"
-                                _seg+="%K{$_bg}"
-                        else
-                                #
-                                # start a new segment on the left
-                                #
-                                _seg+="%K{$_bg}"
-                                _seg+="$(print $_lpromptTransition)"
-                        fi
+                        _seg+="%F{$_bg}"
+                        _seg+="$(print $_rpromptTransition)"
                         _seg+="%F{$_fg}"
                 fi
+                _seg+="%K{$_bg}"
+
+                #
+                # Reset the 'foreground color found' indicator
+                #
                 _fg=''
+                return
         fi
+
+        #
+        # close off this current segment and save it
+        #
+        if [[ -z $_buildRightPrompt ]];
+        then
+                _seg+="%F{$_bg}"
+        fi
+
+        #
+        # don't include hidden segments
+        # until they're enabled
+        #
+        case $_checkHiddenSegment in
+        Ret)
+                psvar[$_segIndex]="%(${PSV_RET}V.${_seg}.)"
+                ;;
+        lock)
+                psvar[$_segIndex]="%(${PSV_LOCK}V?${_seg}?)"
+                ;;
+        vcs)
+                psvar[$_segIndex]="%(${PSV_VCS}V?${_seg}?)"
+                ;;
+        git)
+                psvar[$_segIndex]="%(${PSV_GIT}V?${_seg}?)"
+                ;;
+        vi)
+                psvar[$_segIndex]="%(${PSV_VI}V?${_seg}?)"
+                ;;
+        id)
+                psvar[$_segIndex]="%(${PSV_ID}V?${_seg}?)"
+                ;;
+        *)
+                psvar[$_segIndex]="$_seg"
+                ;;
+        esac
+        _checkHiddenSegment=''
+
+        #
+        # close out and save previous segment
+        #
+        (( _segIndex++ ))
+        _seg=''
+        _bg="$_color"
+
+        if [[ ! -z $_buildRightPrompt ]];
+        then
+                #
+                # draw arrow first with foreground color
+                # set to previous background on right side
+                # in a new segment
+                #
+                _seg+="%F{$_bg}"
+                _seg+="$(print $_rpromptTransition)"
+                _seg+="%K{$_bg}"
+        else
+                #
+                # start a new segment on the left
+                #
+                _seg+="%K{$_bg}"
+                _seg+="$(print $_lpromptTransition)"
+        fi
+        _seg+="%F{$_fg}"
+
+        #
+        # Reset the 'foreground color found' indicator
+        #
+        _fg=''
         }
 
 #
@@ -1688,7 +1702,7 @@ function _commonPrompt
                 #
                 case $cmd in
                 b|B)
-                        if (( $VERSION_MAJOR == 5 && $VERSION_MINOR >= 4 ))
+                        if [[ ( $VERSION_MAJOR -eq 5 && $VERSION_MINOR -ge 4 ) || $VERSION_MAJOR -gt 5 ]];
                         then
                                 if [[ ! -z _boldStarted ]];
                                 then

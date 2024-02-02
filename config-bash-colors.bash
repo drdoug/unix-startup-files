@@ -6,6 +6,8 @@
 # playing with ANSI colors
 #
 
+COLORTABLE=~/.config/bash/colorTable
+
 #
 # determine is label over the given
 # color should be bblack or white
@@ -57,6 +59,9 @@ function getColors
         local i
         #local _color
 
+        #
+        # already retrieved, return now
+        #
         if [[ ! -z $_gotColors ]];
         then
                 return 0
@@ -68,14 +73,20 @@ function getColors
                 _colorNames[$i]=$_color
                 _colorTable[$_color]=$_index
                 (( i++ ))
-        done < ~/.config/bash/colorTable
+        done < "${COLORTABLE}"
         _gotColors=true
+
+        if (( $i == 1 ))
+        then
+                _colorNames=("Black" "Red" "Green" "Yellow" "Blue" "Purple" "Cyan" "White" "Grey")
+                _colorTables=("0" "1" "2" "3" "4" "5" "6" "7" "236")
+        fi
         }
 
 #
 # display colors with names and index numbers
 #
-function showColors
+function showcolors
         {
         local _color
         local _verbose=''
@@ -133,7 +144,7 @@ function setColors
         # Color Specification codes, concatenated to tag assignment:
         #       38;5;0 to 38;5;255 for 88-color and 256-color modes foreground colors
         #       48;5;0’ to ‘48;5;255’ for 88-color and 256-color modes background colors.
-        #           (use showColors command, defined above)
+        #           (use showcolors command, defined above)
         #   Example, 'fi=38;5;228' shows Khaki file names when added to LS_COLORS 
         #       1 for bold,
         #       4 for underline,
