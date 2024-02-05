@@ -1103,89 +1103,6 @@ KEYTIMEOUT=5
 # Prompting
 #
 
-VERSION_MAJOR=$(print $ZSH_VERSION|sed 's/^\([^\.]*\).*/\1/')
-VERSION_MINOR=$(print $ZSH_VERSION|sed 's/^[^\.]*\.\([^\.]*\)\..*/\1/')
-
-function promptHelp
-        {
-
-        echo "prompt: adjust the command prompt"
-        echo "  NOTE: predefined prompts are available with the 'p' command"
-        echo ""
-        echo "Usage:"
-        echo "       prompt {Colors | Snippets}..."
-        echo "       prompt -h"
-        echo "       prompt -p"
-        echo "       prompt -v"
-        echo "NOTE: rprompt sets the prompt on the right side of the command line."
-
-        echo "   Options:"
-        echo "           -h - Display this message."
-        echo "           -p - construct the prompt from the 'pstr' or 'rpstr' variables."
-        echo "                Use  'pstr+='colors snippets' to build a complex prompt."
-        echo "                Use 'rpstr+='colors snippets' to build a prompt to"
-        echo "                             display on the right side of the window."
-        echo "                additional arguments on the command line after '-p' will be ignored."
-        echo "           -v - print the current prompt command, suitable for saving and executing."
-        echo "                additional arguments on the command line after '-v' will be ignored.\n"
-
-        echo "    Colors:"
-        echo "                Black Blue Cyan Grey Green Magenta Red Yellow White"
-        echo "                and 246 more; type 'showcolors' to see them."
-        echo "        NNN   - select color number NNN (from 0 to 255)"
-        echo "        NOTE:   If 2 colors are provided in sequence, the second one"
-        echo "                is used as a background color.  A transition symbol"
-        echo "                can be specified before a new foreground/background"
-        echo "                pair to highlight the change; see Transitions below.\n"
-
-        echo "  Snippets:"
-
-        echo "        .     - add '#' if root, otherwise add '>'"
-        echo "        ,     - add '#' if root, otherwise add '$'"
-        echo "        B     - (or 'b') toggle Bold text mode"
-        echo "        date  - day, month, date: Tue Jan 23"
-        echo "        Date  - YYYY-MM-DD: 1996-01-23"
-        echo "        dir   - name of current directory"
-        echo "        dir2  - name of current directory and its parent"
-        echo "        dir3  - name of current directory, its parent and grandparent"
-        echo "        Dir   - full path name of current directory"
-        echo "        gitb  - git branch in current directory, or 'no repo'"
-        echo "        gito  - git downstream and upstream offsets"
-        echo "        Gitb  - git branch and offsets in current directory only if one exists"
-        echo "                PROMPT_GIT_FORMAT has printf style format, '%s [%s]' by default"
-        echo "        hist  - number in command history"
-        echo "        host  - hostname"
-        echo "        Host  - hostname, fully qualified"
-        echo "        id    - display a new icon if the effective user ID is root"
-        echo "        lock  - display a lock icon if unable to write in current directory"
-        echo "        nl    - newline"
-        echo "        os    - operating system icon"
-        echo "        path  - full path name of current directory"
-        echo "        ret   - last command's return value (or caught signal name)"
-        echo "        Ret   - last command's return value, (or signal name) only if non-zero"
-        echo "        sp    - space"
-        echo "        time  - HH:MM AM/PM"
-        echo "        Time  - HH:MM 24-hour clock"
-        echo "        ul    - toggle underline text mode"
-        echo "        user  - user name"
-        echo "        vcs   - version control branch information for git, hg, svn, cvs"
-        echo "     <other>  - include <other> literally in the prompt"
-        echo "Transitions:"
-        echo "        '>' or '<' - arrow transition to new colors (default)"
-        echo "        ')' or '(' - curve transition to new colors"
-	echo "        #     - pixel block transition to new colors"
-	echo "        /     - upward slant transition to new colors"
-	echo "        \     - downward slant transition to new colors"
-	echo "        ~     - flame transition to new colors"
-	echo "        =     - spike transition to new colors"
-	echo "        +     - block transition to new colors"
-        echo "    Example:"
-        echo "        prompt Green user @ host sp Grey30 time sp White hist sp Red Ret White ';'"
-        echo "  Currently:"
-        echo "         L:     ${pstr}"
-        echo "         R:     ${rpstr}"
-        }
-
 #
 # determine is label over the given
 # color should be bblack or white
@@ -1307,6 +1224,90 @@ function showcolors
         done
         }
 
+VERSION_MAJOR=$(print $ZSH_VERSION|sed 's/^\([^\.]*\).*/\1/')
+VERSION_MINOR=$(print $ZSH_VERSION|sed 's/^[^\.]*\.\([^\.]*\)\..*/\1/')
+
+function promptHelp
+        {
+
+        printf "%s\n" "prompt: Adjust the command prompt"
+        printf "%s\n" "  NOTE: predefined prompts are available with the 'p' command"
+        printf "%s\n" ""
+        printf "%s\n" "Usage:"
+        printf "%s\n" "       prompt {Colors | Snippets}..."
+        printf "%s\n" "       prompt -h"
+        printf "%s\n" "       prompt -p"
+        printf "%s\n" "       prompt -v"
+        printf "%s\n" "NOTE: rprompt sets the prompt on the right side of the command line."
+
+        printf "\n"
+        printf "%s\n" "   Options:"
+        printf "%s\n" "           -h - Display this message."
+        printf "%s\n" "           -p - construct the prompt from the 'pstr' or 'rpstr' variables."
+        printf "%s\n" "                Use  'pstr+='colors snippets' to build a complex prompt."
+        printf "%s\n" "                Use 'rpstr+='colors snippets' to build a prompt to"
+        printf "%s\n" "                             display on the right side of the window."
+        printf "%s\n" "                Additional arguments on the command line after '-p' will be ignored."
+        printf "%s\n" "           -v - print the current prompt command, suitable for saving and executing."
+        printf "%s\n" "                Additional arguments on the command line after '-v' will be ignored.\n"
+
+        printf "%s\n" "    Colors:"
+        printf "%s\n" "                Black Blue Cyan Grey Green Magenta Red Yellow White"
+        printf "%s\n" "                and 246 more; type 'showcolors' to see them."
+        printf "%s\n" "        NNN   - select color number NNN (from 0 to 255)"
+        printf "%s\n" "        NOTE:   If 2 colors are provided in sequence, the second one"
+        printf "%s\n" "                is used as a background color.  A transition symbol"
+        printf "%s\n" "                can be specified before a new foreground/background"
+        printf "%s\n" "                pair to highlight the change; see Transitions below.\n"
+
+        printf "%s\n" "  Snippets:"
+
+        printf "%s\n" "        .     - add '#' if root, otherwise add '>'"
+        printf "%s\n" "        ,     - add '#' if root, otherwise add '$'"
+        printf "%s\n" "        B     - (or 'b') toggle Bold text mode"
+        printf "%s\n" "        date  - day, month, date: Tue Jan 23"
+        printf "%s\n" "        Date  - YYYY-MM-DD: 1996-01-23"
+        printf "%s\n" "        dir   - name of current directory"
+        printf "%s\n" "        dir2  - name of current directory and its parent"
+        printf "%s\n" "        dir3  - name of current directory, its parent and grandparent"
+        printf "%s\n" "        Dir   - full path name of current directory"
+        printf "%s\n" "        gitb  - git branch in current directory, or 'no repo'"
+        printf "%s\n" "        gito  - git downstream and upstream offsets"
+        printf "%s\n" "        Gitb  - git branch and offsets in current directory only if one exists"
+        printf "%s\n" "                PROMPT_GIT_FORMAT has printf style format, '%s [%s]' by default"
+        printf "%s\n" "        hist  - number in command history"
+        printf "%s\n" "        host  - hostname"
+        printf "%s\n" "        Host  - hostname, fully qualified"
+        printf "%s\n" "        id    - display a new icon if the effective user ID is root"
+        printf "%s\n" "        lock  - display a lock icon if unable to write in current directory"
+        printf "%s\n" "        nl    - newline"
+        printf "%s\n" "        os    - operating system icon"
+        printf "%s\n" "        path  - full path name of current directory"
+        printf "%s\n" "        ret   - last command's return value (or caught signal name)"
+        printf "%s\n" "        Ret   - last command's return value, (or signal name) only if non-zero"
+        printf "%s\n" "        sp    - space"
+        printf "%s\n" "        time  - HH:MM AM/PM"
+        printf "%s\n" "        Time  - HH:MM 24-hour clock"
+        printf "%s\n" "        ul    - toggle underline text mode"
+        printf "%s\n" "        user  - user name"
+        printf "%s\n" "        vcs   - version control branch information for git, hg, svn, cvs"
+        printf "%s\n" "     <other>  - include <other> literally in the prompt"
+        printf "%s\n" "Transitions:"
+        printf "%s\n" "        '>' or '<' - arrow transition to new colors (default)"
+        printf "%s\n" "        ')' or '(' - curve transition to new colors"
+	printf "%s\n" "        #     - pixel block transition to new colors"
+	printf "%s\n" "        /     - upward slant transition to new colors"
+	printf "%s\n" "        \     - downward slant transition to new colors"
+	printf "%s\n" "        ~     - flame transition to new colors"
+	printf "%s\n" "        =     - spike transition to new colors"
+	printf "%s\n" "        +     - block transition to new colors"
+        printf "%s\n" "    Example:"
+        printf "%s\n" "        prompt Green user @ host sp Grey30 time sp White hist sp Red Ret White ';'"
+        printf "%s\n" "  Currently:"
+        printf "%s\n" "         L:     ${pstr}"
+        printf "%s\n" "         R:     ${rpstr}"
+        }
+
 #
 # psvar[1] - vi command line editing mode segment
 # psvar[2] - special marker segment if EUID is root
@@ -1396,10 +1397,12 @@ function precmd
         }
 
 #
-# Set the foreground and background colors.
-# A change in the background color is used to
-# indicate a new segment.  All segments are
-# added to the prompt string
+# Set the foreground and background colors, as
+# well as a possibly hidden item.  Either a
+# request for such an item, or a change in the
+# background color is used to indicate a new
+# segment.  All segments are added to the
+# prompt string
 #
 function promptSegment
         {
@@ -1440,7 +1443,8 @@ function promptSegment
         fi
 
         #
-        # close off this current segment and save it
+        # for the regular left side prompt, set
+        # the foreground to the background color
         #
         if [[ -z $_buildRightPrompt ]];
         then
@@ -1448,8 +1452,11 @@ function promptSegment
         fi
 
         #
-        # don't include hidden segments
-        # until they're enabled
+        # If a potentially hidden item was requested
+        # for the prompt, then add this segment before
+        # closing it off. A check is done before the
+        # prompt is displayed to see if the item is
+        # supposed to appear.
         #
         case $_checkHiddenSegment in
         Ret)
@@ -1477,7 +1484,10 @@ function promptSegment
         _checkHiddenSegment=''
 
         #
-        # close out and save previous segment
+        # here we know that both foreground and background
+        # colors are set, and a potentially hidden item
+        # has been added if requested.  Close off this
+        # current segment and save it.
         #
         (( _segIndex++ ))
         _seg=''
