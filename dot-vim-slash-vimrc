@@ -54,7 +54,7 @@ set titlestring=%t%r\ %y\ %a\ \ \ \ \ \ \(%F\)
 "
 " default files to use for grep
 "
-let s:GrepFilesToSearch = "./*.[ch]* */*.[ch]* */*/*.[ch]*"
+let s:GrepFilesToSearch = "##"
 
 if has("unix") && !has("gui_gtk") && !has("mac")
 	"
@@ -490,7 +490,7 @@ endfunction
 " the cursor in every file in the current directory
 "
 function! GrepFromCursor()
-	execute "grep -r -w " . expand( "<cword>") . " " . s:GrepFilesToSearch
+	execute "grep " . expand( "<cword>") . " " . s:GrepFilesToSearch
 endfunction
 
 "
@@ -498,7 +498,7 @@ endfunction
 " requesting a pattern for grep
 "
 function! GrepFromPrompt()
-	execute "grep -r " . inputdialog( "Enter Pattern for SEARCH") . " " . s:GrepFilesToSearch
+	execute "grep " . inputdialog( "Enter Pattern for SEARCH") . " " . s:GrepFilesToSearch
 endfunction
 
 "

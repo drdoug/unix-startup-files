@@ -29,26 +29,47 @@ function updateFile
         fi
         }
 
+function createNeededDirs
+        {
+        if [[ ! -d "$1" ]];
+        then
+                printf "The directory '%s' does not yet exist.  Create it now? [y or n]: " "$1"
+                read _CREATEDIR
+                if [[ $_CREATEDIR == 'y' ]];
+                then
+                        mkdir -p "$1"
+                else
+                        printf "     '%s' was NOT created.  Files residing in this directory will not be available.\n" "$1"
+                fi
+        fi
+        }
+
 function _help
         {
 
-        printf "Usage: %s [-d][-F]\n" "$0"
+        printf "Usage: %s [-d][-F][-C]\n" "$0"
         printf "       The -d flag will print differences between these files and what is installed\n"
         printf "       The -F flag will ask if you wish to update out-of-date files, otherwise only a check is performed\n"
+        printf "       The -C flag will ask if you wish to create missing configuration directories\n"
         exit 1
         }
 
 _OUTOFDATE=0
-_FIND_DIFSS=0
+_FIND_DIFFS=0
 _FORCE_COPY=0
 
-while getopts "dF" opt; do
+while getopts "dFC" opt; do
         case ${opt} in
         d )
                 _FIND_DIFFS=1
                 ;;
         F )
                 _FORCE_COPY=1
+                ;;
+        C )
+                createNeededDirs ~/.config/bash
+                createNeededDirs ~/.config/zsh
+                createNeededDirs ~/.vim/colors
                 ;;
         \? )
                 _help
