@@ -161,17 +161,35 @@ function hostSpecificSetup
                         fi
 
                         ;;
-                PC99382 )
+                "PC102884" )
                         #
-                        # SLAC MacBook Pro
+                        # SLAC MacBook Pro M2 2023
                         #
+                        export EPICS_BASE=/usr/local/epics/epics-base
+                        export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        inspath -q /opt/homebrew/bin
+
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        ;;
+                "PC99382" )
+                        #
+                        # SLAC MacBook Pro Intel 2021
+                        #
+                        export EPICS_BASE=${HOME}/Dropbox/SLAC/Technical/EPICS/epics-base
+                        export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        inspath "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+
                         export EPICS_PVA_AUTO_ADDR_LIST=YES
                         addca lcls-daemon0
                         addca lcls-prod01:5068
                         addca lcls-prod01:5063
                         addpath /usr/local/opt/python@3.11/libexec/bin
                         ;;
-                pc99383 )
+                "pc99383" )
                         #
                         # Dell Desktop Machine Rocky Linux 9
                         #
@@ -189,7 +207,7 @@ function hostSpecificSetup
                         addca lcls-prod01:5063
                         addca mcc-dmz
                         ;;
-                rhel6-64* )
+                "rhel6-64*" )
                         _CommonSLACSettings
                         export EPICS_PVA_AUTO_ADDR_LIST=YES
                         export EPICS_CA_AUTO_ADDR_LIST=NO
@@ -208,6 +226,7 @@ function hostSpecificSetup
                                 export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
                         fi
                         inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        umask 2
                         ;;
                 nx* )
                         alias gtgray="gnome-terminal --profile='DougM Gray'"
@@ -241,10 +260,15 @@ function hostSpecificSetup
                                 export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
                         fi
                         inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        umask 2
                         ;;
-                lcls-dev3 )
+                "lcls-dev3" )
                         _CommonSLACSettings
-
+                        export MATLAB_TOP=/u1/software/matlab
+                        export MATLAB_VERSION=R2017b
+                        inslib $MATLAB_TOP/$MATLAB_VERSION/bin/glnxa64
+                        inslib $MATLAB_TOP/$MATLAB_VERSION/sys/os/glnxa64
+                        export PATH=$MATLAB_TOP/$MATLAB_VERSION/bin:$PATH
                         #
                         # evil script sets prompt and other aliases. bad script.
                         #
@@ -264,7 +288,7 @@ function hostSpecificSetup
                         addca 134.79.219.255
                         addca 172.26.97.63
                         ;;
-                aird-b50-srv01 )
+                "aird-b50-srv01" )
                         _CommonSLACSettings
                         export EPICS_HOST_ARCH="rhel7-x86_64"
                         #
@@ -290,7 +314,7 @@ function hostSpecificSetup
                         addpath -q /afs/slac/g/lcls/epics/extensions/R1.1.1/bin/rhel7-x86_64
                         addpath -q /afs/slac/g/lcls/epics/extensions/pvxs/R1.2.2-0.1.0/bin/rhel7-x86_64
                         ;;
-                mccas0 )
+                "mccas0" )
                         _CommonSLACSettings
                         #
                         # HDF5 tools and BSAS-NC FileWriter monitoring
@@ -305,7 +329,7 @@ function hostSpecificSetup
                         addca 134.79.219.255
                         addca 172.26.97.63
                         ;;
-                lcls-daemon0 )
+                "lcls-daemon0" )
                         _CommonSLACSettings
 
                         #
@@ -327,27 +351,27 @@ function hostSpecificSetup
                         addca 172.27.131.255:5068
                         addca 172.27.43.255:5068
                         ;;
-                testfac-srv01 )
+                "testfac-srv01" )
                         _CommonSLACSettings
                         export ACCTEST_ROOT=/afs/slac/g/acctest
                         source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
                         ;;
-                testfac-camsrv01 )
+                "testfac-camsrv01" )
                         _CommonSLACSettings
                         export ACCTEST_ROOT=/afs/slac/g/acctest
                         source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
                         ;;
-                testfac-camsrv02 )
+                "testfac-camsrv02" )
                         _CommonSLACSettings
                         export ACCTEST_ROOT=/afs/slac/g/acctest
                         source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
                         ;;
-                testfac-asta-cs01 )
+                "testfac-asta-cs01" )
                         _CommonSLACSettings
                         export ACCTEST_ROOT=/afs/slac/g/acctest
                         source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
                         ;;
-                lcls-dev2 )
+                "lcls-dev2" )
                         _CommonSLACSettings
                         source /afs/slac/g/lcls/tools/script/ENVS.bash
                         export JAVAVER=1.7.0_01
@@ -363,20 +387,31 @@ function hostSpecificSetup
                         inslib $PACKAGE_TOP/python/current/lib
                         inslib $PACKAGE_TOP/python/current/lib/python2.7/lib-dynload
                         ;;
-                rdsrv300 )
+                "aird-pc90626" )
+                        _CommonSLACSettings
+                        source /afs/slac/g/lcls/tools/script/ENVS64.bash
+                        source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        export PACKAGE_TOP=/afs/slac/g/lcls/package
+                        export PATH=$PACKAGE_TOP/python/python2.7.9/linux-x86_64/bin:$PATH
+                        export PYEPICS_LIBCA=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libca.so
+                        export PYEPICS_LIBCOM=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libCom.so
+                        inslib $PACKAGE_TOP/python/python2.7.9/linux-x86_64/lib
+                        inslib $PACKAGE_TOP/python/python2.7.9/linux-x86_64/lib/python2.7/lib-dynload
+                        ;;
+                "rdsrv300" )
                         _CommonSLACSettings
                         /usr/bin/aklog
                         /usr/bin/klist
                         /usr/bin/tokens
                         source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
                         ;;
-                rdsrv315 )
+                "rdsrv315" )
                         _CommonSLACSettings
                         /usr/bin/aklog
                         /usr/bin/klist
                         /usr/bin/tokens
                         ;;
-                rdsrv223 )
+                "rdsrv223" )
                         _CommonSLACSettings
                         source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
                         ;;
