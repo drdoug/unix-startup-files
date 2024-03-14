@@ -71,3 +71,4 @@ function git-slac
 alias gits='git-text;printf " ";git status'
 alias gitl="git log --graph --decorate --oneline --all"
 alias gitadd='git add $(git diff --name-only|sort -u)'
+alias gitcheck='git remote -v update'
