@@ -28,7 +28,7 @@
 #      insmine     <- to insert some text to the start of SOME_ENV_VAR
 #      addmine     <- to append some text to the end of SOME_ENV_VAR
 #      delmine     <- to delete some text (all instances) from SOME_ENV_VAR
-#      remmine     <- to remove all content from SOME_ENV_VAR
+#      remmine     <- to remove all functions, leave SOME_ENV_VAR as is
 #      showmine    <- to display all contents of SOME_ENV_VAR
 #      setmine     <- to create a list, setting SOME_ENV_VAR to contain the given arguments
 # By default the environment variable is assumed to
@@ -62,6 +62,7 @@
 # changed if the '-s' flag specifies the same
 # symbol, in which case the _BACKUP_SEP separator
 # will be used instead.
+# Only used in zsh version, bash uses IFS.
 #
 _LIST_MANAGE_SEP=':'
 _LIST_REPL_SEP='/'
@@ -101,7 +102,7 @@ function _ListMgrCreate
         done
 
         eval "unset $VAR"
-        _ListMgrAdd append "$VAR" "$@"
+        _ListMgrChange append "$VAR" "$@"
 
         if (( $verbose == 1 ))
         then
@@ -122,7 +123,7 @@ function _ListMgrCreate
 function _ListMgrInsert
         {
 
-        _ListMgrAdd insert "$@"
+        _ListMgrChange insert "$@"
         }
 
 #
@@ -137,7 +138,7 @@ function _ListMgrInsert
 function _ListMgrAppend
         {
 
-        _ListMgrAdd append "$@"
+        _ListMgrChange append "$@"
         }
 
 #
@@ -145,11 +146,11 @@ function _ListMgrAppend
 # or at the end of the named variable.
 # Duplicates are removed first.
 #
-# usage: _ListMgrAdd [append|insert] VarName [-e][-n][-q][-v][-sX] arg1 ...
+# usage: _ListMgrChange [append|insert] VarName [-e][-n][-q][-v][-sX] arg1 ...
 #
 # refer to 'newlist' below.
 #
-function _ListMgrAdd
+function _ListMgrChange
         {
         let needExist=1
         let needDir=1
@@ -409,7 +410,8 @@ function _ListMgrDelete
         }
 
 #
-# Reset the named variable to be empty.
+# Remove the functions associated with the environment variable.
+# Leave the variable intact.
 #
 # usage: _ListMgrRemove [-e][-n][-q][-v][-sX] VarName ...
 #
@@ -451,7 +453,6 @@ function _ListMgrRemove
                 fi
         done
 
-        eval "unset $ENV_VAR"
         eval "unset -f 'set$SUFF'"
         eval "unset -f 'ins$SUFF'"
         eval "unset -f 'add$SUFF'"
@@ -505,8 +506,8 @@ function _ListMgrRemove
 # PATH, it will be moved to the end.  Similarly,
 # inspath is created to insert the directory at the
 # beginning of the list. The delpath function will remove
-# the directory from PATH, rempath resets the entire
-# environment variable to be empty, setpath will remove
+# the directory from PATH, rempath removes the functions
+# leaving the environment variable as is, setpath will remove
 # the contents of the environment variable then add
 # new content, and showpath lists all of the
 # variable's elements.  
