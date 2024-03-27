@@ -78,11 +78,13 @@ _LIST_BACKUP_SEP=':'
 function _ListMgrCreate
         {
         let verbose=0
+        local component
+        local envVar
 
         #
         # get the env variable to create
         #
-        VAR="$1"
+        envVar="$1"
         shift
 
         #
@@ -101,13 +103,13 @@ function _ListMgrCreate
                 esac
         done
 
-        eval "unset $VAR"
-        _ListMgrChange append "$VAR" "$@"
+        eval "unset $envVar"
+        _ListMgrChange append "$envVar" "$@"
 
         if (( $verbose == 1 ))
         then
-                print "Created list for $VAR"
-                _ListMgrShow $VAR
+                print "Created list for $envVar"
+                _ListMgrShow $envVar
         fi
         }
 
@@ -156,6 +158,9 @@ function _ListMgrChange
         let needDir=1
         let verbose=0
         let quiet=0
+        local component
+        local doInsert
+        local envVar
         _list_sep="${_LIST_MANAGE_SEP}"
 
         #
@@ -172,8 +177,8 @@ function _ListMgrChange
         #
         # get the variable to manage...
         #
-        VAR=$1
-        COMMON=$(eval echo ${VAR:+'$'}${VAR:-})
+        envVar=$1
+        _ListContent=$(eval echo ${envVar:+'$'}${envVar:-})
         shift
 
         NC=
@@ -240,16 +245,16 @@ function _ListMgrChange
         #
         if [[ "$doInsert" = "append" ]];
         then
-                COMMON="$COMMON${COMMON:+${NC:+$_list_sep}}$NC"
+                _ListContent="$_ListContent${_ListContent:+${NC:+$_list_sep}}$NC"
         else
-                COMMON="$NC${NC:+$_list_sep}$COMMON"
+                _ListContent="$NC${NC:+$_list_sep}$_ListContent"
         fi
 
-        eval "export $VAR='$COMMON'"
+        eval "export $envVar='$_ListContent'"
         if (( $verbose == 1 ))
         then
-                print "Updated list for $VAR"
-                _ListMgrShow $VAR
+                print "Updated list for $envVar"
+                _ListMgrShow $envVar
         fi
         }
 
@@ -263,6 +268,7 @@ function _ListMgrChange
 #
 function _ListMgrShow
         {
+        local component
         let needExist=1
         let needDir=1
         let verbose=0
@@ -274,7 +280,7 @@ function _ListMgrShow
         #
         # get the variable (list) to manage...
         #
-        COMMON=$(eval echo ${1:+'$'}${1:-})
+        _ListContent=$(eval echo ${1:+'$'}${1:-})
         shift
 
         #
@@ -311,7 +317,7 @@ function _ListMgrShow
         # traverse the variable and legibly print
         #
         IFS="$_list_sep"
-        for component in $COMMON;
+        for component in $_ListContent;
         do
                 let index=$index+1;
                 printf "%4.3s: " "$index"
@@ -352,6 +358,8 @@ function _ListMgrShow
 function _ListMgrDelete
         {
         let verbose=0
+        local component
+        local envVar
         _list_sep="${_LIST_MANAGE_SEP}"
         _repl_sep="${_LIST_REPL_SEP}"
 
@@ -359,8 +367,8 @@ function _ListMgrDelete
         # get the variable to
         # manage and it's value.
         #
-        VAR=$1
-        COMMON=$(eval echo ${VAR:+'$'}${VAR:-})
+        envVar=$1
+        _ListContent=$(eval echo ${envVar:+'$'}${envVar:-})
         shift
 
         for toDelete in "$@";
@@ -391,7 +399,7 @@ function _ListMgrDelete
                 #
                 NC=''
                 IFS=$_list_sep
-                for component in $COMMON;
+                for component in $_ListContent;
                 do
                         if [[ ! -z $component && $component != "$toDelete" ]];
                         then
@@ -399,13 +407,13 @@ function _ListMgrDelete
                         fi
                 done
                 unset IFS
-                COMMON="${NC}"
+                _ListContent="${NC}"
         done
-        eval "export $VAR='$COMMON'"
+        eval "export $envVar='$_ListContent'"
         if (( $verbose == 1 ))
         then
-                print "Purged list of $VAR"
-                _ListMgrShow $VAR
+                print "Purged list of $envVar"
+                _ListMgrShow $envVar
         fi
         }
 
@@ -419,12 +427,14 @@ function _ListMgrDelete
 #
 function _ListMgrRemove
         {
+        local component
+        local suff
         let verbose=0
 
         #
         # get the list's suffix
         #
-        SUFF=$1
+        suff=$1
         shift
 
         #
@@ -453,20 +463,20 @@ function _ListMgrRemove
                 fi
         done
 
-        eval "unset -f 'set$SUFF'"
-        eval "unset -f 'ins$SUFF'"
-        eval "unset -f 'add$SUFF'"
-        eval "unset -f 'del$SUFF'"
-        eval "unset -f 'rem$SUFF'"
-        eval "unset -f 'show$SUFF'"
+        eval "unset -f 'set$suff'"
+        eval "unset -f 'ins$suff'"
+        eval "unset -f 'add$suff'"
+        eval "unset -f 'del$suff'"
+        eval "unset -f 'rem$suff'"
+        eval "unset -f 'show$suff'"
 
         #
         # don't try removing the list's name from
         # 'lists' if we've just removed 'lists'.
         #
-        if [[ "$SUFF" != "lists" ]];
+        if [[ "$suff" != "lists" ]];
         then
-                dellists "$SUFF"
+                dellists "$suff"
         fi
         }
 
@@ -517,6 +527,7 @@ function _ListMgrRemove
 #
 function newlist
         {
+        local envVar
 
         if [[ $# -lt 2 ]];
         then
@@ -547,10 +558,10 @@ function newlist
                 return
         fi
 
-        VAR=$1
+        envVar=$1
         shift
 
-        if [[ -z $VAR || $VAR =~ ^- ]];
+        if [[ -z $envVar || $envVar =~ ^- ]];
         then
                 printf "   Invalid suffix\n"
                 printf "usage: newlist <SUFFIX> <ENVIRONMENT-VARIABLE> -v -q -s'X' -e -n\n"
@@ -571,14 +582,14 @@ function newlist
         # called.  The semicolon is required because the closing brace needs a
         # delimiter to appear before it.
         #
-        eval "function set$VAR  { _ListMgrCreate      $@ \"\$@\" ; }"
-        eval "function ins$VAR  { _ListMgrInsert      $@ \"\$@\" ; }"
-        eval "function add$VAR  { _ListMgrAppend      $@ \"\$@\" ; }"
-        eval "function del$VAR  { _ListMgrDelete      $@ \"\$@\" ; }"
-        eval "function show$VAR { _ListMgrShow        $@ \"\$@\" ; }"
-        eval "function rem$VAR  { _ListMgrRemove $VAR $@ \"\$@\" ; }"
+        eval "function set$envVar  { _ListMgrCreate         $@ \"\$@\" ; }"
+        eval "function ins$envVar  { _ListMgrInsert         $@ \"\$@\" ; }"
+        eval "function add$envVar  { _ListMgrAppend         $@ \"\$@\" ; }"
+        eval "function del$envVar  { _ListMgrDelete         $@ \"\$@\" ; }"
+        eval "function show$envVar { _ListMgrShow           $@ \"\$@\" ; }"
+        eval "function rem$envVar  { _ListMgrRemove $envVar $@ \"\$@\" ; }"
 
-        addlists "$VAR"
+        addlists "$envVar"
         }
 
 #
