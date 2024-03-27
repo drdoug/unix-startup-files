@@ -226,6 +226,7 @@ function hostSpecificSetup
                                 export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
                         fi
                         inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        addpath -q "~/.local/bin"
                         umask 2
                         ;;
                 nx* )
