@@ -297,6 +297,15 @@ function setLists
                 addman -q /usr/local/share/man
                 addman -q /usr/share/man
         fi
+        }
+
+#
+# use the 'vi' command to start
+# a GUI version of vim, or vim
+# itself.  Use vi as a last resort
+#
+function findVim
+        {
 
         case "$OSTYPE" in
                 "Linux")
@@ -368,14 +377,11 @@ _checkAndRead "${BASH_CONFIG}"/prompt.bash
 # the fun start here
 #
 setupCommands
+setLists
 
 #-=-=-=-=-=-=-=-=
 # bashrc-hostSpecificSetup
 _checkAndRead "${BASH_CONFIG}"/hostSpecificSetup.bash
-
-#-=-=-=-=-=-=-=-=
-
-setLists
 
 #-=-=-=-=-=-=-=-=
 
@@ -386,3 +392,12 @@ if type hostSpecificSetup &>/dev/null
 then
         hostSpecificSetup
 fi
+
+#-=-=-=-=-=-=-=-=
+
+#
+# Find the best editor after setting
+# the host-specific paths...
+#
+findVim
+
