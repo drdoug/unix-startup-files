@@ -324,6 +324,11 @@ function systemSetup
         }
 
 #-=-=-=-=-=-=-=-=
+#
+# newlist
+# Doug Murray
+# 1991-2024
+#
 
 #
 # zshrc-lists

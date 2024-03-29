@@ -1,4 +1,9 @@
 #-=-=-=-=-=-=-=-=
+#
+# newlist.bash
+# Doug Murray
+# 1991-2024
+#
 
 #
 # bash-lists
