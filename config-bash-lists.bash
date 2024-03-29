@@ -418,12 +418,14 @@ function _ListMgrDelete
         }
 
 #
-# Remove the functions associated with the environment variable.
-# Leave the variable intact.
+# Remove the functions associated with the environment variable,
+# leaving the variable intact.
 #
-# usage: _ListMgrRemove [-e][-n][-q][-v][-sX] VarName ...
+# usage: _ListMgrRemove CommandSuffix [-e][-n][-q][-v][-sX] ...
 #
-# refer to 'newlist' below.
+# Note this is different from other generated functions because
+# its argument is the command suffix rather than the environment
+# variable.  Refer to 'newlist' below.
 #
 function _ListMgrRemove
         {
@@ -435,12 +437,6 @@ function _ListMgrRemove
         # get the list's suffix
         #
         suff=$1
-        shift
-
-        #
-        # get the env variable to manage...
-        #
-        ENV_VAR=$1
         shift
 
         #
@@ -552,8 +548,7 @@ function newlist
 		printf "                     they already exist to the start of \$PATH\n"
 		printf "      delpath X... - remove the given names from \$PATH\n"
 		printf "      setpath X... - replace \$PATH with the given names\n"
-		printf "      rempath      - remove the environment variable and\n"
-		printf "                     all six generated functions\n"
+		printf "      rempath      - remove all six generated functions\n"
 
                 return
         fi
@@ -582,12 +577,12 @@ function newlist
         # called.  The semicolon is required because the closing brace needs a
         # delimiter to appear before it.
         #
-        eval "function set$envVar  { _ListMgrCreate         $@ \"\$@\" ; }"
-        eval "function ins$envVar  { _ListMgrInsert         $@ \"\$@\" ; }"
-        eval "function add$envVar  { _ListMgrAppend         $@ \"\$@\" ; }"
-        eval "function del$envVar  { _ListMgrDelete         $@ \"\$@\" ; }"
-        eval "function show$envVar { _ListMgrShow           $@ \"\$@\" ; }"
-        eval "function rem$envVar  { _ListMgrRemove $envVar $@ \"\$@\" ; }"
+        eval "function set$envVar  { _ListMgrCreate      $@ \"\$@\" ; }"
+        eval "function ins$envVar  { _ListMgrInsert      $@ \"\$@\" ; }"
+        eval "function add$envVar  { _ListMgrAppend      $@ \"\$@\" ; }"
+        eval "function del$envVar  { _ListMgrDelete      $@ \"\$@\" ; }"
+        eval "function show$envVar { _ListMgrShow        $@ \"\$@\" ; }"
+        eval "function rem$envVar  { _ListMgrRemove $envVar \"\$@\" ; }"
 
         addlists "$envVar"
         }
