@@ -356,7 +356,7 @@ _checkAndRead "${BASH_CONFIG}"/sdirs.bash
 
 #-=-=-=-=-=-=-=-=
 # bash-lists
-_checkAndRead "${BASH_CONFIG}"/lists.bash
+_checkAndRead "${BASH_CONFIG}"/newlist.bash
 
 #-=-=-=-=-=-=-=-=
 # bashrc-git

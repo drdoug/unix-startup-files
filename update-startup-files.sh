@@ -81,7 +81,7 @@ updateFile dot-bash-profile		        ~/.bash_profile
 updateFile config-bash-bashrc		        ~/.config/bash/bashrc
 updateFile config-bash-git.bash		        ~/.config/bash/git.bash
 updateFile config-bash-sdirs.bash		~/.config/bash/sdirs.bash
-updateFile config-bash-lists.bash		~/.config/bash/lists.bash
+updateFile config-bash-newlist.bash		~/.config/bash/newlist.bash
 updateFile config-bash-colors.bash		~/.config/bash/colors.bash
 updateFile config-bash-prompt.bash		~/.config/bash/prompt.bash
 updateFile config-bash-prompt-ZSH.bash		~/.config/bash/prompt-ZSH.bash
@@ -90,6 +90,7 @@ updateFile config-bash-colorTable               ~/.config/bash/colorTable
 
 updateFile dot-zshenv                           ~/.zshenv
 updateFile config-zsh-zshrc                     ~/.config/zsh/.zshrc
+updateFile config-zsh-newlist.zsh               ~/.config/zsh/newlist.zsh
 updateFile config-zsh-zlogout                   ~/.config/zsh/.zlogout
 
 updateFile dot-vim-slash-vimrc		        ~/.vim/vimrc
