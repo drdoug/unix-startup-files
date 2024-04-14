@@ -1989,6 +1989,26 @@ function SLACHostSetup()
 
         HOSTNAME=$(hostname -s)
         case "$HOSTNAME" in
+                dougM3 )
+                        #
+                        # Personal Laptop
+                        #
+                        if ! type newlist &>/dev/null
+                        then
+                                return
+                        fi
+
+                        inspath /Users/dougm/Home/bin
+
+                        #
+                        # Support for Wine, Qt, Xcode, etc.
+                        #
+                        addpath -q /opt/usr/bin
+                        addpath -q /opt/Qt/6.7.0/macos/bin
+
+                        addmaclib -q ~/Dropbox/src/lib
+                        addman -q /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man
+                        ;;
                 MurrayMacBookPro )
                         #
                         # Personal Laptop
