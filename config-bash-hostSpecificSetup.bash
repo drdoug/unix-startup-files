@@ -98,7 +98,7 @@ function hostSpecificSetup
         HOSTNAME=$(hostname -s)
         shopt -s extglob
         case "$HOSTNAME" in
-                MurrayMacBookPro )
+                "MurrayMacBookPro" | "DougM3" )
                         #
                         # Personal Laptop
                         #
@@ -107,10 +107,15 @@ function hostSpecificSetup
                                 return
                         fi
 
+                        inspath -q /opt/homebrew/bin
+                        inspath -q /Users/dougm/Home/bin
+                        inspath -q /Users/dougm/bin
+
                         #
                         # Support for Wine, Qt, Xcode, etc.
                         #
                         addpath -q /opt/usr/bin
+                        addpath -q /opt/Qt/6.7.0/macos/bin
                         addpath -q /opt/Qt/6.4.0/macos/bin
 
                         addmaclib -q ~/Dropbox/src/lib

@@ -1952,7 +1952,7 @@ v -q $MAXDIRS
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 #
-# bashrc-slac-hosts
+# zshrc-slac-hosts
 #
 
 function _CommonSLACSettings
@@ -1961,35 +1961,94 @@ function _CommonSLACSettings
         EPICS_VERSION="R7.0.3.1-1.0"
         PYTHON_VERSION="3.7.2"
 
-        export EPICS_BASE=${EPICS_BASE:-"/afs/slac/g/lcls/epics/base/${EPICS_VERSION}"}
-        EPICS_SETUP="/afs/slac/g/lcls/epics/setup"
+        epicsDir="epics/base/${EPICS_VERSION}"
+
+        #
+        # if AFS and /usr/local both exist,
+        # get EPICS from /usr/local.
+        #
+        if [[ -d "/usr/local/lcls/${epicsDir}" ]];
+        then
+                export EPICS_BASE=${EPICS_BASE:-"/usr/local/lcls/${epicsDir}"}
+        fi
+
+        if [[ -d "/afs/slac/g/lcls/${epicsDir}" ]];
+        then
+                export EPICS_BASE=${EPICS_BASE:-"/afs/slac/g/lcls/${epicsDir}"}
+        fi
+        unset epicsDir
+
+        #
+        # find the host architecture
+        #
+        if [[ -r ${EPICS_BASE}/startup/EpicsHostArch ]];
+        then
+                export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+        fi
+ 
+        #
+        # set up other local variables relating to
+        # modules, extensions and the facility
+        #
+        EPICS_SETUP="${EPICS_BASE}/../../setup"
         if [[ -r ${EPICS_SETUP}/epicsenv-${EPICS_VERSION}.bash ]];
         then
                 source ${EPICS_SETUP}/epicsenv-${EPICS_VERSION}.bash
         fi
+
         #
         # assume redhat 6 if HOST not set
         #
         export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"rhel6-x86_64"}
+
+        if ! type newlist &>/dev/null
+        then
+                printf "The newlist function is not available.  Functionality will be limited."
+                return
+        fi
+
+        #
+        # At this point, we know
+        # path support is available
+        #
         addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
 
-        export PACKAGE_TOP=${PACKAGE_TOP-"/afs/slac/g/lcls/package"}
-        export GIT_ROOT=${GIT_ROOT-'/afs/slac/g/cd/swe/git/repos'}
+        #
+        # if AFS and /usr/local both exist,
+        # get Python from /usr/local.
+        #
+        if [[ -d "/usr/local/lcls/package" ]];
+        then
+                export PACKAGE_TOP=${PACKAGE_TOP-"/usr/local/lcls/package"}
+                inspath -q $PACKAGE_TOP/anaconda/envs/python3_rhel7_env/bin
+                inslib -q $PACKAGE_TOP/anaconda/envs/python3_rhel7_env/lib
+                inslib -q $PACKAGE_TOP/anaconda/envs/python3_rhel7_env/lib/python3.7/lib-dynload
+        fi
 
-        inspath -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/bin
-        inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib
-        inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib/python3.7/lib-dynload
-        addpath -q /afs/slac/g/lcls/package/hdf5/1.10.8/$EPICS_HOST_ARCH/bin
-        addpath -q /usr/local/opt/python@3.11/libexec/bin
-        addpath -q /afs/slac/package/net/bin
+        if [[ -d "/afs/slac/g/lcls/package" ]];
+        then
+                export PACKAGE_TOP=${PACKAGE_TOP-"/afs/slac/g/lcls/package"}
+                inspath -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/bin
+                inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib
+                inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib/python3.7/lib-dynload
+
+                #
+                # HDF5 and net tools support
+                #
+                addpath -q /afs/slac/g/lcls/package/hdf5/1.10.8/$EPICS_HOST_ARCH/bin
+                addpath -q /afs/slac/package/net/bin
+        fi
+
+        export GIT_ROOT=${GIT_ROOT-'/afs/slac/g/cd/swe/git/repos'}
         }
 
-function SLACHostSetup()
+function hostSpecificSetup
         {
 
         HOSTNAME=$(hostname -s)
         case "$HOSTNAME" in
-                dougM3 )
+                "MurrayMacBookPro" | "DougM3" )
+                        echo "*** FOUND $HOSTNAME ***"
                         #
                         # Personal Laptop
                         #
@@ -1998,30 +2057,15 @@ function SLACHostSetup()
                                 return
                         fi
 
-                        inspath /Users/dougm/Home/bin
+                        inspath -q /opt/homebrew/bin
+                        inspath -q /Users/dougm/Home/bin
+                        inspath -q /Users/dougm/bin
 
                         #
                         # Support for Wine, Qt, Xcode, etc.
                         #
                         addpath -q /opt/usr/bin
                         addpath -q /opt/Qt/6.7.0/macos/bin
-
-                        addmaclib -q ~/Dropbox/src/lib
-                        addman -q /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man
-                        ;;
-                MurrayMacBookPro )
-                        #
-                        # Personal Laptop
-                        #
-                        if ! type newlist &>/dev/null
-                        then
-                                return
-                        fi
-
-                        #
-                        # Support for Wine, Qt, Xcode, etc.
-                        #
-                        addpath -q /opt/usr/bin
                         addpath -q /opt/Qt/6.4.0/macos/bin
 
                         addmaclib -q ~/Dropbox/src/lib
@@ -2086,20 +2130,6 @@ function SLACHostSetup()
                         addca lcls-prod01:5068
                         addca lcls-prod01:5063
                         ;;
-                "PC99382" )
-                        #
-                        # SLAC MacBook Pro Intel 2021
-                        #
-                        export EPICS_BASE=${HOME}/Dropbox/SLAC/Technical/EPICS/epics-base
-                        export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
-                        inspath "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
-
-                        export EPICS_PVA_AUTO_ADDR_LIST=YES
-                        addca lcls-daemon0
-                        addca lcls-prod01:5068
-                        addca lcls-prod01:5063
-                        addpath /usr/local/opt/python@3.11/libexec/bin
-                        ;;
                 "pc99383" )
                         #
                         # Dell Desktop Machine Rocky Linux 9
@@ -2137,6 +2167,7 @@ function SLACHostSetup()
                                 export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
                         fi
                         inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        addpath -q ~/.local/bin
                         umask 2
                         ;;
                 nx* )
@@ -2202,7 +2233,7 @@ function SLACHostSetup()
                 "aird-b50-srv01" )
                         _CommonSLACSettings
                         export EPICS_HOST_ARCH="rhel7-x86_64"
-                        source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        # source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
                         export EPICS_PVA_AUTO_ADDR_LIST=YES
                         export JAVA_VERS=jdk-11.0.2
                         export JAVA_HOME=/afs/slac/g/lcls/package/java/$JAVA_VERS
@@ -2344,7 +2375,7 @@ systemSetup
 #
 # Set up host-specific environment variables
 #
-SLACHostSetup
+hostSpecificSetup
 
 #
 # don't like the conda feature of changing personal preferences
