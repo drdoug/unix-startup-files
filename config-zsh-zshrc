@@ -2048,7 +2048,6 @@ function hostSpecificSetup
         HOSTNAME=$(hostname -s)
         case "$HOSTNAME" in
                 "MurrayMacBookPro" | "DougM3" )
-                        echo "*** FOUND $HOSTNAME ***"
                         #
                         # Personal Laptop
                         #
