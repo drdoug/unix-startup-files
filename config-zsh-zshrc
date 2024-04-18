@@ -30,6 +30,7 @@ HIST_STAMPS="yyy-mm-dd"
 COMPLETION_WAITING_DOTS="true"
 HISTFILE=${ZDOTDIR}/zsh-history
 DISABLE_UNTRACKED_FILES_DIRTY="true"
+PERSONAL_MAC="${ZDOTDIR}/PersonalMac"
 PREVIOUS_DIRS="${ZDOTDIR}/previousDirs"
 
 PROMPT_ID='\uFC09'
@@ -81,7 +82,7 @@ compinit
 # Generic Setup
 #
 
-function systemSetup
+function setupCommands
         {
 
         alias cp='cp -i'
@@ -321,6 +322,15 @@ function systemSetup
                         fi
                         ;;
         esac
+        }
+
+#
+# print a list of defined functions
+#
+function showFunctions
+        {
+
+        print -l ${(ok)functions}
         }
 
 #
@@ -2045,8 +2055,13 @@ function _CommonSLACSettings
 function hostSpecificSetup
         {
 
-        HOSTNAME=$(hostname -s)
-        case "$HOSTNAME" in
+        if [[ -r "$PERSONAL_MAC" ]];
+        then
+                SYSTEM_NAME="DougM3"
+        else
+                SYSTEM_NAME=$(hostname -s)
+        fi
+        case "$SYSTEM_NAME" in
                 "MurrayMacBookPro" | "DougM3" )
                         #
                         # Personal Laptop
@@ -2369,7 +2384,7 @@ function hostSpecificSetup
 #
 # the fun start here
 #
-systemSetup
+setupCommands
 
 #
 # Set up host-specific environment variables
