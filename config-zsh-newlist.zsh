@@ -113,7 +113,7 @@ function _ListMgrCreate
 
         if (( $verbose == 1 ))
         then
-                printf "Created list for $envVar"
+                printf "Created the '%s' list\n" "$envVar"
                 _ListMgrShow $envVar
         fi
         }
@@ -242,7 +242,20 @@ function _ListMgrChange
                                 fi
                         fi
                 fi
+                #
+                # construct New Content with each argument
+                # to append or insert to the list later
+                #
                 NC="$NC${NC:+$_list_sep}$component"
+                if (( $verbose == 1 ))
+                then
+                        if [[ "$doInsert" = "append" ]];
+                        then
+                                printf "Added %s to the end of the '%s' list\n" "$component" "$envVar" 
+                        else
+                                printf "Inserted %s at the beginning of the '%s' list\n" "$component" "$envVar" 
+                        fi
+                fi
         done
 
         #
@@ -258,7 +271,6 @@ function _ListMgrChange
         eval "export $envVar='$_ListContent'"
         if (( $verbose == 1 ))
         then
-                printf "Updated list for $envVar"
                 _ListMgrShow $envVar
         fi
         }
@@ -364,6 +376,7 @@ function _ListMgrShow
 function _ListMgrDelete
         {
         let verbose=0
+        let changed=0
         local component
         local envVar
         _list_sep="${_LIST_MANAGE_SEP}"
@@ -413,15 +426,28 @@ function _ListMgrDelete
                         if [[ ! -z $component && $component != "$toDelete" ]];
                         then
                                 NC="${NC}${NC:+$_list_sep}$component"
+                        else
+                                let changed=1
+                                if (( $verbose == 1 ))
+                                then
+                                        printf "Removed %s from list '%s'\n" "$component" "$envVar"
+                                fi
                         fi
                 done
                 _ListContent="${NC}"
         done
-        eval "export $envVar='$_ListContent'"
-        if (( $verbose == 1 ))
+        if (( $changed == 1 ))
         then
-                printf "Purged list of $envVar"
-                _ListMgrShow $envVar
+                eval "export $envVar='$_ListContent'"
+                if (( $verbose == 1 ))
+                then
+                        _ListMgrShow $envVar
+                fi
+        else
+                if (( $verbose == 1 ))
+                then
+                        printf "Nothing to delete from the '%s' list\n" "$envVar"
+                fi
         fi
         }
 
@@ -461,11 +487,18 @@ function _ListMgrRemove
                                 continue
                                 ;;
                 esac
-                if (( $verbose == 1 ))
-                then
-                        printf "Removing $component and all functions created to manage it.\n"
-                fi
         done
+
+        if (( $verbose == 1 ))
+        then
+                printf "Removing the functions created to manage the list named '$suff':\n"
+                printf "    removing function   set%s\n" "$suff"
+                printf "    removing function  show%s\n" "$suff"
+                printf "    removing function   ins%s\n" "$suff"
+                printf "    removing function   add%s\n" "$suff"
+                printf "    removing function   del%s\n" "$suff"
+                printf "    removing function   rem%s\n" "$suff"
+        fi
 
         eval "unset -f 'set$suff'"
         eval "unset -f 'ins$suff'"
@@ -531,6 +564,8 @@ function _ListMgrRemove
 #
 function newlist
         {
+        let verbose=0
+        local suff
         local envVar
 
         if [[ $# -lt 2 ]];
@@ -561,10 +596,10 @@ function newlist
                 return
         fi
 
-        envVar=$1
+        suff=$1
         shift
 
-        if [[ -z $envVar || $envVar =~ ^- ]];
+        if [[ -z $suff || $suff =~ ^- ]];
         then
                 printf "   Invalid suffix\n"
                 printf "usage: newlist <SUFFIX> <ENVIRONMENT-VARIABLE> -v -q -s'X' -e -n\n"
@@ -579,20 +614,53 @@ function newlist
         fi
 
         #
+        # get for printing with -v,
+        # don't shift, keep with $@
+        #
+        envVar="$1"
+
+        #
+        # check only for verbose flag here
+        # commands will check options
+        #
+        for component in "$@";
+        do
+                if [[ $component == "-v" ]];
+                then
+                        let verbose=1
+                        break;
+                fi
+        done
+
+        #
         # The $@ parameter adds the initial newlist arguments indicating delimiters,
         # verbose flags and so forth.  The \$@ parameter isn't processed but adds a
         # $@ to the function body, which then expands when the defined function is
         # called.  The semicolon is required because the closing brace needs a
         # delimiter to appear before it.
         #
-        eval "function set$envVar  { _ListMgrCreate      $@ \"\$@\" ; }"
-        eval "function ins$envVar  { _ListMgrInsert      $@ \"\$@\" ; }"
-        eval "function add$envVar  { _ListMgrAppend      $@ \"\$@\" ; }"
-        eval "function del$envVar  { _ListMgrDelete      $@ \"\$@\" ; }"
-        eval "function show$envVar { _ListMgrShow        $@ \"\$@\" ; }"
-        eval "function rem$envVar  { _ListMgrRemove $envVar \"\$@\" ; }"
+        eval "function set$suff  { _ListMgrCreate      $@ \"\$@\" ; }"
+        eval "function ins$suff  { _ListMgrInsert      $@ \"\$@\" ; }"
+        eval "function add$suff  { _ListMgrAppend      $@ \"\$@\" ; }"
+        eval "function del$suff  { _ListMgrDelete      $@ \"\$@\" ; }"
+        eval "function show$suff { _ListMgrShow        $@ \"\$@\" ; }"
+        eval "function rem$suff  { _ListMgrRemove $suff \"\$@\" ; }"
 
-        addlists "$envVar"
+        if (( $verbose == 1 ))
+        then
+                printf "Creating functions to manage the '%s' list, referred to as '%s':\n" "$envVar" "$suff"
+                printf "    set%s <- creates and sets the '%s' list to the named elements\n" "$suff" "$envVar"
+                printf "   show%s <- shows all elements within the '%s' list\n" "$suff" "$envVar"
+                printf "    ins%s <- inserts the named elements to the head of the '%s' list\n" "$suff" "$envVar"
+                printf "    add%s <- appends the named elements to the tail of the '%s' list\n" "$suff" "$envVar"
+                printf "    del%s <- deletes the named elements from the '%s' list\n" "$suff" "$envVar"
+                printf "    rem%s <- removes these functions, leaving the '%s' list as is\n" "$suff" "$envVar"
+        fi
+
+        #
+        # add to the list of lists
+        #
+        addlists "$suff"
         }
 
 #
