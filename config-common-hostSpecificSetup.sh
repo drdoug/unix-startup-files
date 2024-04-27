@@ -1,8 +1,10 @@
-#-=-=-=-=-=-=-=-=
+
+
+COMPUTER_LOCAL_NAME=~/.config/PersonalComputersName
 
 #
-# bashrc-hostSpecificSetup
-#
+# Host specific setup file
+# Common to bash and zsh
 #
 
 function _CommonSLACSettings
@@ -53,7 +55,7 @@ function _CommonSLACSettings
 
         if ! type newlist &>/dev/null
         then
-                printf ".bash-hostSpecificSetup.bash: this script was used without calling .bash-lists.bash first."
+                printf "The newlist function is not available.  Functionality will be limited."
                 return
         fi
 
@@ -95,9 +97,27 @@ function _CommonSLACSettings
 function hostSpecificSetup
         {
 
-        HOSTNAME=$(hostname -s)
-        shopt -s extglob
-        case "$HOSTNAME" in
+        #
+        # Some DHCP servers like to assign dynamic
+        # and cryptic names to override the assigned
+        # local hostname.  If this is a "personal"
+        # computer, indicated by the  existence of a
+        # specific file, then just use the initial
+        # name as supplied by the computer.
+        #
+        if [[ -r "$COMPUTER_LOCAL_NAME" ]];
+        then
+                SYSTEM_NAME=$(< $COMPUTER_LOCAL_NAME)
+        else
+                SYSTEM_NAME=$(hostname -s)
+        fi
+
+        if type shopt &>/dev/null
+        then
+                shopt -s extglob
+        fi
+
+        case "$SYSTEM_NAME" in
                 "MurrayMacBookPro" | "DougM3" )
                         #
                         # Personal Laptop
@@ -179,20 +199,6 @@ function hostSpecificSetup
                         addca lcls-daemon0
                         addca lcls-prod01:5068
                         addca lcls-prod01:5063
-                        ;;
-                "PC99382" )
-                        #
-                        # SLAC MacBook Pro Intel 2021
-                        #
-                        export EPICS_BASE=${HOME}/Dropbox/SLAC/Technical/EPICS/epics-base
-                        export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
-                        inspath "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
-
-                        export EPICS_PVA_AUTO_ADDR_LIST=YES
-                        addca lcls-daemon0
-                        addca lcls-prod01:5068
-                        addca lcls-prod01:5063
-                        addpath /usr/local/opt/python@3.11/libexec/bin
                         ;;
                 "pc99383" )
                         #
@@ -298,7 +304,8 @@ function hostSpecificSetup
                         _CommonSLACSettings
                         export EPICS_HOST_ARCH="rhel7-x86_64"
                         #
-                        # DANGER: sourcing this wonderful script
+                        # DANGER: (bash only)
+                        #         sourcing this wonderful script
                         #         twice will remove PATH, making
                         #         this current session unusable
                         #

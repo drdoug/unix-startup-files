@@ -1,19 +1,20 @@
 #-=-=-=-=-=-=-=-=
 #
-# newlist.zsh
+# newlist.sh
 # Doug Murray
 # 1991-2024
 #
 
 #
-# zshrc-lists
+# newlist.sh
+# Common file usable with bash or zsh
 #
 # Manage environment variables as lists rather than
 # lengthy text strings which are difficult to read.
 #
 # Usage:
 #       source this file, then afterwards in the
-#       .zshrc file, add commands like
+#       .bashrc or .zshrc file, add commands like
 #          newlist path  PATH
 #          newlist lib   LD_LIBRARY_PATH
 #          newlist man   MANPATH
@@ -59,6 +60,17 @@
 #
 # Details are described below.
 #
+
+#
+# Determine if we're using bash or zsh.
+# Assume zsh by default, but change to
+# bash if 'shopt' builtin cmd is available.
+#
+SHELL_USED=zsh
+if type shopt &>/dev/null
+then
+        SHELL_USED=bash
+fi
 
 #
 # commonly used separator for list fields
@@ -331,12 +343,18 @@ function _ListMgrShow
         done
 
         #
-        # convert the list to an array (because IFS isn't
+        # For zsh, convert the list to an array (because IFS isn't
         # available here), then traverse and legibly print
+        # For bash, just traverse the variable and legibly print
         #
-        eval $(printf "%s" "listArray=(\${(s${_repl_sep}${_list_sep}${_repl_sep})_ListContent})")
+        if [[ $SHELL_USED == "bash" ]];
+        then
+                IFS="$_list_sep"
+        else
+                eval $(printf "%s" "_ListContent=(\${(s${_repl_sep}${_list_sep}${_repl_sep})_ListContent})")
+        fi
 
-        for component ("${listArray[@]}");
+        for component in $_ListContent;
         do
                 let index=$index+1;
                 printf "%4.3s: " "$index"
@@ -363,6 +381,11 @@ function _ListMgrShow
                 fi
                 printf "%s\n" "$component"
         done
+
+        if [[ $SHELL_USED == "bash" ]];
+        then
+                unset IFS
+        fi
         }
 
 #
@@ -413,15 +436,20 @@ function _ListMgrDelete
                 esac
 
                 #
-                # Convert list to array then
-                # rebuild the list without
+                # If zsh, convert the list to an
+                # array because IFS isn't available.
+                # In bash or zsh, rebuild the list without
                 # the deleted element.
-                # IFS isn't available here.
                 #
-                eval $(printf "%s" "listArray=(\${(s${_repl_sep}${_list_sep}${_repl_sep})_ListContent})")
+                if [[ $SHELL_USED == "bash" ]];
+                then
+                        IFS=$_list_sep
+                else
+                        eval $(printf "%s" "_ListContent=(\${(s${_repl_sep}${_list_sep}${_repl_sep})_ListContent})")
+                fi
 
                 NC=''
-                for component ("${listArray[@]}");
+                for component in $_ListContent;
                 do
                         if [[ ! -z $component && $component != "$toDelete" ]];
                         then
@@ -434,6 +462,10 @@ function _ListMgrDelete
                                 fi
                         fi
                 done
+                if [[ $SHELL_USED == "bash" ]];
+                then
+                        unset IFS
+                fi
                 _ListContent="${NC}"
         done
         if (( $changed == 1 ))

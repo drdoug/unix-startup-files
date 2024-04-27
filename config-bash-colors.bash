@@ -6,7 +6,7 @@
 # playing with ANSI colors
 #
 
-COLORTABLE=~/.config/bash/colorTable
+COLORTABLE=~/.config/shells/colorTable
 
 #
 # determine is label over the given

@@ -17,8 +17,8 @@
 # customizable settings
 #
 
-BASH_CONFIG=~/.config/bash
-HISTFILE="${BASH_CONFIG}/history"
+BASH_CONFIG=~/.config/shells
+HISTFILE="${BASH_CONFIG}/bash-history"
 
 MAXDIRS=20                # default numbered directory aliases; change with sdirs cmd
 HISTSIZE=5000             # maximum history size per session
@@ -356,7 +356,7 @@ _checkAndRead "${BASH_CONFIG}"/sdirs.bash
 
 #-=-=-=-=-=-=-=-=
 # bash-lists
-_checkAndRead "${BASH_CONFIG}"/newlist.bash
+_checkAndRead "${BASH_CONFIG}"/newlist.sh
 
 #-=-=-=-=-=-=-=-=
 # bashrc-git

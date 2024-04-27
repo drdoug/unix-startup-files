@@ -67,8 +67,7 @@ while getopts "dFC" opt; do
                 _FORCE_COPY=1
                 ;;
         C )
-                createNeededDirs ~/.config/bash
-                createNeededDirs ~/.config/zsh
+                createNeededDirs ~/.config/shells
                 createNeededDirs ~/.vim/colors
                 ;;
         \? )
@@ -78,20 +77,20 @@ while getopts "dFC" opt; do
 done
 
 updateFile dot-bash-profile		        ~/.bash_profile
-updateFile config-bash-bashrc		        ~/.config/bash/bashrc
-updateFile config-bash-git.bash		        ~/.config/bash/git.bash
-updateFile config-bash-sdirs.bash		~/.config/bash/sdirs.bash
-updateFile config-bash-newlist.bash		~/.config/bash/newlist.bash
-updateFile config-bash-colors.bash		~/.config/bash/colors.bash
-updateFile config-bash-prompt.bash		~/.config/bash/prompt.bash
-updateFile config-bash-prompt-ZSH.bash		~/.config/bash/prompt-ZSH.bash
-updateFile config-bash-hostSpecificSetup.bash	~/.config/bash/hostSpecificSetup.bash
-updateFile config-bash-colorTable               ~/.config/bash/colorTable
+updateFile config-bash-bashrc		        ~/.config/shells/bashrc
+updateFile config-bash-git.bash		        ~/.config/shells/git.bash
+updateFile config-bash-sdirs.bash		~/.config/shells/sdirs.bash
+updateFile config-bash-colors.bash		~/.config/shells/colors.bash
+updateFile config-bash-prompt.bash		~/.config/shells/prompt.bash
+updateFile config-bash-prompt-ZSH.bash		~/.config/shells/prompt-ZSH.bash
+updateFile config-bash-colorTable               ~/.config/shells/colorTable
 
 updateFile dot-zshenv                           ~/.zshenv
-updateFile config-zsh-zshrc                     ~/.config/zsh/.zshrc
-updateFile config-zsh-newlist.zsh               ~/.config/zsh/newlist.zsh
-updateFile config-zsh-zlogout                   ~/.config/zsh/.zlogout
+updateFile config-zsh-zshrc                     ~/.config/shells/.zshrc
+updateFile config-zsh-zlogout                   ~/.config/shells/.zlogout
+
+updateFile config-common-newlist.sh		~/.config/shells/newlist.sh
+updateFile config-common-hostSpecificSetup.sh	~/.config/shells/hostSpecificSetup.sh
 
 updateFile dot-vim-slash-vimrc		        ~/.vim/vimrc
 updateFile dot-vim-slash-gvimrc        		~/.vim/gvimrc
