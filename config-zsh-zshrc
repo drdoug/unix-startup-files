@@ -190,32 +190,10 @@ function setupCommands
                                 unalias ls   &>/dev/null
                                 unalias grep &>/dev/null
                         fi
-                        if type gvim &>/dev/null
-                        then
-                                alias vi='gvim'
-                        else
-                                if type vim &>/dev/null
-                                then
-                                        alias vi='vim'
-                                else
-                                        unalias vi &>/dev/null
-                                fi
-                        fi
                         ;;
                 "Darwin")
                         SYS_SPECIFIC="MacOS"
 
-                        if type mvim &>/dev/null
-                        then
-                                alias vi='mvim'
-                        else
-                                if type vim &>/dev/null
-                                then
-                                        alias vi='vim'
-                                else
-                                        unalias vi &>/dev/null
-                                fi
-                        fi
                         #
                         # check for grep and ls colorization
                         #
@@ -313,12 +291,6 @@ function setupCommands
                         ;;
                 *)
                         SYS_SPECIFIC=''
-                        if type vim &>/dev/null
-                        then
-                                alias vi='vim'
-                        else
-                                unalias vi &>/dev/null
-                        fi
                         ;;
         esac
         }
@@ -345,6 +317,52 @@ function _checkAndRead
                         source "$fileName"
                 fi
         done
+        }
+
+function findVim
+        {
+
+        case "$OSTYPE" in
+                "Linux")
+                        if type gvim &>/dev/null
+                        then
+                                alias vi='gvim'
+                        else
+                                if type vim &>/dev/null
+                                then
+                                        alias vi='vim'
+                                else
+                                        unalias vi &>/dev/null
+                                fi
+                        fi
+                        ;;
+                "Darwin")
+                        if type mvim &>/dev/null
+                        then
+                                alias vi='mvim'
+                        else
+                                if type vim &>/dev/null
+                                then
+                                        alias vi='vim'
+                                else
+                                        unalias vi &>/dev/null
+                                fi
+                        fi
+
+                        if type newlist &>/dev/null
+                        then
+                                newlist maclib DYLD_LIBRARY_PATH
+                        fi
+                        ;;
+                *)
+                        if type vim &>/dev/null
+                        then
+                                alias vi='vim'
+                        else
+                                unalias vi &>/dev/null
+                        fi
+                        ;;
+        esac
         }
 
 #-=-=-=-=-=-=-=-=
@@ -1975,32 +1993,4 @@ _checkAndRead "${ZDOTDIR}"/hostSpecificSetup.sh
 # Set up host-specific environment variables
 #
 hostSpecificSetup
-
-#
-# don't like the conda feature of changing personal preferences
-#
-_savePrompt="$PS1"
-
-#
-# Conda Setup
-#
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('~/opt/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [[ $? -eq 0 ]]; then
-    eval "$__conda_setup"
-else
-    if [[ -f "~/opt/anaconda3/etc/profile.d/conda.sh" ]]; then
-        . "~/opt/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="$PATH:~/opt/anaconda3/bin"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
-#
-# don't like the conda feature of changing personal preferences
-#
-PS1="$_savePrompt"
+findVim
