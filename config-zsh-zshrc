@@ -8,57 +8,51 @@
 #
 
 #
-# Common startup for zsh based on similar POSIX .bashrc/.kshrc
+# Common startup for shells
 #
-#   Functions starting with '_' are meant to be private
-#
+#   Names starting with '_' are meant to be private
 #
 
-ZDOTDIR=${ZDOTDIR:-~/.config/shells}
-COLORTABLE=${ZDOTDIR}/colorTable    # save space, use original bash table, same colors
+#
+# Before anything else, locate the
+# startup directory, assumed to be
+# the same one from which this
+# script is running.
+#
+# Check if we're running from bash by
+# checking for shopt, a bash builtin.
+#
+if type shopt &>/dev/null
+then
+        _STARTUP_DIR=$(readlink -f $(dirname $(readlink -f ${BASH_SOURCE[0]})))
+        HISTFILE="${_STARTUP_DIR}/bash-history"
+        HISTFILESIZE=5000 # maximum size of saved history file
+else
+        _STARTUP_DIR=$(readlink -f $(dirname $(readlink -f ${(%):-%x})))
+        HISTFILE=${_STARTUP_DIR}/zsh-history
+        SAVEHIST=5000     # maximum size of saved history file
+        ZDOTDIR=${_STARTUP_DIR}
+fi
 
-TTY=$(tty)
-KEYTIMEOUT=1
-USECOLOR=true           # let 'ls' and 'grep' use color if available
-HISTSIZE=5000
-SAVEHIST=5000
+#
+# customizable settings
+#
+
+HISTSIZE=5000             # maximum history size in memory per session
+
+USECOLOR=true             # let 'ls' and 'grep' use color if available
+WINDOWHEADER="yes"        # display CWD in xterm/sun-cmd window header
+SHOWGITBRANCH="yes"       # display git branch in xterm/sun-cmd window header
+
+USERID=${UID:-"$(id -u)"} # will check for root or reserved IDs
+OSTYPE="$(uname -s)"      # Linux, Darwin (MacOS), no longer check for Solaris, HPUX
+TTY=$(tty)                # will check for interactive session
+
 SYS_SPECIFIC=''
-USERID=$(id -u)
-WINDOWHEADER="yes"      # display CWD in xterm/sun-cmd window header
-SHOWGITBRANCH="yes"     # display git branch in xterm/sun-cmd window header
 HIST_STAMPS="yyy-mm-dd"
 COMPLETION_WAITING_DOTS="true"
-HISTFILE=${ZDOTDIR}/zsh-history
 DISABLE_UNTRACKED_FILES_DIRTY="true"
-PREVIOUS_DIRS="${ZDOTDIR}/previousDirs"
-
-PROMPT_ID='\uFC09'
-PROMPT_LOCK='\uF023'
-PROMPT_OTHER='\uF109'
-PROMPT_LINUX='\uE712'
-PROMPT_MACOS='\uF302'
-PROMPT_UBUNTU='\uF31B'
-PROMPT_REDHAT='\uF316'
-PROMPT_CENTOS='\uF304'
-PROMPT_GIT_BRANCH='\uE0A0'
-PROMPT_R_UP_TRANSITION='\uE0BA'
-PROMPT_L_UP_TRANSITION='\uE0BC'
-PROMPT_BLOCK_TRANSITION='\uE0CC'
-PROMPT_R_DOWN_TRANSITION='\uE0BE'
-PROMPT_L_DOWN_TRANSITION='\uE0B8'
-PROMPT_R_SPIKE_TRANSITION='\uE0CA'
-PROMPT_L_SPIKE_TRANSITION='\uE0C8'
-PROMPT_R_FLAME_TRANSITION='\uE0C2'
-PROMPT_L_FLAME_TRANSITION='\uE0C0'
-PROMPT_R_PIXEL_TRANSITION='\uE0C5'
-PROMPT_L_PIXEL_TRANSITION='\uE0C4'
-PROMPT_R_CURVE_TRANSITION='\uE0B6'
-PROMPT_L_CURVE_TRANSITION='\uE0B4'
-PROMPT_R_ARROW_TRANSITION='\uE0B2'
-PROMPT_L_ARROW_TRANSITION='\uE0B0'
-#PROMPT_COMMIT='\uF151'         #stagedstr
-#PROMPT_STAGE='\uF01B'          #unstagedstr
-#PROMPT_BRANCH='\uE725'         #branch
+PREVIOUS_DIRS="${_STARTUP_DIR}/previousDirs"
 
 unsetopt notify
 setopt PROMPT_SUBST
@@ -69,7 +63,7 @@ zstyle ':vcs_info:git*' stagedstr '>'
 zstyle ':vcs_info:git*' unstagedstr '+'
 zstyle ':vcs_info:git*' formats '%b %u%c'
 
-zstyle :compinstall filename '${ZDOTDIR}/.zshrc'
+zstyle :compinstall filename '${_STARTUP_DIR}/.zshrc'
 autoload -Uz compinit
 compinit
 
@@ -99,8 +93,6 @@ function setupCommands
         #
         export EDITOR=vi
         export BUILDKIT_COLORS="run=cyan:cancel=yellow:warning=red"
-
-        OSTYPE="$(uname -s)"
 
         #
         # color definitions for 'ls', 'grep' and autocompletion
@@ -367,7 +359,7 @@ function findVim
 
 #-=-=-=-=-=-=-=-=
 # zsh-lists
-_checkAndRead "${ZDOTDIR}"/newlist.sh
+_checkAndRead "${_STARTUP_DIR}"/newlist.sh
 
 #-=-=-=-=-=-=-=-=
 
@@ -574,6 +566,36 @@ KEYTIMEOUT=5
 #
 # Prompting
 #
+
+COLORTABLE=${_STARTUP_DIR}/colorTable
+
+PROMPT_ID='\uFC09'
+PROMPT_LOCK='\uF023'
+PROMPT_OTHER='\uF109'
+PROMPT_LINUX='\uE712'
+PROMPT_MACOS='\uF302'
+PROMPT_UBUNTU='\uF31B'
+PROMPT_REDHAT='\uF316'
+PROMPT_CENTOS='\uF304'
+PROMPT_GIT_BRANCH='\uE0A0'
+PROMPT_R_UP_TRANSITION='\uE0BA'
+PROMPT_L_UP_TRANSITION='\uE0BC'
+PROMPT_BLOCK_TRANSITION='\uE0CC'
+PROMPT_R_DOWN_TRANSITION='\uE0BE'
+PROMPT_L_DOWN_TRANSITION='\uE0B8'
+PROMPT_R_SPIKE_TRANSITION='\uE0CA'
+PROMPT_L_SPIKE_TRANSITION='\uE0C8'
+PROMPT_R_FLAME_TRANSITION='\uE0C2'
+PROMPT_L_FLAME_TRANSITION='\uE0C0'
+PROMPT_R_PIXEL_TRANSITION='\uE0C5'
+PROMPT_L_PIXEL_TRANSITION='\uE0C4'
+PROMPT_R_CURVE_TRANSITION='\uE0B6'
+PROMPT_L_CURVE_TRANSITION='\uE0B4'
+PROMPT_R_ARROW_TRANSITION='\uE0B2'
+PROMPT_L_ARROW_TRANSITION='\uE0B0'
+#PROMPT_COMMIT='\uF151'         #stagedstr
+#PROMPT_STAGE='\uF01B'          #unstagedstr
+#PROMPT_BRANCH='\uE725'         #branch
 
 #
 # determine is label over the given
@@ -1985,7 +2007,7 @@ setupCommands
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 # zsh-hostSpecificSetup
-_checkAndRead "${ZDOTDIR}"/hostSpecificSetup.sh
+_checkAndRead "${_STARTUP_DIR}"/hostSpecificSetup.sh
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

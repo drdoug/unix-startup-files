@@ -17,6 +17,8 @@
 #     n                 switch with directory numbered n (nth previous directory, up to MAXDIRS)
 #
 
+MAXDIRS=20                # default numbered directory aliases; change with sdirs cmd
+
 #
 # set up header for window title
 # to show directory name. Disabled
