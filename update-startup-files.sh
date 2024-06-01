@@ -88,6 +88,7 @@ updateFile config-bash-colorTable               ~/.config/shells/colorTable
 updateFile dot-zshenv                           ~/.zshenv
 updateFile config-zsh-zshrc                     ~/.config/shells/.zshrc
 updateFile config-zsh-zlogout                   ~/.config/shells/.zlogout
+updateFile config-zsh-dirs.zsh                  ~/.config/shells/dirs.zsh
 
 updateFile config-common-newlist.sh		~/.config/shells/newlist.sh
 updateFile config-common-hostSpecificSetup.sh	~/.config/shells/hostSpecificSetup.sh

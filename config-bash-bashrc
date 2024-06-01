@@ -367,8 +367,8 @@ function findVim
         }
 
 #-=-=-=-=-=-=-=-=
-# bash-sdirs
-_checkAndRead "${_STARTUP_DIR}"/sdirs.bash
+# bash-dirs
+_checkAndRead "${_STARTUP_DIR}"/dirs.bash
 
 #-=-=-=-=-=-=-=-=
 # bash-lists

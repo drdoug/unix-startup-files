@@ -1,8 +1,16 @@
 #-=-=-=-=-=-=-=-=
 
 #
-# bashrc-sdirs
-# bash script to manage directory visits
+# bashrc-dir
+#
+# the following functions manage directory history.
+# Typing 'b' goes back to the most recently visited
+# directory, typing 'B' goes forward in the opposite
+# direction.  Basically a circular list of visited
+# directories. These commands, and the basic cd and
+# chdir commands work because of the chpwd hook,
+# called when a new directory is visited.
+# Details below:
 #
 #  -numbered directory history for quick return
 #   command               action
@@ -59,7 +67,7 @@ function _setWindowHeader
 #
 # actually display the window header
 #
-function _showDirName
+function _windowHeaderUpdate
         {
 
         if [[ $WINDOWHEADER != "yes" ]];
@@ -91,6 +99,27 @@ function _showDirName
         }
 
 #
+# Read previous directory list from local
+# file saved at last interactive logout.
+#
+function _getPreviousDirs
+        {
+
+        if [[ -r "${PREVIOUSLY_VISITED_DIRS}" ]];
+        then
+                read -A _DIRS<"${PREVIOUSLY_VISITED_DIRS}"
+        else
+                for (( index = 1; index <= $MAXDIRS; index++ ))
+                do
+                        if [[ -z "${_DIRS[$index]}" ]];
+                        then
+                                _DIRS[$index]=~
+                        fi
+                done
+        fi
+        }
+
+#
 # verbose; function to list all visited directories.
 # Also used to create array of visited directories.
 # Array can be adjusted larger or smaller.
@@ -99,6 +128,7 @@ function _showDirName
 #
 function v
         {
+        let index=0
         let quiet=0
         let existing=$MAXDIRS
 
@@ -123,17 +153,21 @@ function v
                 #
                 # somewhat arbitrary limit
                 #
-                if (( $1 > 1 && $1 < 99 ))
+                re="^[0-9]+$"
+                if [[ "$1" =~ $re ]];
                 then
-                        if (( $quiet != 1 ))
+                        if (( $1 > 2 && $1 < 99 ))
                         then
-                                printf "%s: Changing number of saved directories from %d to %d\n" "${FUNCNAME[0]}" "$MAXDIRS" "$1"
+                                if (( $quiet != 1 ))
+                                then
+                                        printf "%s: Changing number of saved directories from %d to %d\n" "v" "$MAXDIRS" "$1"
+                                fi
+                                MAXDIRS=$1;
+                                shift
+                        else
+                                printf "%s: number of saved directories must be between 3 and 99\n" "v"
+                                return 1
                         fi
-                        MAXDIRS=$1;
-                        shift
-                else
-                        printf "%s: number of saved directories must be between 2 and 99\n" "${FUNCNAME[0]}"
-                        return 1
                 fi
 
                 #
@@ -141,11 +175,11 @@ function v
                 #
                 if (( $# > 0 ))
                 then
-                        printf "%s: ignoring extra arguments\n" "${FUNCNAME[0]}"
+                        printf "Unrecognized argument.\nUsage: "v" [-q][NumDirectoriesToRemember]\n"
                 fi
 
                 #
-                # set empty directoy slots to home
+                # set empty directory slots to home
                 #
                 for (( index = 0; index <= $MAXDIRS; index++ ))
                 do
@@ -161,7 +195,7 @@ function v
                         #
                         if (( $index > 0 ))
                         then
-                                alias $index='"cd" "${_DIRS['$index']}";DIR="${_DIRS['$index']}";_DIRS['$index']="${_DIRS[0]}";_DIRS[0]="$DIR";_showDirName;printf "%s\n" "${_DIRS[0]}"'
+                                alias $index='"cd" "${_DIRS['$index']}";DIR="${_DIRS['$index']}";_DIRS['$index']="${_DIRS[0]}";_DIRS[0]="$DIR";_windowHeaderUpdate;printf "%s\n" "${_DIRS[0]}"'
                         fi
                 done
 
@@ -212,7 +246,7 @@ function b
                 printf "%s\n" "Cannot find last directory (${_DIRS[1]}) at this time."
                 return
         fi
-        _showDirName
+        _windowHeaderUpdate
         printf "%s\n" "${_DIRS[1]}"
 
         local SAVE=${_DIRS[0]}
@@ -267,7 +301,7 @@ function B
                 return
         fi
 
-        _showDirName
+        _windowHeaderUpdate
         printf "%s\n" "${_DIRS[$found]}"
 
         local NEXT
@@ -304,7 +338,7 @@ function customChangeDirectory
                 return
         fi
 
-        _showDirName
+        _windowHeaderUpdate
         LAST=${_DIRS[0]}
         let index=0
         for DIR in "${_DIRS[@]}";
