@@ -79,7 +79,7 @@ done
 updateFile dot-bash-profile		        ~/.bash_profile
 updateFile config-bash-bashrc		        ~/.config/shells/bashrc
 updateFile config-bash-git.bash		        ~/.config/shells/git.bash
-updateFile config-bash-sdirs.bash		~/.config/shells/sdirs.bash
+updateFile config-bash-dirs.bash		~/.config/shells/dirs.bash
 updateFile config-bash-colors.bash		~/.config/shells/colors.bash
 updateFile config-bash-prompt.bash		~/.config/shells/prompt.bash
 updateFile config-bash-prompt-ZSH.bash		~/.config/shells/prompt-ZSH.bash
