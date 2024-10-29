@@ -2,7 +2,7 @@
 " [ngm]vim colors
 "
 " named Aurora after the colors of the Northern Lights
-" yes, I could be aa bit more imaginitive...
+" yes, it could be a bit more imaginitive...
 "
 
 hi clear
@@ -14,96 +14,96 @@ let g:colors_name="aurora"
 
 hi Boolean         guifg=coral
 hi Character       guifg=coral2
-hi ColorColumn                   guibg=gray15
+hi ColorColumn                            guibg=gray15
 hi Comment         guifg=yellow
-hi Conditional     guifg=magenta               gui=bold
-hi Constant        guifg=tomato3               gui=bold
-hi Cursor                        guibg=khaki
-hi   ChangesCursor               guibg=red
-hi   CommandCursor               guibg=hotpink
-hi CursorColumn                  guibg=gray25
-hi CursorLine                    guibg=bg
-hi CursorLineNr    guifg=dodgerblue            gui=none
-hi Debug           guifg=maroon                gui=bold
+hi Conditional     guifg=magenta                               gui=bold
+hi Constant        guifg=tomato3                               gui=bold
+hi Cursor                                 guibg=khaki
+hi   ChangesCursor                        guibg=red
+hi   CommandCursor                        guibg=hotpink
+hi CursorColumn                           guibg=gray25
+hi CursorLine                             guibg=gray11
+hi CursorLineNr    guifg=dodgerblue                            gui=none
+hi Debug           guifg=maroon                                gui=bold
 hi Define          guifg=skyblue
 hi Delimiter       guifg=gray56
-hi DiffAdd                       guibg=darkslategray
-hi DiffChange                    guibg=darkslategray
-hi DiffDelete      guifg=darkslategray4 guibg=darkslategray
-hi DiffText        guifg=yellow  guibg=darkslategray gui=bold,underline
-hi Directory       guifg=yellowgreen           gui=bold
-hi Error           guifg=#E6DB74 guibg=#1E0010
-hi ErrorMsg        guifg=coral   guibg=#232526
-hi Exception       guifg=coral2                gui=bold
+hi DiffAdd                                guibg=darkslategray
+hi DiffChange                             guibg=darkslategray
+hi DiffDelete      guifg=darkslategray4   guibg=darkslategray
+hi DiffText        guifg=yellow           guibg=darkslategray  gui=bold,underline
+hi Directory       guifg=yellowgreen                           gui=bold
+hi Error           guifg=yellow           guibg=darkred
+hi ErrorMsg        guifg=coral            guibg=gray27
+hi Exception       guifg=coral2                                gui=bold
 hi Float           guifg=tomato3
-hi FoldColumn      guifg=#465457 guibg=#000000
-hi Folded          guifg=#465457 guibg=#000000
-hi Function        guifg=#A6E22E
-hi Identifier      guifg=#FD971F
-hi Ignore          guifg=#808080 guibg=bg
-hi IncSearch       guifg=#C4BE89 guibg=#000000
-hi Keyword         guifg=salmon                gui=bold
-hi Label           guifg=#E6DB74               gui=none
-hi LineNr          guifg=#465457 guibg=#232526
-hi Macro           guifg=skyblue               gui=italic
-hi MatchParen      guifg=#000000 guibg=#FD971F gui=bold
-hi Menu            guifg=white   guibg=gray40
-hi ModeMsg         guifg=#E6DB74
-hi MoreMsg         guifg=#E6DB74
-hi NonText         guifg=#465457
-hi Normal          guifg=#F8F8F2 guibg=#060606
+hi FoldColumn      guifg=gray52           guibg=black
+hi Folded          guifg=gray52           guibg=black
+hi Function        guifg=greenyellow
+hi Identifier      guifg=darkorange
+hi Ignore          guifg=gray54           guibg=bg
+hi IncSearch       guifg=khaki            guibg=black
+hi Keyword         guifg=salmon                                gui=bold
+hi Label           guifg=lightgoldenrod2                       gui=none
+hi LineNr          guifg=green4           guibg=gray15
+hi Macro           guifg=skyblue                               gui=italic
+hi MatchParen      guifg=yellow3          guibg=gray35         gui=bold
+hi Menu            guifg=white            guibg=gray40
+hi ModeMsg         guifg=palegreen
+hi MoreMsg         guifg=palegreen
+hi NonText         guifg=DarkSlateBlue
+hi Normal          guifg=ivory1           guibg=gray8
 hi Number          guifg=coral
-hi Operator        guifg=#F92672
-hi Pmenu           guifg=#66D9EF guibg=#000000
-hi PmenuSbar                     guibg=#080808
-hi PmenuSel                      guibg=#808080
-hi PmenuThumb      guifg=#66D9EF
-hi PreCondit       guifg=lightskyblue          gui=bold
-hi PreProc         guifg=deepskyblue           gui=italic
-hi Question        guifg=#66D9EF
-hi Repeat          guifg=#F92672               gui=bold
-hi Search          guifg=#000000 guibg=#FFE792
-hi Scrollbar       guifg=gray80  guibg=gray20
-hi SignColumn      guifg=#A6E22E guibg=#232526
-hi Special         guifg=#66D9EF guibg=bg      gui=italic
-hi SpecialChar     guifg=#F92672               gui=bold
-hi SpecialComment  guifg=#7E8E91               gui=bold
-hi SpecialKey      guifg=#465457
-hi SpecialKey      guifg=#66D9EF               gui=italic
-hi Statement       guifg=maroon3               gui=bold
-hi StatusLine      guifg=blue    guibg=cornsilk
-hi StatusLineNC    guifg=skyblue guibg=tan
-hi StorageClass    guifg=greenyellow           gui=italic
+hi Operator        guifg=deeppink
+hi Pmenu           guifg=skyblue1         guibg=black
+hi PmenuSbar                              guibg=gray5
+hi PmenuSel                               guibg=gray70
+hi PmenuThumb      guifg=skyblue1
+hi PreCondit       guifg=lightskyblue                          gui=bold
+hi PreProc         guifg=deepskyblue                           gui=italic
+hi Question        guifg=deepskyblue
+hi Repeat          guifg=deeppink                              gui=bold
+hi Search          guifg=black            guibg=gold
+hi Scrollbar       guifg=gray80           guibg=gray20
+hi SignColumn      guifg=chartreuse1      guibg=gray30
+hi Special         guifg=turquoise1       guibg=bg             gui=italic
+hi SpecialChar     guifg=maroon2                               gui=bold
+hi SpecialComment  guifg=gray70                                gui=bold
+hi SpecialKey      guifg=DarkSlateBlue
+hi SpecialKey      guifg=turquoise1                            gui=italic
+hi Statement       guifg=maroon3                               gui=bold
+hi StatusLine      guifg=blue             guibg=cornsilk
+hi StatusLineNC    guifg=skyblue          guibg=tan
+hi StorageClass    guifg=greenyellow                           gui=italic
 hi String          guifg=palegreen
 hi Structure       guifg=magenta3
-hi TabLine         guibg=#1B1D1E guifg=#808080 gui=none
-hi TabLineFill     guifg=#1B1D1E guibg=#1B1D1E
-hi Tag             guifg=#F92672               gui=italic
-hi Title           guifg=#ef5939
-hi Todo            guifg=#FF0000 guibg=bg      gui=italic,bold
-hi Type            guifg=green                 gui=none
-hi Typedef         guifg=#66D9EF
-hi Underlined      guifg=#808080               gui=underline
-hi User1           guifg=white   guibg=blue    gui=none
-hi User2           guifg=red     guibg=blue    gui=bold
-hi User3           guifg=gray70  guibg=blue    gui=none
-hi User4           guifg=gold    guibg=blue    gui=none
-hi User5           guifg=gray40  guibg=blue    gui=none
-hi User6           guifg=gray30  guibg=tan     gui=none
-hi User7           guifg=gray20  guibg=blue    gui=none
-hi User8           guifg=gray18  guibg=red     gui=none
-hi User9           guifg=gray15  guibg=red     gui=none
-hi VertSplit       guifg=wheat   guibg=tan     gui=bold
-hi Visual          guifg=gold    guibg=gray30
-hi VisualNOS       guifg=yellow  guibg=midnightblue
-hi WarningMsg      guifg=#FFFFFF guibg=#333333 gui=bold
-hi WildMenu        guifg=#66D9EF guibg=#000000
-hi iCursor         guifg=#000000 guibg=#F8F8F0
+hi TabLine         guifg=gray70           guibg=gray10         gui=none
+hi TabLineFill     guifg=gray10           guibg=gray70
+hi Tag             guifg=maroon3                               gui=italic
+hi Title           guifg=orangered2
+hi Todo            guifg=red              guibg=bg             gui=italic,bold
+hi Type            guifg=orchid                                gui=none
+hi Typedef         guifg=turquoise1
+hi Underlined      guifg=gray80                                gui=underline
+hi User1           guifg=white            guibg=blue           gui=none
+hi User2           guifg=red              guibg=blue           gui=bold
+hi User3           guifg=gray70           guibg=blue           gui=none
+hi User4           guifg=gold             guibg=blue           gui=none
+hi User5           guifg=gray40           guibg=blue           gui=none
+hi User6           guifg=gray30           guibg=tan            gui=none
+hi User7           guifg=gray20           guibg=blue           gui=none
+hi User8           guifg=gray18           guibg=red            gui=none
+hi User9           guifg=gray15           guibg=red            gui=none
+hi VertSplit       guifg=wheat            guibg=tan            gui=bold
+hi Visual          guifg=gold             guibg=gray30
+hi VisualNOS       guifg=yellow           guibg=midnightblue
+hi WarningMsg      guifg=yellow           guibg=gray9          gui=bold
+hi WildMenu        guifg=turquoise1       guibg=black
+hi iCursor         guifg=black            guibg=oldlace
 if has("spell")
-    hi SpellBad    guisp=#FF0000 gui=undercurl
-    hi SpellCap    guisp=#7070F0 gui=undercurl
-    hi SpellLocal  guisp=#70F0F0 gui=undercurl
-    hi SpellRare   guisp=#FFFFFF gui=undercurl
+    hi SpellBad    guisp=#FF0000                           gui=undercurl
+    hi SpellCap    guisp=#7070F0                           gui=undercurl
+    hi SpellLocal  guisp=#70F0F0                           gui=undercurl
+    hi SpellRare   guisp=#FFFFFF                           gui=undercurl
 endif
 
 "

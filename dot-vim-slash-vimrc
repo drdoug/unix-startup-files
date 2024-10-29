@@ -14,7 +14,6 @@ set ruler
 set hidden
 set ttyfast
 set showmode
-set antialias
 set incsearch
 set mousehide
 set showmatch

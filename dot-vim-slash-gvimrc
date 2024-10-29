@@ -8,6 +8,7 @@ if exists("syntax_on")
         syntax reset
 endif
 
+set antialias
 colorscheme aurora
 
 function! ResetScreenSize()
