@@ -236,6 +236,7 @@ function _checkAndRead
 #
 function f
         {
+
         "fg" "%"${1}
         }
 

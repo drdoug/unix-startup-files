@@ -364,14 +364,14 @@ _checkAndRead "${_STARTUP_DIR}"/newlist.sh
 #
 # Create list functions
 #
-newlist lib    LD_LIBRARY_PATH
-newlist man    MANPATH
 newlist path   PATH
-newlist class  CLASSPATH -n
 newlist cd     CDPATH
+newlist man    MANPATH
+newlist class  CLASSPATH -n
+newlist edm    EDMDATAFILES -e
+newlist lib    LD_LIBRARY_PATH
 newlist ca     EPICS_CA_ADDR_LIST -s' ' -e
 newlist pva    EPICS_PVA_ADDR_LIST -s' ' -e
-newlist edm    EDMDATAFILES -e
 
 #
 # Add to various lists
@@ -567,7 +567,7 @@ KEYTIMEOUT=5
 
 COLORTABLE=${_STARTUP_DIR}/colorTable
 
-PROMPT_ID='\uFC09'
+PROMPT_ID='\uF071'
 PROMPT_LOCK='\uF023'
 PROMPT_OTHER='\uF109'
 PROMPT_LINUX='\uE712'
@@ -1113,7 +1113,7 @@ function _commonPrompt
                 then
                         if [[ -z $_rpromptSource ]];
                         then
-                                printf "No right-side prompt settings available.\n"
+                                printf "No right side prompt settings available.\n"
                                 promptHelp
                                 return 1
                         fi
@@ -1122,7 +1122,7 @@ function _commonPrompt
                 else
                         if [[ -z $_lpromptSource ]];
                         then
-                                printf "No left-side prompt settings available.\n"
+                                printf "No left side prompt settings available.\n"
                                 promptHelp
                                 return 1
                         fi
@@ -1452,45 +1452,45 @@ function presetPromptHelp
         # function below.  Specifically, the first
         # prompt refers to case 1) and so forth.
         #
+        typeset -A promptOptions
         promptOptions=(
-                'vivid prompt; blue left and right side with arrows'
-                'simple prompt; username and history number'
-                'color prompt; username, host, directory and history number'
-                'color prompt with right-side indicators and git details'
-                'color prompt with right-side indicators and version control info'
-                'vivid simple prompt'
-                'vivid prompt'
-                'vivid prompt with right-side indicators and git details'
-                'vivid prompt with right-side indicators and version control info'
-                'vivid blue prompt with green right-side indicators and version control info'
+                'mild' 'simple prompt; username and history number'
+                'soft'  'color prompt; username, host, directory and history number'
+                'light'     'color prompt for light windows with right side indicators and git details'
+                'faint'     'color prompt with right side indicators and version control info'
+                'tiny'     'vivid simple prompt'
+                'small'     'vivid but terse prompt with right side git details and time'
+                'min'     'vivid prompt with right side time indicators and git details'
+                'beige'     'vivid prompt with brown-ish right side time indicators and version control info'
+                'large' 'vivid blue prompt with green right side indicators, version control info, date and time'
+                'sharp' 'vivid prompt; blue left and right side with arrows with date and time'
+                'loud'  'vivid prompt; blue left and right side with time'
                 )
-        echo "p: select a preset format for command line prompts:"
-        echo ""
 
-        let index=0
-        for txt in "${promptOptions[@]}";
+        printf "%s\n\n" "p: select a preset format for command line prompts:"
+
+        for key in "${(@k)promptOptions}";
         do
-                if (( $CHOSEN_PRESET_PROMPT == $index ))
+                txt=' '
+                if [[ $CHOSEN_PRESET_PROMPT == $key ]];
                 then
-                        echo "p $index  > $txt"
-                else
-                        echo "p $index    $txt"
+                        txt='>'
                 fi
-                (( index++ ))
+                printf "%-9.9s %s %s\n" "p $key"  "${txt}" "$promptOptions[$key]"
         done
-        echo ""
-        echo "p -h - display this message"
-        echo "Use 'prompt' to adjust prompt details."
-        echo " Currently:"
-        echo "         L:  ${pstr}"
-        echo "         R:  ${rpstr}"
+        printf "%s\n" ""
+        printf "%s\n" "p -h - display this message"
+        printf "%s\n" "Use 'prompt' to adjust prompt details."
+        printf "%s\n" " Currently:"
+        printf "%s\n" "         L:  ${pstr}"
+        printf "%s\n" "         R:  ${rpstr}"
         }
 
 #
 # create some
 # predefined prompts
 #
-let CHOSEN_PRESET_PROMPT=4
+CHOSEN_PRESET_PROMPT='loud'
 function p
         {
 
@@ -1500,33 +1500,57 @@ function p
                 return 0
         fi
 
-        let prevChoice=${CHOSEN_PRESET_PROMPT}
-        let CHOSEN_PRESET_PROMPT=$1
+        prevChoice=${CHOSEN_PRESET_PROMPT}
+        CHOSEN_PRESET_PROMPT=$1
         case $1 in
-        0)
+        "loud")
+                #
+                # user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] time
+                #
+                pstr=''
+                pstr+='Grey66 Blue3 user @ White host sp '
+                pstr+='> Black Black > '
+                pstr+='B White DodgerBlue sp dir2 sp '
+                pstr+='> Black Black > '
+                pstr+='B Black SkyBlue2 sp hist sp '
+                pstr+='White Maroon id'
+                prompt -p
+
+                rpstr=''
+                rpstr+='Black PaleGreen1 sp vi sp '
+                rpstr+='< Black Black < '
+                rpstr+='White DarkRed sp Ret sp '
+                rpstr+='Black Orange sp lock sp '
+                rpstr+='B White DarkGreen sp vcs sp gito sp '
+                rpstr+='< Black Black < '
+                rpstr+='B Black SpringGreen3 sp time sp '
+                rpstr+='< Black Black < '
+                rprompt -p
+                ;;
+        "sharp")
                 #
                 # user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
                 #
                 pstr=''
-                pstr+='Grey85 Blue3 user @ White host sp '
-                pstr+='> Grey85 Grey39 > B White Blue3 dir2 '
-                pstr+='> Grey85 Grey39 > White Blue3 hist '
-                pstr+='> Grey85 Grey39 '
-                pstr+='White DodgerBlue id'
+                pstr+='Grey66 Blue3 user @ White host sp '
+                pstr+='> Grey85 DodgerBlue > B White Blue3 dir2 '
+                pstr+='> Grey85 DodgerBlue > White Blue3 hist '
+                pstr+='> Grey85 DodgerBlue '
+                pstr+='White DodgerBlue sp id sp'
                 prompt -p
 
                 rpstr=''
-                rpstr+='< Black Grey39 < '
+                rpstr+='< Black DodgerBlue < '
                 rpstr+='B Gold Blue2 vi '
                 rpstr+='B DarkOrange Blue2 Ret '
                 rpstr+='B Orange Blue2 lock '
                 rpstr+='B White Blue2 vcs gito '
                 rpstr+='Grey78 Blue2 date '
-                rpstr+='< Black Grey39 < '
+                rpstr+='< Black DodgerBlue < '
                 rpstr+='White Blue2 time '
                 rprompt -p
                 ;;
-        9)
+        "large")
                 #
                 # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
                 #
@@ -1535,7 +1559,7 @@ function p
                 pstr+=') B White Blue3 sp user Grey70 @ host sp '
                 pstr+='~ B White DodgerBlue sp dir2 sp '
                 pstr+='> B Black Turquoise sp hist sp '
-                pstr+='White Maroon id'
+                pstr+='White Maroon sp id sp'
                 prompt -p
 
                 rpstr=''
@@ -1547,28 +1571,28 @@ function p
                 rpstr+='Black DarkSeaGreen2 sp time sp '
                 rprompt -p
                 ;;
-        8)
+        "beige")
                 #
                 # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
                 #
                 pstr=''
                 pstr+='White Black sp os sp '
-                pstr+='B White Wheat1 sp user Cornsilk @ host sp '
-                pstr+='B White DarkGoldenrod sp dir2 sp '
-                pstr+='B Black Tan sp hist sp '
-                pstr+='White Maroon id'
+                pstr+='B White Orange3 sp user Cornsilk @ host sp '
+                pstr+='B White Yellow5 sp dir2 sp '
+                pstr+='B Black DarkGoldenrod sp hist sp '
+                pstr+='White Maroon sp id sp'
                 prompt -p
 
                 rpstr=''
                 rpstr+='Black Gold sp vi sp '
                 rpstr+='White Maroon sp Ret sp '
-                rpstr+='Black Orange sp lock sp '
-                rpstr+='< B White Purple3 vcs sp gito sp '
-                rpstr+='( White MediumPurple sp date sp '
-                rpstr+='White Purple1 sp time sp '
+                rpstr+='Black DarkRed sp lock sp '
+                rpstr+='< B Black Khaki vcs sp gito sp '
+                rpstr+='( Black LightGoldenrod2 sp date sp '
+                rpstr+='White Orange2 sp time sp '
                 rprompt -p
                 ;;
-        7)
+        "min")
                 #
                 # sys dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] time
                 #
@@ -1576,7 +1600,7 @@ function p
                 pstr+='B White Blue3 sp host sp '
                 pstr+='~ B White DodgerBlue sp dir sp '
                 pstr+='> B Black Turquoise sp hist sp '
-                pstr+='White Red id'
+                pstr+='White Red sp id sp'
                 prompt -p
 
                 rpstr=''
@@ -1587,21 +1611,21 @@ function p
                 rpstr+='Black DarkSeaGreen2 sp time sp '
                 rprompt -p
                 ;;
-        6)
+        "small")
                 #
                 # user histnum [rootIcon]               time
                 #
-                prompt 'White Blue3 sp user Grey70 @ host sp Black Turquoise sp hist sp White Red id'
+                prompt 'White Blue3 sp user Grey70 @ host sp Black Turquoise sp hist sp White Red sp id sp'
                 rprompt 'B White DarkGreen vcs sp gito sp Black SeaGreen sp time sp '
                 ;;
-        5)
+        "tiny")
                 #
                 # user histnum [rootIcon]
                 #
-                prompt 'White Blue3 sp user sp dir sp hist sp White Maroon id'
+                prompt 'White Blue3 sp user sp dir sp hist sp White Maroon sp id sp'
                 rprompt -
                 ;;
-        4)
+        "faint")
                 #
                 # for Dark Screen
                 # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
@@ -1617,7 +1641,7 @@ function p
                 rpstr+='SkyBlue sp time sp '
                 rprompt -p
                 ;;
-        3)
+        "light")
                 #
                 # for Light Screen
                 # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
@@ -1637,14 +1661,14 @@ function p
                 rpstr+='Blue3 sp time sp '
                 rprompt -p
                 ;;
-        2)
+        "0"|"soft")
                 #
                 # user@sys time histnum rootSym
                 #
                 prompt 'B DodgerBlue user @ host sp SkyBlue time sp White hist .'
                 rprompt -
                 ;;
-        1)
+        "mild")
                 #
                 # user@sys histnum rootSym
                 #
@@ -1664,9 +1688,14 @@ function p
         esac
         }
 #
-# start with a simple colored prompt
+# start with a simple colored prompt and check for warp terminal
 #
-p $CHOSEN_PRESET_PROMPT
+
+p ${CHOSEN_PRESET_PROMPT}
+if [[ $TERM_PROGRAM = "WarpTerminal" ]];
+then
+        PROMPT="${PROMPT}"$'\n'
+fi
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 _checkAndRead "${_STARTUP_DIR}"/dirs.zsh
@@ -1689,3 +1718,6 @@ _checkAndRead "${_STARTUP_DIR}"/hostSpecificSetup.sh
 #
 hostSpecificSetup
 findVim
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
