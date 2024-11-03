@@ -28,9 +28,9 @@ if has("gui_gtk")
 elseif has("mac")
 	let g:NumColumnsOnScreen=200
 	let g:NumLinesOnScreen=70
-	let s:FontNormal = "Menlo:h14"
-	let s:FontSmall = "Menlo:h10"
-	let s:FontBig = "Menlo:h22"
+	let s:FontNormal = "Menlo:h16"
+	let s:FontSmall = "Menlo:h14"
+	let s:FontBig = "Menlo:h24"
 elseif has("unix")
 	let g:NumColumnsOnScreen=80
 	let g:NumLinesOnScreen=24

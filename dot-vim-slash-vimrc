@@ -7,12 +7,26 @@
 
 if &t_Co > 2
         syntax enable
+        set termguicolors
+        colorscheme aurora
+endif
+
+if has( 'nvim')
+        set shada='100,%,<1000,h,:100,n~/.config/nvim/saved.shada
+        set statuscolumn=%5.7l
+        set cpoptions=_
+else
+        set ttyfast
+        set nocompatible
+        set viminfo='100,%,<1000,:100,n~/.vim/viminfo
+        set printoptions=paper:letter,portrait:y,duplex:off
+        set cpoptions=jwz
 endif
 
 set wrap
 set ruler
 set hidden
-set ttyfast
+set number
 set showmode
 set incsearch
 set mousehide
@@ -22,7 +36,6 @@ set cursorline
 set splitbelow
 set autoindent
 set nohlsearch
-set nocompatible
 
 set tabstop=8
 set history=100
@@ -32,12 +45,27 @@ set cmdheight=1
 set laststatus=2
 set wrapmargin=0
 " set colorcolumn=60
+set shiftwidth=8
+set softtabstop=8
 set formatoptions=roq
 set guioptions=aiglmpRt
 set backspace=indent,start
-set cpoptions=aAbBcdeEfFjlLmorsStwWx$!%
-set viminfo='100,%,<1000,:100,n~/.vim/viminfo
-set printoptions=paper:letter,portrait:y,duplex:off
+
+"
+" Initialized above for [n]vim
+"
+set cpoptions+=aA
+set cpoptions+=bB
+set cpoptions+=cd
+set cpoptions+=eE
+set cpoptions+=fF
+set cpoptions+=lL
+set cpoptions+=mor
+set cpoptions+=sSt
+set cpoptions+=W
+set cpoptions+=x
+set cpoptions+=$!
+
 set sessionoptions=buffers,globals,help,blank,options,winpos,resize,winsize,sesdir,slash
 set guicursor=i-r:ver30-changesCursor,o:hor50-changesCursor-blinkwait100-blinkoff100-blinkon100,c-ci-cr:block-commandCursor
 set statusline=%1*%-30.40(%f\ %2*%M%1*%<%)
@@ -55,344 +83,91 @@ set titlestring=%t%r\ %y\ %a\ \ \ \ \ \ \(%F\)
 "
 let s:GrepFilesToSearch = "##"
 
-if has("unix") && !has("gui_gtk") && !has("mac")
-	"
-	" Map function keys, based on keyboard
-	"
-	""""""""""""""
-	"            "
-	"    SUN     "
-	"            "
-	""""""""""""""
-	"
-	" Keypress mapping for SUN keyboard function keys
-	" The <F1> Key is always reserved for Help.
-	" The Keys labelled <F11> and <F12> actually send <F36> and
-	" <F37> respectively.  The leftmost functions keys are mapped
-	" (the Cut, Copy, Paste, Find, Again, Prop, Stop and other keys)
-	" and actually respond with <F11> through <F20>. Strange but True.
-	"
-	"  Mapping for SUN Type 4,5 Keyboards
-	"           +-------------------+-------------------+-------------------+-------------------+
-	" Key:      |F1                 |F2                 |F3                 |F4                 |
-	" Meta:     |help               |                   |Show line numbers  |Quit VIM (Gnome)   |
-	" Control:  |help               |make <file>.o      |Show "make" prompt |Prompt for grep fil|
-	" Shift:    |Cycle Font Size    |make install       |Current Error Mesg |Prompt for grep pat|
-	" Function: |Cycle Menu/Toolbar |make               |List Errors        |Grep for *cursor   |
-	"           +-------------------+-------------------+-------------------+-------------------+
-	"           +-------------------+-------------------+-------------------+-------------------+
-	" Key:      |F5                 |F6                 |F7                 |F8                 |
-	" Meta:     |                   |                   |                   |                   |
-	" Control:  |                   |                   |                   |                   |
-	" Shift:    |                   |                   |Quit this Buffer   |DIFF Alternate File|
-	" Function: |Goto Previous Error|Goto Next Error    |List all Buffers   |To Alternate File  |
-	"           +-------------------+-------------------+-------------------+-------------------+
-	"           +-------------------+-------------------+-------------------+-------------------+
-	" Key:      |F9                 |F10                |F36 (labelled F11) |F37 (labelled F12) |
-	" Meta:     |                   |                   |                   |                   |
-	" Control:  |Disable DIFF Mode  |                   |                   |                   |
-	" Shift:    |Choose: DIFF File  |                   |                   |                   |
-	" Function: |Prompt: DIFF File  |                   |                   |                   |
-	"           +-------------------+-------------------+-------------------+-------------------+
-	"
-	"
-	"           +-------------------+-------------------+
-	" Key:      |STOP         (F11) |AGAIN        (F12) |
-	" Meta:     |                   |                   |
-	" Control:  |                   |                   |
-	" Shift:    |                   |                   |
-	" Function: |Un|Highlight Search|Repeat Change &Next|
-	"           +-------------------+-------------------+
-	" Key:      |PROPS        (F13) |UNDO         (F14) |
-	" Meta:     |                   |                   |
-	" Control:  |                   |                   |
-	" Shift:    |Cycle Menu/Toolbar |redo next change   |
-	" Function: |Cycle Font Size    |Undo one change    |
-	"           +-------------------+-------------------+
-	" Key:      |FRONT        (F15) |COPY         (F16) |
-	" Meta:     |                   |                   |
-	" Control:  |                   |                   |
-	" Shift:    |Not Usable         |                   |
-	" Function: |Cycle Window Z     |Copy selected text |
-	"           +-------------------+-------------------+
-	" Key:      |OPEN         (F17) |PASTE        (F18) |
-	" Meta:     |                   |                   |
-	" Control:  |                   |                   |
-	" Shift:    |                   |Paste text above   |
-	" Function: |Not Usable         |Paste text below   |
-	"           +-------------------+-------------------+
-	" Key:      |FIND         (F19) |CUT          (F20) |
-	" Meta:     |Toggle Case Sense  |                   |
-	" Control:  |Toggle Highlight   |                   |
-	" Shift:    |Repeat search back |                   |
-	" Function: |Repeat search fwd  |Cut selected text  |
-	"           +-------------------+-------------------+
-	"
-	"                                                   +-------------------+
-	" Key:                                              |UP Arrow           |
-	" Meta:                                             |                   |
-	" Control:                                          |Increase Buf Size  |
-	" Shift:                                            |Shift Buffer Up    |
-	" Function:                                         |Move Cursor up     |
-	"                               +-------------------+-------------------+-------------------+
-	" Key:                          |LEFT Arrow         |DOWN Arrow         |RIGHT Arrow        |
-	" Meta:                         |Close All Fold Levs|                   |Open All Fold Levs |
-	" Control:                      |Close One Fold Lev |Decrease Buff Size |Open One Fold Lev  |
-	" Shift:                        |Edit Prev Buffer   |Shift Buffer Down  |Edit Next Buffer   |
-	" Function:                     |Move Cursor Left   |Move Cursor down   |Move Cursor Right  |
-	"                               +-------------------+-------------------+-------------------+
-	"
-	let s:KeyMenuToolbarCycle =          "<F1>"
-	let s:KeyFontSizeChange =            "<S-F1>"
+"
+" Keypress mapping for standard keyboard
+"
+"           +-------------------+-------------------+-------------------+-------------------+
+" Key:      |F1                 |F2                 |F3                 |F4                 |
+" Meta:     |help               |make distclean     |Show line numbers  |Quit VIM (Windows) |
+" Control:  |help               |make <file>.o      |Show "make" prompt |Prompt for grep fil|
+" Shift:    |Cycle Font Size    |make install       |List Errors        |Prompt for grep pat|
+" Function: |Cycle Menu/Toolbar |make               |Current Error Mesg |Grep for *cursor   |
+"           +-------------------+-------------------+-------------------+-------------------+
+"           +-------------------+-------------------+-------------------+-------------------+
+" Key:      |F5                 |F6                 |F7                 |F8                 |
+" Meta:     |                   |                   |                   |                   |
+" Control:  |                   |                   |                   |                   |
+" Shift:    |                   |                   |Quit this Buffer   |DIFF Alternate File|
+" Function: |Goto Previous Error|Goto Next Error    |List all Buffers   |To Alternate File  |
+"           +-------------------+-------------------+-------------------+-------------------+
+"           +-------------------+-------------------+-------------------+-------------------+
+" Key:      |F9                 |F10                |F11                |F12                |
+" Meta:     |                   |                   |                   |                   |
+" Control:  |Disable DIFF Mode  |                   |                   |                   |
+" Shift:    |Choose: DIFF File  |                   |                   |                   |
+" Function: |Prompt: DIFF File  |                   |                   |                   |
+"           +-------------------+-------------------+-------------------+-------------------+
+"
+"                                                   +-------------------+
+" Key:                                              |UP Arrow           |
+" Meta:                                             |                   |
+" Control:                                          |Increase Buf Size  |
+" Shift:                                            |Shift Buffer Up    |
+" Function:                                         |Move Cursor up     |
+"                               +-------------------+-------------------+-------------------+
+" Key:                          |LEFT Arrow         |DOWN Arrow         |RIGHT Arrow        |
+" Meta:                         |Close All Fold Levs|                   |Open All Fold Levs |
+" Control:                      |Close One Fold Lev |Decrease Buff Size |Open One Fold Lev  |
+" Shift:                        |Edit Prev Buffer   |Shift Buffer Down  |Edit Next Buffer   |
+" Function:                     |Move Cursor Left   |Move Cursor down   |Move Cursor Right  |
+"                               +-------------------+-------------------+-------------------+
+"
+"
+"
+let s:KeyMenuToolbarCycle =          "<F1>"
+let s:KeyFontSizeChange =            "<S-F1>"
 
-	let s:KeyMake =                      "<F2>"
-	let s:KeyMakeInstall =               "<S-F2>"
-	let s:KeyMakeObject =                "<C-F2>"
+let s:KeyMake =                      "<F2>"
+let s:KeyMakeInstall =               "<S-F2>"
+let s:KeyMakeObject =                "<C-F2>"
+let s:KeyMakeDistClean =             "<M-F2>"
 
-	let s:KeyShowList =                  "<F3>"
-	let s:KeyCurrentInList =             "<S-F3>"
-	let s:KeyMakeFromPrompt =            "<C-F3>"
+let s:KeyCurrentInList =             "<F3>"
+let s:KeyShowList =                  "<S-F3>"
+let s:KeyMakeFromPrompt =            "<C-F3>"
+let s:KeyShowLineNums =              "<M-F3>"
 
-	let s:KeyGrepFromCursor =            "<F4>"
-	let s:KeyGrepFromPrompt =            "<S-F4>"
-	let s:KeyGrepFilesToSearch =         "<C-F4>"
+let s:KeyGrepFromCursor =            "<F4>"
+let s:KeyGrepFromPrompt =            "<S-F4>"
+let s:KeyGrepFilesToSearch =         "<C-F4>"
 
-	let s:KeyPreviousInList =            "<F5>"
+let s:KeyPreviousInList =            "<F5>"
 
-	let s:KeyNextInList =                "<F6>"
+let s:KeyNextInList =                "<F6>"
 
-	let s:KeyBufferShowList =            "<F7>"
-	let s:KeyBufferDelete =              "<S-F7>"
+let s:KeyBufferShowList =            "<F7>"
+let s:KeyBufferDelete =              "<S-F7>"
 
-	let s:KeyBufferAlternate =           "<F8>"
-	let s:KeyDiffFileAlternate =         "<S-F8>"
+let s:KeyBufferAlternate =           "<F8>"
+let s:KeyDiffFileAlternate =         "<S-F8>"
 
-	let s:KeyDiffFileDialog =            "<F9>"
-	let s:KeyDiffFileChooser =           "<S-F9>"
-	let s:KeyDiffDisable =               "<C-F9>"
+let s:KeyDiffFileDialog =            "<F9>"
+let s:KeyDiffFileChooser =           "<S-F9>"
+let s:KeyDiffDisable =               "<C-F9>"
 
-	let s:KeyBufferPrevious =            "<S-Left>"
-	let s:KeyFoldCloseOneLevel =         "<C-Left>"
-	let s:KeyFoldCloseAllLevels =        "<M-Left>"
+let s:KeyBufferPrevious =            "<S-Left>"
+let s:KeyFoldCloseOneLevel =         "<C-Left>"
+let s:KeyFoldCloseAllLevels =        "<M-Left>"
 
-	let s:KeyBufferNext =                "<S-Right>"
-	let s:KeyFoldOpenOneLevel =          "<C-Right>"
-	let s:KeyFoldOpenAllLevels =         "<M-Right>"
+let s:KeyBufferNext =                "<S-Right>"
+let s:KeyFoldOpenOneLevel =          "<C-Right>"
+let s:KeyFoldOpenAllLevels =         "<M-Right>"
 
-	let s:KeyBufferShiftUp =             "<S-Up>"
-	let s:KeyBufferSizeUp =              "<C-Up>"
-	let s:KeyWindowNext =                "<M-Up>"
+let s:KeyBufferShiftUp =             "<S-Up>"
+let s:KeyBufferSizeUp =              "<C-Up>"
 
-	let s:KeyBufferShiftDown =           "<S-Down>"
-	let s:KeyBufferSizeDown =            "<C-Down>"
-	let s:KeyWindowOnly =                "<M-Down>"
-
-	"let s:KeyBufferAlternateSplit =      "<F1>"
-	"let s:KeyBufferClose =               "<F1>"
-	"let s:KeyBufferNextSplit =           "<F1>"
-	"let s:KeyBufferPreviousSplit =       "<F1>"
-	let s:KeyChangeAndFindNext =         "<F17>"
-	let s:KeyCopyLine =                  "<F16>"
-	let s:KeyCutLine =                   "<F20>"
-	let s:KeyMakeDepend =                "<S-F37>"
-	let s:KeyMakeTags =                  "<M-F1>"
-	let s:KeyPasteLineAfter =            "<F18>"
-	let s:KeyPasteLineBefore =           "<S-F18>"
-	let s:KeyRedo =                      "<S-F20>"
-	let s:KeySearchBack =                "<S-F19>"
-	let s:KeySearchChangeCase =          "<C-F19>"
-	let s:KeySearchFwd =                 "<F19>"
-	let s:KeySearchHighlight =           "<M-F19>"
-	let s:KeySessionLoad =               "<F36>"
-	let s:KeySessionSave =               "<S-F36>"
-	let s:KeyShowCFunctions =            "<C-F37>"
-	let s:KeyUndo =                      "<F14>"
-	"let s:KeyWindowSplit =               "<F1>"
-elseif has("mac")
-	"
-	""""""""""""""""
-	"              "
-	" Mac Keyboard "
-	"              "
-	""""""""""""""""
-	"
-	" Keypress mapping for standard keyboard on MacOS X
-	"
-	"           +-------------------+-------------------+-------------------+-------------------+
-	" Key:      |F1                 |F2                 |F3                 |F4                 |
-	" Meta:     |help               |make distclean     |Show line numbers  |Quit VIM (Windows) |
-	" Control:  |help               |make <file>.o      |Show "make" prompt |Prompt for grep fil|
-	" Shift:    |Cycle Font Size    |make install       |List Errors        |Prompt for grep pat|
-	" Function: |Cycle Menu/Toolbar |make               |Current Error Mesg |Grep for *cursor   |
-	"           +-------------------+-------------------+-------------------+-------------------+
-	"           +-------------------+-------------------+-------------------+-------------------+
-	" Key:      |F5                 |F6                 |F7                 |F8                 |
-	" Meta:     |                   |                   |                   |                   |
-	" Control:  |                   |                   |                   |                   |
-	" Shift:    |                   |                   |Quit this Buffer   |DIFF Alternate File|
-	" Function: |Goto Previous Error|Goto Next Error    |List all Buffers   |To Alternate File  |
-	"           +-------------------+-------------------+-------------------+-------------------+
-	"           +-------------------+-------------------+-------------------+-------------------+
-	" Key:      |F9                 |F10                |F11                |F12                |
-	" Meta:     |                   |                   |                   |                   |
-	" Control:  |Disable DIFF Mode  |                   |                   |                   |
-	" Shift:    |Choose: DIFF File  |                   |                   |                   |
-	" Function: |Prompt: DIFF File  |                   |                   |                   |
-	"           +-------------------+-------------------+-------------------+-------------------+
-	"
-	"                                                   +-------------------+
-	" Key:                                              |UP Arrow           |
-	" Meta:                                             |                   |
-	" Control:                                          |Increase Buf Size  |
-	" Shift:                                            |Shift Buffer Up    |
-	" Function:                                         |Move Cursor up     |
-	"                               +-------------------+-------------------+-------------------+
-	" Key:                          |LEFT Arrow         |DOWN Arrow         |RIGHT Arrow        |
-	" Meta:                         |Close All Fold Levs|                   |Open All Fold Levs |
-	" Control:                      |Close One Fold Lev |Decrease Buff Size |Open One Fold Lev  |
-	" Shift:                        |Edit Prev Buffer   |Shift Buffer Down  |Edit Next Buffer   |
-	" Function:                     |Move Cursor Left   |Move Cursor down   |Move Cursor Right  |
-	"                               +-------------------+-------------------+-------------------+
-	"
-	"
-	"
-	let s:KeyMenuToolbarCycle =          "<F1>"
-	let s:KeyFontSizeChange =            "<S-F1>"
-
-	let s:KeyMake =                      "<F2>"
-	let s:KeyMakeInstall =               "<S-F2>"
-	let s:KeyMakeObject =                "<C-F2>"
-	let s:KeyMakeDistClean =             "<M-F2>"
-
-	let s:KeyCurrentInList =             "<F3>"
-	let s:KeyShowList =                  "<S-F3>"
-	let s:KeyMakeFromPrompt =            "<C-F3>"
-        let s:KeyShowLineNums =              "<M-F3>"
-
-	let s:KeyGrepFromCursor =            "<F4>"
-	let s:KeyGrepFromPrompt =            "<S-F4>"
-	let s:KeyGrepFilesToSearch =         "<C-F4>"
-
-	let s:KeyPreviousInList =            "<F5>"
-
-	let s:KeyNextInList =                "<F6>"
-
-	let s:KeyBufferShowList =            "<F7>"
-	let s:KeyBufferDelete =              "<S-F7>"
-
-	let s:KeyBufferAlternate =           "<F8>"
-	let s:KeyDiffFileAlternate =         "<S-F8>"
-
-	let s:KeyDiffFileDialog =            "<F9>"
-	let s:KeyDiffFileChooser =           "<S-F9>"
-	let s:KeyDiffDisable =               "<C-F9>"
-
-	let s:KeyBufferPrevious =            "<S-Left>"
-	let s:KeyFoldCloseOneLevel =         "<C-Left>"
-	let s:KeyFoldCloseAllLevels =        "<M-Left>"
-
-	let s:KeyBufferNext =                "<S-Right>"
-	let s:KeyFoldOpenOneLevel =          "<C-Right>"
-	let s:KeyFoldOpenAllLevels =         "<M-Right>"
-
-	let s:KeyBufferShiftUp =             "<S-Up>"
-	let s:KeyBufferSizeUp =              "<C-Up>"
-
-	let s:KeyBufferShiftDown =           "<S-Down>"
-	let s:KeyBufferSizeDown =            "<C-Down>"
-else
-	"
-	"""""""""""""""
-	"             "
-	" PC Keyboard "
-	"             "
-	"""""""""""""""
-	"
-	" Keypress mapping for standard PC-104 keyboard
-	"
-	"           +-------------------+-------------------+-------------------+-------------------+
-	" Key:      |F1                 |F2                 |F3                 |F4                 |
-	" Meta:     |help               |make distclean     |Show line numbers  |Quit VIM (Windows) |
-	" Control:  |help               |make <file>.o      |Show "make" prompt |Prompt for grep fil|
-	" Shift:    |Cycle Font Size    |make install       |Current Error Mesg |Prompt for grep pat|
-	" Function: |Cycle Menu/Toolbar |make               |List Errors        |Grep for *cursor   |
-	"           +-------------------+-------------------+-------------------+-------------------+
-	"           +-------------------+-------------------+-------------------+-------------------+
-	" Key:      |F5                 |F6                 |F7                 |F8                 |
-	" Meta:     |                   |                   |                   |                   |
-	" Control:  |                   |                   |                   |                   |
-	" Shift:    |                   |                   |Quit this Buffer   |DIFF Alternate File|
-	" Function: |Goto Previous Error|Goto Next Error    |List all Buffers   |To Alternate File  |
-	"           +-------------------+-------------------+-------------------+-------------------+
-	"           +-------------------+-------------------+-------------------+-------------------+
-	" Key:      |F9                 |F10                |F11                |F12                |
-	" Meta:     |                   |                   |                   |                   |
-	" Control:  |Disable DIFF Mode  |                   |                   |                   |
-	" Shift:    |Choose: DIFF File  |                   |                   |                   |
-	" Function: |Prompt: DIFF File  |                   |                   |                   |
-	"           +-------------------+-------------------+-------------------+-------------------+
-	"
-	"                                                   +-------------------+
-	" Key:                                              |UP Arrow           |
-	" Meta:                                             |                   |
-	" Control:                                          |Increase Buf Size  |
-	" Shift:                                            |Shift Buffer Up    |
-	" Function:                                         |Move Cursor up     |
-	"                               +-------------------+-------------------+-------------------+
-	" Key:                          |LEFT Arrow         |DOWN Arrow         |RIGHT Arrow        |
-	" Meta:                         |Close All Fold Levs|                   |Open All Fold Levs |
-	" Control:                      |Close One Fold Lev |Decrease Buff Size |Open One Fold Lev  |
-	" Shift:                        |Edit Prev Buffer   |Shift Buffer Down  |Edit Next Buffer   |
-	" Function:                     |Move Cursor Left   |Move Cursor down   |Move Cursor Right  |
-	"                               +-------------------+-------------------+-------------------+
-	"
-	"
-	"
-	let s:KeyMenuToolbarCycle =          "<F1>"
-	let s:KeyFontSizeChange =            "<S-F1>"
-
-	let s:KeyMake =                      "<F2>"
-	let s:KeyMakeInstall =               "<S-F2>"
-	let s:KeyMakeObject =                "<C-F2>"
-	let s:KeyMakeDistClean =             "<M-F2>"
-
-	let s:KeyShowList =                  "<F3>"
-	let s:KeyCurrentInList =             "<S-F3>"
-	let s:KeyMakeFromPrompt =            "<C-F3>"
-        let s:KeyShowLineNums =              "<M-F3>"
-
-	let s:KeyGrepFromCursor =            "<F4>"
-	let s:KeyGrepFromPrompt =            "<S-F4>"
-	let s:KeyGrepFilesToSearch =         "<C-F4>"
-
-	let s:KeyPreviousInList =            "<F5>"
-
-	let s:KeyNextInList =                "<F6>"
-
-	let s:KeyBufferShowList =            "<F7>"
-	let s:KeyBufferDelete =              "<S-F7>"
-
-	let s:KeyBufferAlternate =           "<F8>"
-	let s:KeyDiffFileAlternate =         "<S-F8>"
-
-	let s:KeyDiffFileDialog =            "<F9>"
-	let s:KeyDiffFileChooser =           "<S-F9>"
-	let s:KeyDiffDisable =               "<C-F9>"
-
-	let s:KeyBufferPrevious =            "<S-Left>"
-	let s:KeyFoldCloseOneLevel =         "<C-Left>"
-	let s:KeyFoldCloseAllLevels =        "<M-Left>"
-
-	let s:KeyBufferNext =                "<S-Right>"
-	let s:KeyFoldOpenOneLevel =          "<C-Right>"
-	let s:KeyFoldOpenAllLevels =         "<M-Right>"
-
-	let s:KeyBufferShiftUp =             "<S-Up>"
-	let s:KeyBufferSizeUp =              "<C-Up>"
-
-	let s:KeyBufferShiftDown =           "<S-Down>"
-	let s:KeyBufferSizeDown =            "<C-Down>"
-endif
+let s:KeyBufferShiftDown =           "<S-Down>"
+let s:KeyBufferSizeDown =            "<C-Down>"
 
 "
 " Automatically executed commands
@@ -732,7 +507,8 @@ if exists( "s:KeyDiffDisable")
 	execute "map " s:KeyDiffDisable              " :set nodiff<CR>"
 endif
 if exists( "s:KeyDiffFileAlternate")
-	execute "map " s:KeyDiffFileAlternate        " :call DiffFileAlternate()<CR>"
+	"execute "map " s:KeyDiffFileAlternate        " :call DiffFileAlternate()<CR>"
+	execute "map " s:KeyDiffFileAlternate        " :vertical diffsplit #<CR>"
 endif
 if exists( "s:KeyDiffFileChooser")
 	execute "map " s:KeyDiffFileChooser          " :browse vertical diffsplit<CR>"
@@ -841,4 +617,8 @@ if exists( "s:KeyWindowOnly")
 endif
 if exists( "s:KeyWindowSplit")
 	execute "map " s:KeyWindowSplit              " :split<CR>"
+endif
+
+if has( 'nvim')
+        lua require( 'init')
 endif
