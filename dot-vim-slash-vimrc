@@ -122,38 +122,26 @@ let s:GrepFilesToSearch = "##"
 " Function:                     |Move Cursor Left   |Move Cursor down   |Move Cursor Right  |
 "                               +-------------------+-------------------+-------------------+
 "
-"
-"
+"---------------------------------------------------------------------------------------------------------------------------"
+" Function Key Mapping for Neovim on MacOS External Keyboard                                                                "
+"         <F1=help><F2><F3><F4>           <F5><F6><F7><F8>                <F9><F10><F11=show desktop><F12>        <F13>     "
+" M       <F49><F50><F51><F52>            <F53><F54><F55><F56>            <F57><F58><F59><F60>                    <ESC>     "
+" C       <C-F1=nothing><F26><F27><F28>   <F29><F30><F31><C-F8=unknown>   <F33><F34><F35><F36>                    <C-F13>   "
+" S       <F13><F14><F15><F16>            <F17><F18><F19><F20>            <F21><F22><F23><F24>                    <S-F13>   "
+" C-S     <F37><F38><F39><F40>            <F41><F42><F43><F44>            <F45><F46><F47><F48>                    <C-S-F13> "
+"---------------------------------------------------------------------------------------------------------------------------"
+
 let s:KeyMenuToolbarCycle =          "<F1>"
-let s:KeyFontSizeChange =            "<S-F1>"
-
 let s:KeyMake =                      "<F2>"
-let s:KeyMakeInstall =               "<S-F2>"
-let s:KeyMakeObject =                "<C-F2>"
-let s:KeyMakeDistClean =             "<M-F2>"
-
 let s:KeyCurrentInList =             "<F3>"
-let s:KeyShowList =                  "<S-F3>"
-let s:KeyMakeFromPrompt =            "<C-F3>"
-let s:KeyShowLineNums =              "<M-F3>"
-
 let s:KeyGrepFromCursor =            "<F4>"
-let s:KeyGrepFromPrompt =            "<S-F4>"
-let s:KeyGrepFilesToSearch =         "<C-F4>"
 
 let s:KeyPreviousInList =            "<F5>"
-
 let s:KeyNextInList =                "<F6>"
-
 let s:KeyBufferShowList =            "<F7>"
-let s:KeyBufferDelete =              "<S-F7>"
-
 let s:KeyBufferAlternate =           "<F8>"
-let s:KeyDiffFileAlternate =         "<S-F8>"
 
 let s:KeyDiffFileDialog =            "<F9>"
-let s:KeyDiffFileChooser =           "<S-F9>"
-let s:KeyDiffDisable =               "<C-F9>"
 
 let s:KeyBufferPrevious =            "<S-Left>"
 let s:KeyFoldCloseOneLevel =         "<C-Left>"
@@ -168,6 +156,36 @@ let s:KeyBufferSizeUp =              "<C-Up>"
 
 let s:KeyBufferShiftDown =           "<S-Down>"
 let s:KeyBufferSizeDown =            "<C-Down>"
+
+if has( 'nvim')
+        let s:KeyFontSizeChange =            "<F13>"
+        let s:KeyMakeInstall =               "<F14>"
+        let s:KeyShowList =                  "<F15>"
+        let s:KeyGrepFromPrompt =            "<F16>"
+        let s:KeyBufferDelete =              "<F19>"
+        let s:KeyDiffFileAlternate =         "<F20>"
+        let s:KeyDiffFileChooser =           "<F21>"
+        let s:KeyMakeObject =                "<F26>"
+        let s:KeyMakeFromPrompt =            "<F27>"
+        let s:KeyGrepFilesToSearch =         "<F28>"
+        let s:KeyDiffDisable =               "<F33>"
+        let s:KeyShowLineNums =              "<F50>"
+        let s:KeyMakeDistClean =             "<F51>"
+else
+        let s:KeyFontSizeChange =            "<S-F1>"
+        let s:KeyMakeInstall =               "<S-F2>"
+        let s:KeyShowList =                  "<S-F3>"
+        let s:KeyGrepFromPrompt =            "<S-F4>"
+        let s:KeyBufferDelete =              "<S-F7>"
+        let s:KeyDiffFileAlternate =         "<S-F8>"
+        let s:KeyDiffFileChooser =           "<S-F9>"
+        let s:KeyMakeObject =                "<C-F2>"
+        let s:KeyMakeFromPrompt =            "<C-F3>"
+        let s:KeyGrepFilesToSearch =         "<C-F4>"
+        let s:KeyDiffDisable =               "<C-F9>"
+        let s:KeyShowLineNums =              "<M-F3>"
+        let s:KeyMakeDistClean =             "<M-F2>"
+endif
 
 "
 " Automatically executed commands
@@ -447,8 +465,6 @@ execute "map <kMinus> :call ResizeWindowNarrow()<CR>"
 execute "map <S-kPlus> :call ResizeWindowTall()<CR>"
 execute "map <S-kMinus> :call ResizeWindowShort()<CR>"
 
-execute "map <C-F7> O/*<Esc>"
-
 if exists( "s:KeyBufferAlternate")
 	execute "map " s:KeyBufferAlternate          " :e #<CR>"
 endif
@@ -507,8 +523,7 @@ if exists( "s:KeyDiffDisable")
 	execute "map " s:KeyDiffDisable              " :set nodiff<CR>"
 endif
 if exists( "s:KeyDiffFileAlternate")
-	"execute "map " s:KeyDiffFileAlternate        " :call DiffFileAlternate()<CR>"
-	execute "map " s:KeyDiffFileAlternate        " :vertical diffsplit #<CR>"
+	execute "map " s:KeyDiffFileAlternate        " :call DiffFileAlternate()<CR>"
 endif
 if exists( "s:KeyDiffFileChooser")
 	execute "map " s:KeyDiffFileChooser          " :browse vertical diffsplit<CR>"
