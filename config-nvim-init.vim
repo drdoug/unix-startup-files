@@ -1,0 +1,640 @@
+"
+" vim startup
+" doug murray
+" 16-Jul-98
+" 05-Jul-22
+"
+
+if &t_Co > 2
+        syntax enable
+        set termguicolors
+        colorscheme aurora
+endif
+
+if has( 'nvim')
+        let g:mapleader="\\"
+        set shada='100,%,<1000,h,:100,n~/.config/nvim/saved.shada
+        set statuscolumn=%5.7l
+        set cpoptions=_
+else
+        set ttyfast
+        set nocompatible
+        set viminfo='100,%,<1000,:100,n~/.vim/viminfo
+        set printoptions=paper:letter,portrait:y,duplex:off
+        set cpoptions=jwz
+endif
+
+set wrap
+set ruler
+set hidden
+set number
+set showmode
+set incsearch
+set mousehide
+set showmatch
+set expandtab
+set cursorline
+set splitbelow
+set autoindent
+set nohlsearch
+
+set tabstop=8
+set history=100
+set shortmess=I
+set scrolloff=0
+set cmdheight=1
+set laststatus=2
+set wrapmargin=0
+" set colorcolumn=60
+set shiftwidth=8
+set softtabstop=8
+set formatoptions=roq
+set guioptions=aiglmpRt
+set backspace=indent,start
+
+"
+" Initialized above for [n]vim
+"
+set cpoptions+=aA
+set cpoptions+=bB
+set cpoptions+=cd
+set cpoptions+=eE
+set cpoptions+=fF
+set cpoptions+=lL
+set cpoptions+=mor
+set cpoptions+=sSt
+set cpoptions+=W
+set cpoptions+=x
+set cpoptions+=$!
+
+set sessionoptions=buffers,globals,help,blank,options,winpos,resize,winsize,sesdir,slash
+set guicursor=i-r:ver30-changesCursor,o:hor50-changesCursor-blinkwait100-blinkoff100-blinkon100,c-ci-cr:block-commandCursor
+set statusline=%1*%-30.40(%f\ %2*%M%1*%<%)
+set  statusline+=%-30.30(%3*Line\ %l\ of\ %L\ (%p%%)%1*%)
+set  statusline+=%-20.20(%3*\[buf\ %n\]\ \ %4*%y%H%1*\ %2*%r%1*%)
+set  statusline+=%=%5*Cursor\=0%b
+set  statusline+=\ \(Col\ %c%V\)
+set titlestring=%t%r\ %y\ %a\ \ \ \ \ \ \(%F\)
+
+" identify the highlight groups of the item under the cursor:
+"command! SynStack echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+
+"
+" default files to use for grep
+"
+let s:GrepFilesToSearch = "##"
+
+"
+" Keypress mapping for standard keyboard
+"
+"           +-------------------+-------------------+-------------------+-------------------+
+" Key:      |F1                 |F2                 |F3                 |F4                 |
+" Meta:     |help               |make distclean     |Show line numbers  |Quit VIM (Windows) |
+" Control:  |help               |make <file>.o      |Show "make" prompt |Prompt for grep fil|
+" Shift:    |Cycle Font Size    |make install       |List Errors        |Prompt for grep pat|
+" Function: |Cycle Menu/Toolbar |make               |Current Error Mesg |Grep for *cursor   |
+"           +-------------------+-------------------+-------------------+-------------------+
+"           +-------------------+-------------------+-------------------+-------------------+
+" Key:      |F5                 |F6                 |F7                 |F8                 |
+" Meta:     |                   |                   |                   |                   |
+" Control:  |                   |                   |                   |                   |
+" Shift:    |                   |                   |Quit this Buffer   |DIFF Alternate File|
+" Function: |Goto Previous Error|Goto Next Error    |List all Buffers   |To Alternate File  |
+"           +-------------------+-------------------+-------------------+-------------------+
+"           +-------------------+-------------------+-------------------+-------------------+
+" Key:      |F9                 |F10                |F11                |F12                |
+" Meta:     |                   |                   |                   |                   |
+" Control:  |Disable DIFF Mode  |                   |                   |                   |
+" Shift:    |Choose: DIFF File  |                   |                   |                   |
+" Function: |Prompt: DIFF File  |                   |                   |                   |
+"           +-------------------+-------------------+-------------------+-------------------+
+"
+"                                                   +-------------------+
+" Key:                                              |UP Arrow           |
+" Meta:                                             |                   |
+" Control:                                          |Increase Buf Size  |
+" Shift:                                            |Shift Buffer Up    |
+" Function:                                         |Move Cursor up     |
+"                               +-------------------+-------------------+-------------------+
+" Key:                          |LEFT Arrow         |DOWN Arrow         |RIGHT Arrow        |
+" Meta:                         |Close All Fold Levs|                   |Open All Fold Levs |
+" Control:                      |Close One Fold Lev |Decrease Buff Size |Open One Fold Lev  |
+" Shift:                        |Edit Prev Buffer   |Shift Buffer Down  |Edit Next Buffer   |
+" Function:                     |Move Cursor Left   |Move Cursor down   |Move Cursor Right  |
+"                               +-------------------+-------------------+-------------------+
+"
+"---------------------------------------------------------------------------------------------------------------------------"
+" Function Key Mapping for Neovim on MacOS External Keyboard                                                                "
+"         <F1=help><F2><F3><F4>           <F5><F6><F7><F8>                <F9><F10><F11=show desktop><F12>        <F13>     "
+" M       <F49><F50><F51><F52>            <F53><F54><F55><F56>            <F57><F58><F59><F60>                    <ESC>     "
+" C       <C-F1=nothing><F26><F27><F28>   <F29><F30><F31><C-F8=unknown>   <F33><F34><F35><F36>                    <C-F13>   "
+" S       <F13><F14><F15><F16>            <F17><F18><F19><F20>            <F21><F22><F23><F24>                    <S-F13>   "
+" C-S     <F37><F38><F39><F40>            <F41><F42><F43><F44>            <F45><F46><F47><F48>                    <C-S-F13> "
+"---------------------------------------------------------------------------------------------------------------------------"
+
+let s:KeyMenuToolbarCycle =          "<F1>"
+let s:KeyMake =                      "<F2>"
+let s:KeyCurrentInList =             "<F3>"
+let s:KeyGrepFromCursor =            "<F4>"
+
+let s:KeyPreviousInList =            "<F5>"
+let s:KeyNextInList =                "<F6>"
+let s:KeyBufferShowList =            "<F7>"
+let s:KeyBufferAlternate =           "<F8>"
+
+let s:KeyDiffFileDialog =            "<F9>"
+
+let s:KeyBufferPrevious =            "<S-Left>"
+let s:KeyFoldCloseOneLevel =         "<C-Left>"
+let s:KeyFoldCloseAllLevels =        "<M-Left>"
+
+let s:KeyBufferNext =                "<S-Right>"
+let s:KeyFoldOpenOneLevel =          "<C-Right>"
+let s:KeyFoldOpenAllLevels =         "<M-Right>"
+
+let s:KeyBufferShiftUp =             "<S-Up>"
+let s:KeyBufferSizeUp =              "<C-Up>"
+
+let s:KeyBufferShiftDown =           "<S-Down>"
+let s:KeyBufferSizeDown =            "<C-Down>"
+
+if has( 'nvim')
+        let s:KeyFontSizeChange =            "<F13>"
+        let s:KeyMakeInstall =               "<F14>"
+        let s:KeyShowList =                  "<F15>"
+        let s:KeyGrepFromPrompt =            "<F16>"
+        let s:KeyBufferDelete =              "<F19>"
+        let s:KeyDiffFileAlternate =         "<F20>"
+        let s:KeyDiffFileChooser =           "<F21>"
+        let s:KeyMakeObject =                "<F26>"
+        let s:KeyMakeFromPrompt =            "<F27>"
+        let s:KeyGrepFilesToSearch =         "<F28>"
+        let s:KeyDiffDisable =               "<F33>"
+        let s:KeyShowLineNums =              "<F50>"
+        let s:KeyMakeDistClean =             "<F51>"
+else
+        let s:KeyFontSizeChange =            "<S-F1>"
+        let s:KeyMakeInstall =               "<S-F2>"
+        let s:KeyShowList =                  "<S-F3>"
+        let s:KeyGrepFromPrompt =            "<S-F4>"
+        let s:KeyBufferDelete =              "<S-F7>"
+        let s:KeyDiffFileAlternate =         "<S-F8>"
+        let s:KeyDiffFileChooser =           "<S-F9>"
+        let s:KeyMakeObject =                "<C-F2>"
+        let s:KeyMakeFromPrompt =            "<C-F3>"
+        let s:KeyGrepFilesToSearch =         "<C-F4>"
+        let s:KeyDiffDisable =               "<C-F9>"
+        let s:KeyShowLineNums =              "<M-F3>"
+        let s:KeyMakeDistClean =             "<M-F2>"
+endif
+
+"
+" Automatically executed commands
+"  If using a Windows-based GUI, then run full screen
+"  Set functions for moving to next/previous functions
+"  for Java, C and C++
+"  Ensure tabs are real tabs within Makefiles
+"
+if has("autocmd")
+	if has( "gui_win32")
+		autocmd GUIEnter * simalt ~x
+		"
+		" by default, vim remaps CTRL-Y to Redo
+		" to emulate windows behaviour.
+		"
+		unmap <C-Y>
+	endif
+        autocmd FileType make set noexpandtab
+	autocmd FileType java call MapJavaMotion()
+	autocmd FileType cpp call MapCppMotion()
+	autocmd FileType c call MapCppMotion()
+endif
+
+"
+" jump to definition of next (previous) function
+"
+function! MapJavaMotion()
+	map [[ [m
+	map ]] ]m
+endfunction
+
+function! MapCppMotion()
+	map [[ ?{<CR>w99[{
+	map ][ /}<CR>b99]}
+	map ]] j0[[%/{<CR>
+	map [] k$][%?}<CR>
+endfunction
+
+"
+" Build dialog list of C functions/C++ methods to allow
+" navigation to appropriate directory, file and line.
+" Requires new robust "ctags".
+"
+" func! ShowCFunctions()
+" 	set lazyredraw
+" 	let b:tmpfile=tempname()
+" 	execute ":vertical topleft vsplit " . b:tmpfile
+" 	vertical resize 32
+" 	if !filereadable("tags")
+" 		execute ":!ctags --c-types=f --language-force=c++ -R"
+" 	endif
+" 	execute ":0read tags"
+" 	" silent execute ":0read !ctags -f - --c-types=f --sort=no --language-force=c++ #"
+" 	silent :$d
+" 	silent :%s/\(\S\+\)\s\+\(\S\+\).*class:\(.*\)/\3 (\2)  \1/e
+" 	while search( "^[^ ]","w") > 0
+" 		silent :let className=expand("<cword>")
+" 		silent :.s/\(\S\+\) (\(\S\+\))\s\+/ \1 (\2)\r  /e
+" 		silent execute " :+1,$s/^" . className . "\\s\\+(\\S\\+)//e"
+" 	endwhile
+" 	set foldtext=FoldedHeading()
+" 	set foldmethod=indent
+" 	set shiftwidth=2
+" 	set foldcolumn=3
+" 	set foldenable nomodified nobuflisted nowrap
+" 	set guioptions+=b
+" 	noremap <buffer> <CR> :call JumpToTag()<CR>
+" 	" noremap <buffer> <CR> :let functionChoice=expand("<cword>")<CR><C-W>l:execute "tag " . functionChoice<CR>z<CR>
+" endfunction
+"
+"function! JumpToTag()
+"	let l:functionChoice=expand("<cword>")
+"	" wincmd l
+"	close
+"	execute "tag " . l:functionChoice
+"endfunction
+"
+"function! FoldedHeading()
+"	let l:numLines=v:foldend-v:foldstart+1
+"	return "     " . l:numLines . " Methods"
+"endfunction
+
+"
+" Function to display a popup dialog window requesting
+" a target for the make command.
+"
+function! MakeFromPrompt()
+	let s:MakeTarget = inputdialog( "Enter Target for MAKE")
+	execute "make " . s:MakeTarget
+endfunction
+
+"
+" Function to search for the word currently beneath
+" the cursor in every file in the current directory
+"
+function! GrepFromCursor()
+	execute "grep " . expand( "<cword>") . " " . s:GrepFilesToSearch
+endfunction
+
+"
+" Function to display a popup dialog window
+" requesting a pattern for grep
+"
+function! GrepFromPrompt()
+	execute "grep " . inputdialog( "Enter Pattern for SEARCH") . " " . s:GrepFilesToSearch
+endfunction
+
+"
+" Function to display a popup dialog window
+" requesting the files to use for grep
+"
+function! GrepFilesToSearch()
+	let fileNames = inputdialog( "Enter File Names to use when SEARCHING", s:GrepFilesToSearch)
+	if fileNames != ""
+		let s:GrepFilesToSearch = fileNames
+	endif
+endfunction
+
+"
+" GUI version supports extensive menu bar and also icon-based
+" toolbar.  These functions cycle through having neither, either
+" one, or both; it remaps the next function in line to a specific keypress
+"
+function! ShowNoMenuNoToolbar()
+	set guioptions-=mT
+	if exists( "s:KeyMenuToolbarCycle")
+		execute "map " s:KeyMenuToolbarCycle " :call ShowMenuNoToolbar()<CR>"
+	endif
+endfunction
+
+function! ShowMenuNoToolbar()
+	set guioptions+=m
+	set guioptions-=T
+	if exists( "s:KeyMenuToolbarCycle")
+		execute "map " s:KeyMenuToolbarCycle " :call ShowNoMenuToolbar()<CR>"
+	endif
+endfunction
+
+function! ShowNoMenuToolbar()
+	set guioptions-=m
+	set guioptions+=T
+	if exists( "s:KeyMenuToolbarCycle")
+		execute "map " s:KeyMenuToolbarCycle " :call ShowMenuToolbar()<CR>"
+	endif
+endfunction
+
+function! ShowMenuToolbar()
+	set guioptions+=mT
+	if exists( "s:KeyMenuToolbarCycle")
+		execute "map " s:KeyMenuToolbarCycle " :call ShowNoMenuNoToolbar()<CR>"
+	endif
+endfunction
+
+"
+" Functions to incrementally adjust windows size
+"
+function! ResizeWindowWide()
+        if exists( "g:NumColumnsOnScreen")
+                let g:NumColumnsOnScreen+=1
+                call ResetScreenSize()
+        endif
+endfunction
+
+function! ResizeWindowNarrow()
+        if exists( "g:NumColumnsOnScreen")
+                let g:NumColumnsOnScreen-=1
+                call ResetScreenSize()
+        endif
+endfunction
+
+function! ResizeWindowTall()
+        if exists( "g:NumLinesOnScreen")
+                let g:NumLinesOnScreen+=1
+                call ResetScreenSize()
+        endif
+endfunction
+
+function! ResizeWindowShort()
+        if exists( "g:NumLinesOnScreen")
+                let g:NumLinesOnScreen-=1
+                call ResetScreenSize()
+        endif
+endfunction
+
+"
+" This function redraws the display in a smaller font, then remaps the
+" keypress to a function displaying a normal sized font. That function
+" in turn maps the keypress to a function displaying a large font.
+"
+function! UseSmallFont()
+	let &guifont = s:FontSmall
+	if exists( "s:KeyFontSizeChange")
+		execute "map " s:KeyFontSizeChange " :call UseNormalFont()<CR>"
+		call ResetScreenSize()
+	endif
+endfunction
+
+function! UseNormalFont()
+	let &guifont = s:FontNormal
+	if exists( "s:KeyFontSizeChange")
+		execute "map " s:KeyFontSizeChange " :call UseBigFont()<CR>"
+		call ResetScreenSize()
+	endif
+endfunction
+
+function! UseBigFont()
+	let &guifont = s:FontBig
+	if exists( "s:KeyFontSizeChange")
+		execute "map " s:KeyFontSizeChange " :call UseSmallFont()<CR>"
+		call ResetScreenSize()
+	endif
+endfunction
+
+"
+" This function highlights the most recently searched fields, then remaps
+" the keypress to call a funtion to disable highlighting.  When it is called,
+" it remaps to to highlighting; it is a toggle.
+"
+function! HighlightSearch()
+	set hlsearch
+	if exists( "s:KeySearchHighlight")
+		execute "map " s:KeySearchHighlight " :call NoHighlightSearch()<CR>"
+	endif
+endfunction
+
+function! NoHighlightSearch()
+	set nohlsearch
+	if exists( "s:KeySearchHighlight")
+		execute "map " s:KeySearchHighlight " :call HighlightSearch()<CR>"
+	endif
+endfunction
+
+"
+" This function disables case sensitive searching, then remaps the keypress
+" to a functions which enables case sensitivity. That functions remaps here,
+" making a case-sensitive search toggle.
+"
+function! CaseToggleOff()
+	set ignorecase
+	if exists( "s:KeySearchChangeCase")
+		execute "map " s:KeySearchChangeCase " :call CaseToggleOn()<CR>"
+	endif
+	echo "Case insensitive search mode..."
+endfunction
+
+function! CaseToggleOn()
+	set noignorecase
+	if exists( "s:KeySearchChangeCase")
+		execute "map " s:KeySearchChangeCase " :call CaseToggleOff()<CR>"
+	endif
+	echo "Case sensitive search mode..."
+endfunction
+
+"
+" Function to display a popup dialog window requesting a file to compare
+" with the current one.
+"
+function! DiffFilePrompt()
+	let file_to_diff = inputdialog( "Enter Filename to Compare")
+	if file_to_diff != ""
+		exe "silent vertical diffsplit " . file_to_diff
+	endif
+endfunction
+
+"
+" Start Diff mode, with side-by-side file comparison
+"
+function! DiffFileAlternate()
+	vertical diffsplit #
+endfunction
+
+"
+" Map keys to functions, independent of platform
+"
+execute "map <kPlus> :call ResizeWindowWide()<CR>"
+execute "map <kMinus> :call ResizeWindowNarrow()<CR>"
+execute "map <S-kPlus> :call ResizeWindowTall()<CR>"
+execute "map <S-kMinus> :call ResizeWindowShort()<CR>"
+
+if exists( "s:KeyBufferAlternate")
+	execute "map " s:KeyBufferAlternate          " :e #<CR>"
+endif
+if exists( "s:KeyBufferAlternateSplit")
+	execute "map " s:KeyBufferAlternateSplit     " :split #<CR>"
+endif
+if exists( "s:KeyBufferClose")
+	execute "map " s:KeyBufferClose              " :wincmd c<CR>"
+endif
+if exists( "s:KeyBufferDelete")
+	execute "map " s:KeyBufferDelete             " :bd<CR>"
+endif
+if exists( "s:KeyBufferNext")
+	execute "map " s:KeyBufferNext               " :bn<CR>"
+endif
+if exists( "s:KeyBufferNextSplit")
+	execute "map " s:KeyBufferNextSplit          " :sbn<CR>"
+endif
+if exists( "s:KeyBufferPrevious")
+	execute "map " s:KeyBufferPrevious           " :bp<CR>"
+endif
+if exists( "s:KeyBufferPreviousSplit")
+	execute "map " s:KeyBufferPreviousSplit      " :sbp<CR>"
+endif
+if exists( "s:KeyBufferShiftUp")
+	execute "map " s:KeyBufferShiftUp            "<C-E>"
+endif
+if exists( "s:KeyBufferShiftDown")
+	execute "map " s:KeyBufferShiftDown          "<C-Y>"
+endif
+if exists( "s:KeyBufferShowList")
+	execute "map " s:KeyBufferShowList           " :buffers<CR>"
+endif
+if exists( "s:KeyBufferSizeDown")
+	execute "map " s:KeyBufferSizeDown           "<C-W>-"
+endif
+if exists( "s:KeyBufferSizeUp")
+	execute "map " s:KeyBufferSizeUp             "<C-W>+"
+endif
+if exists( "s:KeyChangeAndFindNext")
+	execute "map " s:KeyChangeAndFindNext        " .n"
+endif
+if exists( "s:KeyChangeAndFindNext")
+	execute "map " s:KeyChangeAndFindNext        " .n"
+endif
+if exists( "s:KeyCopyLine")
+	execute "map " s:KeyCopyLine                 " \"+y"
+endif
+if exists( "s:KeyCurrentInList")
+	execute "map " s:KeyCurrentInList            " :cc<CR>"
+endif
+if exists( "s:KeyCutLine")
+	execute "map " s:KeyCutLine                  " \"+d"
+endif
+if exists( "s:KeyDiffDisable")
+	execute "map " s:KeyDiffDisable              " :set nodiff<CR>"
+endif
+if exists( "s:KeyDiffFileAlternate")
+	execute "map " s:KeyDiffFileAlternate        " :call DiffFileAlternate()<CR>"
+endif
+if exists( "s:KeyDiffFileChooser")
+	execute "map " s:KeyDiffFileChooser          " :browse vertical diffsplit<CR>"
+endif
+if exists( "s:KeyDiffFileDialog")
+	execute "map " s:KeyDiffFileDialog           " :call DiffFilePrompt()<CR>"
+endif
+if exists( "s:KeyFoldCloseAllLevels")
+	execute "map " s:KeyFoldCloseAllLevels       " zC"
+endif
+if exists( "s:KeyFoldCloseOneLevel")
+	execute "map " s:KeyFoldCloseOneLevel        " zc"
+endif
+if exists( "s:KeyFoldOpenAllLevels")
+	execute "map " s:KeyFoldOpenAllLevels        " zO"
+endif
+if exists( "s:KeyFoldOpenOneLevel")
+	execute "map " s:KeyFoldOpenOneLevel         " zo"
+endif
+if exists( "s:KeyFontSizeChange")
+	execute "map " s:KeyFontSizeChange           " :call UseSmallFont()<CR>"
+endif
+if exists( "s:KeyGrepFilesToSearch")
+	execute "map " s:KeyGrepFilesToSearch        " :call GrepFilesToSearch()<CR>"
+endif
+if exists( "s:KeyGrepFromCursor")
+	execute "map " s:KeyGrepFromCursor           " :call GrepFromCursor()<CR>"
+endif
+if exists( "s:KeyGrepFromPrompt")
+	execute "map " s:KeyGrepFromPrompt           " :call GrepFromPrompt()<CR>"
+endif
+if exists( "s:KeyMake")
+	execute "map " s:KeyMake                     " :make<CR>"
+endif
+if exists( "s:KeyMakeDepend")
+	execute "map " s:KeyMakeDepend               " :make depend<CR>"
+endif
+if exists( "s:KeyMakeDistClean")
+	execute "map " s:KeyMakeDistClean            " :make distclean<CR>"
+endif
+if exists( "s:KeyMakeFromPrompt")
+	execute "map " s:KeyMakeFromPrompt           " :call MakeFromPrompt()<CR>"
+endif
+if exists( "s:KeyMakeInstall")
+	execute "map " s:KeyMakeInstall              " :make install<CR>"
+endif
+if exists( "s:KeyMakeObject")
+	execute "map " s:KeyMakeObject               " :make %<.o<CR>"
+endif
+if exists( "s:KeyMakeTags")
+	execute "map " s:KeyMakeTags                 " :make tags<CR>"
+endif
+if exists( "s:KeyMenuToolbarCycle")
+	execute "map " s:KeyMenuToolbarCycle         " :call ShowMenuToolbar()<CR>"
+endif
+if exists( "s:KeyNextInList")
+	execute "map " s:KeyNextInList               " :cn<CR>"
+endif
+if exists( "s:KeyPasteLineAfter")
+	execute "map " s:KeyPasteLineAfter           " \"+p"
+endif
+if exists( "s:KeyPasteLineBefore")
+	execute "map " s:KeyPasteLineBefore          " \"+P"
+endif
+if exists( "s:KeyPreviousInList")
+	execute "map " s:KeyPreviousInList           " :cp<CR>"
+endif
+if exists( "s:KeyRedo")
+	execute "map " s:KeyRedo                     " :redo<CR>"
+endif
+if exists( "s:KeySearchBack")
+	execute "map " s:KeySearchBack               " N"
+endif
+if exists( "s:KeySearchChangeCase")
+	execute "map " s:KeySearchChangeCase         " :call CaseToggleOff()<CR>"
+endif
+if exists( "s:KeySearchFwd")
+	execute "map " s:KeySearchFwd                " n"
+endif
+if exists( "s:KeySearchHighlight")
+	execute "map " s:KeySearchHighlight          " :call HighlightSearch()<CR>"
+endif
+if exists( "s:KeySessionLoad")
+	execute "map " s:KeySessionLoad              " :source ./.vim/vim.session<CR>"
+endif
+if exists( "s:KeySessionSave")
+	execute "map " s:KeySessionSave              " :mksession! ./.vim/vim.session<CR>"
+endif
+if exists( "s:KeyShowCFunctions")
+	execute "map " s:KeyShowCFunctions           " :call ShowCFunctions()<CR>"
+endif
+if exists( "s:KeyShowLineNums")
+	execute "map " s:KeyShowLineNums             " :set number!<CR>"
+endif
+if exists( "s:KeyShowList")
+	execute "map " s:KeyShowList                 " :clist<CR>"
+endif
+if exists( "s:KeyUndo")
+	execute "map " s:KeyUndo                     " u"
+endif
+if exists( "s:KeyWindowNext")
+	execute "map " s:KeyWindowNext               " :wincmd w<CR>"
+endif
+if exists( "s:KeyWindowOnly")
+	execute "map " s:KeyWindowOnly               " :wincmd o<CR>"
+endif
+if exists( "s:KeyWindowSplit")
+	execute "map " s:KeyWindowSplit              " :split<CR>"
+endif
+
+if has( 'nvim')
+        lua require( 'init')
+endif

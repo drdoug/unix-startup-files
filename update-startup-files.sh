@@ -1,5 +1,39 @@
 #!/bin/bash
 
+declare -a allFiles=( \
+        dot-bash-profile                              ~/.bash_profile \
+        config-bash-bashrc                            ~/.config/shells/bashrc \
+        config-bash-git.bash                          ~/.config/shells/git.bash \
+        config-bash-dirs.bash                         ~/.config/shells/dirs.bash \
+        config-bash-colors.bash                       ~/.config/shells/colors.bash \
+        config-bash-prompt.bash                       ~/.config/shells/prompt.bash \
+        config-bash-prompt-ZSH.bash                   ~/.config/shells/prompt-ZSH.bash \
+        config-bash-colorTable                        ~/.config/shells/colorTable \
+         \
+        dot-zshenv                                    ~/.zshenv \
+        config-zsh-zshrc                              ~/.config/shells/.zshrc \
+        config-zsh-zlogout                            ~/.config/shells/.zlogout \
+        config-zsh-dirs.zsh                           ~/.config/shells/dirs.zsh \
+         \
+        config-common-newlist.sh                      ~/.config/shells/newlist.sh \
+        config-common-hostSpecificSetup.sh            ~/.config/shells/hostSpecificSetup.sh \
+         \
+        dot-vim-slash-vimrc                           ~/.vim/vimrc \
+        dot-vim-slash-gvimrc                          ~/.vim/gvimrc \
+        dot-vim-colors-aurora.vim                     ~/.vim/colors/aurora.vim \
+         \
+        config-nvim-init.vim                          ~/.config/nvim/init.vim \
+        config-nvim-lua-init.lua                      ~/.config/nvim/lua/init.lua \
+        config-nvim-colors-aurora.vim                 ~/.config/nvim/colors/aurora.vim \
+        config-nvim-lua-vim-settings.lua              ~/.config/nvim/lua/vim-settings.lua \
+        config-nvim-lua-plugins-lualine.lua           ~/.config/nvim/lua/plugins/lualine.lua \
+        config-nvim-lua-plugins-neotree.lua           ~/.config/nvim/lua/plugins/neotree.lua \
+        config-nvim-lua-plugins-none-ls.lua           ~/.config/nvim/lua/plugins/none-ls.lua \
+        config-nvim-lua-plugins-telescope.lua         ~/.config/nvim/lua/plugins/telescope.lua \
+        config-nvim-lua-plugins-treesitter.lua        ~/.config/nvim/lua/plugins/treesitter.lua \
+        config-nvim-lua-plugins-lsp-config.lua        ~/.config/nvim/lua/plugins/lsp-config.lua \
+        )
+
 function updateFile
         {
 
@@ -129,27 +163,11 @@ while getopts "dFCX" opt; do
         esac
 done
 
-updateFile dot-bash-profile		        ~/.bash_profile
-updateFile config-bash-bashrc		        ~/.config/shells/bashrc
-updateFile config-bash-git.bash		        ~/.config/shells/git.bash
-updateFile config-bash-dirs.bash		~/.config/shells/dirs.bash
-updateFile config-bash-colors.bash		~/.config/shells/colors.bash
-updateFile config-bash-prompt.bash		~/.config/shells/prompt.bash
-updateFile config-bash-prompt-ZSH.bash		~/.config/shells/prompt-ZSH.bash
-updateFile config-bash-colorTable               ~/.config/shells/colorTable
-
-updateFile dot-zshenv                           ~/.zshenv
-updateFile config-zsh-zshrc                     ~/.config/shells/.zshrc
-updateFile config-zsh-zlogout                   ~/.config/shells/.zlogout
-updateFile config-zsh-dirs.zsh                  ~/.config/shells/dirs.zsh
-
-updateFile config-common-newlist.sh		~/.config/shells/newlist.sh
-updateFile config-common-hostSpecificSetup.sh	~/.config/shells/hostSpecificSetup.sh
-
-updateFile dot-vim-slash-vimrc		        ~/.vim/vimrc
-updateFile dot-vim-slash-gvimrc        		~/.vim/gvimrc
-updateFile dot-vim-colors-aurora.vim            ~/.vim/colors/aurora.vim
-
+for (( i=0; i<${#allFiles[@]}; i+=2));
+do
+        updateFile "${allFiles[$i]}" "${allFiles[$i+1]}"
+done
+ 
 if [[ $_OUTOFDATE -eq 0 ]];
 then
         printf "All files are up-to-date with masters.\n"
