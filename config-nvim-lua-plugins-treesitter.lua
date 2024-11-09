@@ -4,32 +4,34 @@ return
         build = ':TSUpdate',
         config = function()
                 local treesitterOptionsToUse = require( "nvim-treesitter.configs")
+                -- treesitterOptionsToUse.setup(
                 treesitterOptionsToUse.setup(
                         {
+                        -- sync_install = false,
+                        auto_install = true,
+                        highlight = { enable = true },
+                        indent = { enable = true },
                         ensure_installed =
                                 {
-                                "bash",
+                                -- "bash",
                                 "c",
-                                "cmake",
+                                -- "cmake",
                                 "cpp",
-                                "dockerfile",
-                                "html",
-                                "java",
-                                "javascript",
-                                "json",
+                                -- "dockerfile",
+                                -- "html",
+                                -- "java",
+                                -- "javascript",
+                                -- "json",
                                 "lua",
                                 "make",
-                                "python",
-                                "ssh_config",
+                                -- "python",
+                                -- "ssh_config",
                                 "vim",
                                 "vimdoc",
-                                "yaml",
+                                -- "yaml",
                                 -- Swift seems dependent upon node.js..?
                                 -- "swift",
                                 },
-                        sync_install = false,
-                        highlight = { enable = true },
-                        indent = { enable = true },
                         }
                 )
         end
