@@ -13,7 +13,8 @@ endif
 
 if has( 'nvim')
         let g:mapleader="\\"
-        set shada='100,%,<1000,h,:100,n~/.config/nvim/saved.shada
+        " set shada='100,%,<1000,h,:100,n~/.config/nvim/saved.shada
+        set shada="NONE"
         set statuscolumn=%5.7l
         set cpoptions=_
 else
@@ -37,6 +38,7 @@ set cursorline
 set splitbelow
 set autoindent
 set nohlsearch
+set relativenumber
 
 set tabstop=8
 set history=100
@@ -48,6 +50,7 @@ set wrapmargin=0
 " set colorcolumn=60
 set shiftwidth=8
 set softtabstop=8
+set numberwidth=6
 set formatoptions=roq
 set guioptions=aiglmpRt
 set backspace=indent,start
@@ -106,7 +109,7 @@ let s:GrepFilesToSearch = "##"
 " Meta:     |                   |                   |                   |                   |
 " Control:  |Disable DIFF Mode  |                   |                   |                   |
 " Shift:    |Choose: DIFF File  |                   |                   |                   |
-" Function: |Prompt: DIFF File  |                   |                   |                   |
+" Function: |Prompt: DIFF File  |                   |                   |   File Selector   |
 "           +-------------------+-------------------+-------------------+-------------------+
 "
 "                                                   +-------------------+

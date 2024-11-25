@@ -15,15 +15,15 @@ let g:colors_name="aurora"
 hi Boolean         guifg=coral
 hi Character       guifg=coral2
 hi ColorColumn                            guibg=gray15
-hi Comment         guifg=yellow
+hi Comment         guifg=yellow2
 hi Conditional     guifg=magenta                               gui=bold
 hi Constant        guifg=tomato3                               gui=bold
 hi Cursor                                 guibg=khaki
 hi   ChangesCursor                        guibg=red
 hi   CommandCursor                        guibg=hotpink
 hi CursorColumn                           guibg=gray25
-hi CursorLine                             guibg=gray11
-hi CursorLineNr    guifg=dodgerblue                            gui=none
+hi CursorLine                             guibg=gray15
+hi CursorLineNr    guifg=white                                 gui=none
 hi Debug           guifg=maroon                                gui=bold
 hi Define          guifg=skyblue
 hi Delimiter       guifg=gray56

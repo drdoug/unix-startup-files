@@ -324,6 +324,7 @@ function setLists
 function findVim
         {
 
+        alias nv='nvim'
         case "$OSTYPE" in
                 "Linux")
                         if type gvim &>/dev/null
