@@ -50,7 +50,7 @@ return
                         MediumBlue      = '#4876FF',
                         DarkGreen       = '#006400',
                         LightGreen      = '#90EE90',
-                        DarkGrey        = '#404060',
+                        DarkGrey        = '#303050',
                         MediumGrey      = '#696969',
                         LightGrey       = '#999999',
                         DarkRed         = '#881038',
@@ -60,6 +60,10 @@ return
                         salmon          = '#FA8072',
                         magenta         = '#FF00FF',
                         goldenrod       = '#FFD700',
+                        DiagnosticError = '#f76464',
+                        DiagnosticWarn  = '#f7bf64',
+                        DiagnosticInfo  = '#64bcf7',
+                        DiagnosticHint  = '#64f79d',
                         }
 
                 local auroraTheme =
@@ -133,7 +137,7 @@ return
                                         {
                                         { 'filetype', colored = false, icon = { align = 'left' }, },
                                         { bufferNumber, color = { fg = colors.White } },
-                                        { '=%=' },
+                                        { '%=' },
                                         {
                                         'diagnostics',
                                         sections =
@@ -145,10 +149,14 @@ return
                                                 },
                                         diagnostics_color =
                                                 {
-                                                error = { fg = colors.Red, bg = colors.Black },
-                                                warn  = { fg = colors.Yellow, bg = colors.Black },
-                                                info  = { fg = colors.LightGreen, bg = colors.Black },
-                                                hint  = { fg = colors.White, bg = colors.Black },
+                                                error = { fg = colors.DiagnosticError,  bg = colors.DarkGrey },
+                                                warn  = { fg = colors.DiagnosticWarn,   bg = colors.DarkGrey },
+                                                info  = { fg = colors.DiagnosticInfo,   bg = colors.DarkGrey },
+                                                hint  = { fg = colors.DiagnosticHint,   bg = colors.DarkGrey },
+                                                -- error = { fg = colors.Red, bg = colors.DarkGrey },
+                                                -- warn  = { fg = colors.Yellow, bg = colors.DarkGrey },
+                                                -- info  = { fg = colors.LightGreen, bg = colors.DarkGrey },
+                                                -- hint  = { fg = colors.goldenrod, bg = colors.DarkGrey },
                                                 },
                                         symbols =
                                                 {
@@ -238,11 +246,20 @@ return
                                 },
                         tabline =
                                 {
-                                lualine_a = { 'buffers' },
-                                lualine_b = { 'branch' },
+                                lualine_a =
+                                        {
+                                        'buffers',
+                                        },
+                                lualine_b = {},
                                 lualine_c = {},
                                 lualine_x = {},
-                                lualine_y = { 'filename' },
+                                lualine_y =
+                                        {
+                                        {
+                                        'branch',
+                                        separator = { left = '' },
+                                        },
+                                        },
                                 lualine_z = { bufferNumber },
                                 },
                         extensions =

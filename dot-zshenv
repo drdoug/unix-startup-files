@@ -1,2 +1,4 @@
+# PATH is set here for poor design of Neovide.app
+export PATH=${PATH}:/opt/homebrew/bin
 unsetopt GLOBAL_RCS
 export ZDOTDIR=~/.config/shells

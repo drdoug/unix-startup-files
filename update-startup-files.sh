@@ -24,11 +24,14 @@ declare -a allFiles=( \
          \
         config-nvim-init.vim                          ~/.config/nvim/init.vim \
         config-nvim-lua-init.lua                      ~/.config/nvim/lua/init.lua \
-        config-nvim-colors-aurora.vim                 ~/.config/nvim/colors/aurora.vim \
+        config-nvim-lua-options.lua                   ~/.config/nvim/lua/options.lua \
+        config-nvim-lua-keymaps.lua                   ~/.config/nvim/lua/keymaps.lua \
+        config-nvim-lua-functions.lua                 ~/.config/nvim/lua/functions.lua \
         config-nvim-lua-vim-settings.lua              ~/.config/nvim/lua/vim-settings.lua \
+        config-nvim-colors-aurora.vim                 ~/.config/nvim/colors/aurora.vim \
+        config-nvim-lua-plugins-diags.lua             ~/.config/nvim/lua/plugins/diags.lua \
         config-nvim-lua-plugins-lualine.lua           ~/.config/nvim/lua/plugins/lualine.lua \
         config-nvim-lua-plugins-neotree.lua           ~/.config/nvim/lua/plugins/neotree.lua \
-        config-nvim-lua-plugins-none-ls.lua           ~/.config/nvim/lua/plugins/none-ls.lua \
         config-nvim-lua-plugins-telescope.lua         ~/.config/nvim/lua/plugins/telescope.lua \
         config-nvim-lua-plugins-treesitter.lua        ~/.config/nvim/lua/plugins/treesitter.lua \
         config-nvim-lua-plugins-lsp-config.lua        ~/.config/nvim/lua/plugins/lsp-config.lua \

@@ -25,7 +25,7 @@
 #     n                 switch with directory numbered n (nth previous directory, up to MAXDIRS)
 #
 
-MAXDIRS=20              # default numbered directory aliases; change with v cmd
+MAXDIRS=30              # default numbered directory aliases; change with v cmd
 
 #
 # not interactive, be terse

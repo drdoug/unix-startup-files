@@ -3,34 +3,44 @@ return
         'nvim-treesitter/nvim-treesitter',
         build = ':TSUpdate',
         config = function()
-                local treesitterOptionsToUse = require( "nvim-treesitter.configs")
-                -- treesitterOptionsToUse.setup(
-                treesitterOptionsToUse.setup(
+                local treesitterOptions = require( "nvim-treesitter.configs")
+                treesitterOptions.setup(
                         {
-                        -- sync_install = false,
+                        sync_install = false,
                         auto_install = true,
-                        highlight = { enable = true },
-                        indent = { enable = true },
+                        highlight =
+                                {
+                                enable = true,
+                                disable =
+                                        {
+                                        "c",
+                                        "cpp",
+                                        },
+                                },
+                        indent =
+                                {
+                                enable = false,
+                                },
                         ensure_installed =
                                 {
-                                -- "bash",
+                                "bash",
                                 "c",
-                                -- "cmake",
+                                "cmake",
                                 "cpp",
-                                -- "dockerfile",
-                                -- "html",
-                                -- "java",
-                                -- "javascript",
-                                -- "json",
+                                "dockerfile",
+                                "html",
+                                "java",
+                                "javascript",
+                                "json",
                                 "lua",
                                 "make",
-                                -- "python",
-                                -- "ssh_config",
+                                "markdown",
+                                "python",
+                                "ssh_config",
                                 "vim",
                                 "vimdoc",
-                                -- "yaml",
-                                -- Swift seems dependent upon node.js..?
-                                -- "swift",
+                                "yaml",
+                                "swift",
                                 },
                         }
                 )

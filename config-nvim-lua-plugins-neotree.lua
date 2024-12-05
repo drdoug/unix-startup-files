@@ -17,12 +17,11 @@ return
                                         {
                                         include_current_win = true,
                                         autoselect_one = true,
-                                        -- filter using buffer options
+                                        -- buffer options
                                         bo =
                                                 {
-                                                -- if the file type is one of following, the window will be ignored
+                                                -- window or buffers to ignore
                                                 filetype = { 'neo-tree', "neo-tree-popup", "notify" },
-                                                -- if the buffer type is one of following, the window will be ignored
                                                 buftype = { 'terminal', "quickfix" },
                                                 },
                                         },
@@ -33,7 +32,7 @@ return
         config = function()
                 require( 'neo-tree').setup(
                         {
-                        close_if_last_window = false, -- Close Neo-tree if it is the last window left in the tab
+                        close_if_last_window = true, -- Close Neo-tree if it is the last window left in the tab
                         popup_border_style = 'rounded',
                         enable_git_status = true,
                         enable_diagnostics = true,
@@ -55,7 +54,7 @@ return
                                         },
                                 indent =
                                         {
-                                        indent_size = 2,
+                                        indent_size = 4,
                                         padding = 1, -- extra padding on left hand side
                                         -- indent guides
                                         with_markers = true,
@@ -73,7 +72,7 @@ return
                                         folder_closed = ' ',
                                         folder_open = ' ',
                                         folder_empty = '󰜌 ',
-                                        provider = function(icon, node, state) -- default icon provider utilizes nvim-web-devicons if available
+                                        provider = function(icon, node, _) -- default icon provider utilizes nvim-web-devicons if available
                                                 if node.type == 'file' or node.type == 'terminal' then
                                                         local success, web_devicons = pcall(require, 'nvim-web-devicons')
                                                         local name = node.type == 'terminal' and 'terminal' or node.name
@@ -91,7 +90,7 @@ return
                                         },
                                 modified =
                                         {
-                                        symbol = "[+]",
+                                        symbol = " ",
                                         highlight = "NeoTreeModified",
                                         },
                                 name =
@@ -149,7 +148,7 @@ return
                         commands = {},
                         window =
                                 {
-                                position = "left",
+                                position = "float",
                                 width = 40,
                                 mapping_options =
                                         {
@@ -160,7 +159,7 @@ return
                                         {
                                         ["<space>"] =
                                                 {
-                                                "toggle_node", 
+                                                "toggle_node",
                                                 nowait = false, -- disable `nowait` if you have existing combos starting with this char that you want to use 
                                                 },
                                         ["<2-LeftMouse>"] = "open",
@@ -355,6 +354,5 @@ return
                                         }
                                 }
                         })
-                vim.keymap.set( 'n', '<F12>', ':Neotree action=focus source=filesystem position=float toggle=true dir=. reveal=true<CR>', { desc = 'Directory Viewer' })
         end
         }
