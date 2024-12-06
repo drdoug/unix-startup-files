@@ -98,7 +98,7 @@ K8S_CONFIGFILE=~/.config/kubernetes/config
 function checkForKubernetes
         {
 
-        if [[ ! -d "${K8S_CONFIGFILE}" ]];
+        if [[ ! -r "${K8S_CONFIGFILE}" ]];
         then
                 return
         fi
