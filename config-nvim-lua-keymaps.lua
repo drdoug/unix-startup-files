@@ -20,8 +20,8 @@
  Key:      |               <F5> |               <F6> |               <F7> |               <F8> |
            +--------------------+--------------------+--------------------+--------------------+
      CTRL: |                    |                    |                    |                    |
-     SHFT: |Alternate File Split|                    |Quit this Buffer    |                    |
-     FUNC: |Alternate File Here |                    |List all Buffers    |   File Selector    |
+     SHFT: |Alternate File Split|Toggle Side Columns |Quit this Buffer    |                    |
+     FUNC: |Alternate File Here |Toggle Line Numbers |List all Buffers    |   File Selector    |
  Control:  |               <F33>|               <F34>|               <F35>|               <F36>|
  Shift:    |               <F21>|               <F22>|               <F23>|               <F24>|
  Key:      |               <F9> |               <F10>|               <F11>|               <F12>|
@@ -63,6 +63,7 @@ map( 'n',       '<F8>',         ':cnext<CR>',                   { desc = 'Jump t
 map( 'n',       '<F9>',         ':e#<CR>',                      { desc = 'Switch to Most Recent Buffer' })
 map( 'n',       '<F21>',        ':split #<CR>',                 { desc = 'Split Screen then Switch to Most Recent Buffer' })
 map( 'n',       '<F10>',        ToggleLineNumbers,              { desc = 'Show or Hide Line Numbers' })
+map( 'n',       '<F22>',        ToggleSideColumns,              { desc = 'Show or Hide Left Columns for Folds and Indicators' })
 map( 'n',       '<F11>',        ':buffers<CR>',                { desc = 'Show All Current Buffers' })
 --
 -- buffers

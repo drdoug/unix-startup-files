@@ -568,7 +568,7 @@ KEYTIMEOUT=5
 
 COLORTABLE=${_STARTUP_DIR}/colorTable
 
-PROMPT_ID='\uF071'
+PROMPT_ID='\uEA6C'
 PROMPT_LOCK='\uF023'
 PROMPT_OTHER='\uF109'
 PROMPT_LINUX='\uE712'
@@ -1464,6 +1464,7 @@ function presetPromptHelp
                 'min'     'vivid prompt with right side time indicators and git details'
                 'beige'     'vivid prompt with brown-ish right side time indicators and version control info'
                 'large' 'vivid blue prompt with green right side indicators, version control info, date and time'
+                'grey' 'vivid grey prompt with no right side indicators, version control info'
                 'sharp' 'vivid prompt; blue left and right side with arrows with date and time'
                 'loud'  'vivid prompt; blue left and right side with time'
                 )
@@ -1514,7 +1515,7 @@ function p
                 pstr+='B White DodgerBlue sp dir2 sp '
                 pstr+='> Black Black > '
                 pstr+='B Black SkyBlue2 sp hist sp '
-                pstr+='White Maroon id'
+                pstr+='White Maroon sp id sp '
                 prompt -p
 
                 rpstr=''
@@ -1527,6 +1528,21 @@ function p
                 rpstr+='B Black SpringGreen3 sp time sp '
                 rpstr+='< Black Black < '
                 rprompt -p
+                ;;
+        "grey")
+                #
+                # user parent/dir histnum [GIT][rootIcon]
+                #
+                pstr=''
+                pstr+='White Grey15 user sp '
+                pstr+='> Black Black > '
+                pstr+='B Green1 Grey23 sp vcs sp gito sp '
+                pstr+='B White Grey35 sp dir2 sp '
+                pstr+='> Black Black > '
+                pstr+='B White Grey46 sp hist sp '
+                pstr+='White Maroon sp id sp '
+                prompt -p
+                rprompt -
                 ;;
         "sharp")
                 #

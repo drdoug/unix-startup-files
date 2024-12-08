@@ -16,6 +16,23 @@ function ToggleLineNumbers()
 end
 
 --
+-- Hide or Show Fold and Sign Columns on Left
+--
+local _showColumns=true
+function ToggleSideColumns()
+        if _showColumns
+        then
+                vim.opt.foldcolumn="0"
+                vim.opt.signcolumn="no"
+                _showColumns = false
+        else
+                vim.opt.foldcolumn="1"
+                vim.opt.signcolumn="yes"
+                _showColumns = true
+        end
+end
+
+--
 -- Search project source code files for
 -- the given pattern, showing the full
 -- quickfixlist if showAllResults is true
@@ -34,8 +51,8 @@ local function searchForPattern( pattern, showAllResults)
         if showAllResults == true
         then
                 vim.cmd( "copen")
+                vim.cmd( "wincmd p")
         end
-        vim.cmd( "wincmd p")
 end
 
 --
@@ -50,6 +67,7 @@ function SearchProjectFromCursor()
                 return
         end
         searchForPattern( word, false)
+        vim.cmd( "cnext")
 end
 
 --
