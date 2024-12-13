@@ -1630,10 +1630,24 @@ function p
                 ;;
         "small")
                 #
-                # user histnum [rootIcon]               time
+                # dir histnum [rootIcon]         [retCode][lock][GIT] time
                 #
-                prompt 'White Blue3 sp user Grey70 @ host sp Black Turquoise sp hist sp White Red sp id sp'
-                rprompt 'B White DarkGreen vcs sp gito sp Black SeaGreen sp time sp '
+                pstr=''
+                pstr+='B White DarkGreen sp dir sp '
+                pstr+='> Black Black > '
+                pstr+='B Black Green2 sp hist sp '
+                pstr+='White Maroon sp id sp '
+                prompt -p
+
+                rpstr=''
+                rpstr+='White DarkRed sp Ret sp '
+                rpstr+='Black Orange sp lock sp '
+                rpstr+='< Black Black < '
+                rpstr+='B White DarkGreen sp vcs sp gito sp '
+                rpstr+='< Black Black < '
+                rpstr+='B Black SpringGreen3 sp time sp '
+                rpstr+='< Black Black < '
+                rprompt -p
                 ;;
         "tiny")
                 #
