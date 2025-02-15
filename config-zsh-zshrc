@@ -482,7 +482,7 @@ function git-text
         printf "[$GITBRANCH $GITOFFSETS]"
         }
 
-function git-setup()
+function git-personal()
         {
         git config --global user.name 'drdoug'
         git config --global user.email 'drdoug@mimeticsystems.com'
@@ -494,6 +494,7 @@ function git-slac()
         git config --global user.email 'drm@slac.stanford.edu'
         }
 
+alias gitname='git config user.name'
 alias gits='git-text;printf " ";git status'
 alias gitl="git log --graph --decorate --oneline --all"
 alias gitadd='git add $(git diff --name-only|sort -u)'
