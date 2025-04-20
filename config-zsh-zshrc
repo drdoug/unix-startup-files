@@ -394,7 +394,7 @@ addpath -q /bin
 addpath -q /usr/bin
 addpath -q /usr/afsws/bin
 addpath -q /sw/bin
-addpath -q /opt/Qt/6.8.0/macos/bin
+addpath -q /opt/Qt/6.9.0/macos/bin
 addca 134.79.219.255
 addca 172.26.97.63
 
@@ -1523,7 +1523,7 @@ function p
                 pstr+='B White DodgerBlue sp dir2 sp '
                 pstr+='> Black Black > '
                 pstr+='B Black SkyBlue2 sp hist sp '
-                pstr+='White Maroon sp id sp '
+                pstr+='White Maroon id sp '
                 prompt -p
 
                 rpstr=''

@@ -159,6 +159,7 @@ function hostSpecificSetup
                         fi
 
                         inspath -q /opt/homebrew/bin
+                        inspath -q /opt/homebrew/opt/make/libexec/gnubin
                         inspath -q /Users/dougm/Home/bin
                         inspath -q /Users/dougm/bin
 
@@ -171,6 +172,8 @@ function hostSpecificSetup
 
                         addmaclib -q ~/Dropbox/src/lib
                         addman -q /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man
+
+                        export XDG_CONFIG_HOME=~/.config
 
                         #
                         # check for local EPICS
