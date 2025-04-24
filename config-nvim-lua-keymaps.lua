@@ -47,8 +47,8 @@ local map = vim.keymap.set
 --
 map( 'n',       '<F1>',         ':on<CR>',                      { desc = 'Close All Windows except the Currently Active' })
 map( 'n',       '<S-F1>',       ':wincmd c<CR>',                { desc = 'Close the Currently Active Window' })
-map( 'n',       '<F2>',         ':make<CR>',                    { desc = 'Make' })
-map( 'n',       '<S-F2>',       ':make install<CR>',            { desc = 'Make install' })
+map( 'n',       '<F2>',         ':make -j<CR>',                 { desc = 'Make' })
+map( 'n',       '<S-F2>',       ':make -j install<CR>',         { desc = 'Make install' })
 map( 'n',       '<C-F2>',       ':make distclean<CR>',          { desc = 'Make distclean' })
 map( 'n',       '<F3>',         ':split #<CR>',                 { desc = 'Split Screen Below, add Alternate File (#)' })
 map( 'n',       '<F4>',         ':vsplit #<CR>',                { desc = 'Split Screen Right, add Alternate File (#)' })

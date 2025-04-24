@@ -1,0 +1,3315 @@
+#
+# doug murray : 07-Mar-2020
+#
+# Change History
+#       16-Nov-96 cleared ancient history entries to 23-Jan-81
+#       07-Mar-18 finally updated echo to printf where possible
+#       25-Oct-18 port to zsh
+#
+
+#
+# Common startup for shells
+#
+#   Names starting with '_' are meant to be private
+#
+
+#
+# Before anything else, locate the
+# startup directory, assumed to be
+# the same one from which this
+# script is running.
+#
+# Check if we're running from bash by
+# checking for shopt, a bash builtin.
+#
+if type shopt &>/dev/null
+then
+        _STARTUP_DIR=$(readlink -f $(dirname $(readlink -f ${BASH_SOURCE[0]})))
+        HISTFILE="${_STARTUP_DIR}/bash-history"
+        HISTFILESIZE=5000 # maximum size of saved history file
+else
+        _STARTUP_DIR=$(readlink -f $(dirname $(readlink -f ${(%):-%x})))
+        HISTFILE=${_STARTUP_DIR}/zsh-history
+        SAVEHIST=5000     # maximum size of saved history file
+        ZDOTDIR=${_STARTUP_DIR}
+fi
+
+#
+# customizable settings
+#
+
+HISTSIZE=5000             # maximum history size in memory per session
+
+USECOLOR=true             # let 'ls' and 'grep' use color if available
+WINDOWHEADER="yes"        # display CWD in xterm/sun-cmd window header
+SHOWGITBRANCH="yes"       # display git branch in xterm/sun-cmd window header
+
+USERID=${UID:-"$(id -u)"} # will check for root or reserved IDs
+OSTYPE="$(uname -s)"      # Linux, Darwin (MacOS), no longer check for Solaris, HPUX
+TTY=$(tty)                # will check for interactive session
+
+SYS_SPECIFIC=''
+HIST_STAMPS="yyy-mm-dd"
+COMPLETION_WAITING_DOTS="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+PREVIOUSLY_VISITED_DIRS="${_STARTUP_DIR}/previousDirs"
+
+unsetopt notify
+setopt PROMPT_SUBST
+
+autoload -Uz vcs_info
+zstyle ':vcs_info:git*' enable git
+zstyle ':vcs_info:git*' stagedstr '>'
+zstyle ':vcs_info:git*' unstagedstr '+'
+zstyle ':vcs_info:git*' formats '%b %u%c'
+
+zstyle :compinstall filename '${_STARTUP_DIR}/.zshrc'
+autoload -Uz compinit
+compinit
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#
+# Generic Setup
+#
+
+function setupCommands
+        {
+
+        alias cp='cp -i'
+        alias mv='mv -i'
+        alias rm='rm -i'
+        alias j='jobs -l'
+        alias h='history -20'
+
+        alias source=.
+        alias up=uptime
+        alias z='printf "%s\n" "pid=$$ $SHELLNAME";suspend'
+
+        #
+        # BUILDKIT refers to docker build utility
+        #
+        export EDITOR=vi
+        export BUILDKIT_COLORS="run=cyan:cancel=yellow:warning=red"
+
+        #
+        # color definitions for 'ls', 'grep' and autocompletion
+        #
+        newlist color LS_COLORS -e
+
+        addcolor 'no=00'
+        #
+        # system criteria (alphabetic)
+        #
+        addcolor 'bd=00;91'             # block device
+        addcolor 'ca=00;91'             # capabilities have been set (?)
+        addcolor 'cd=01;96'             # character device
+        addcolor 'di=01;95'             # directory
+        addcolor 'do=01;35'             # Solaris DOOR
+        addcolor 'ex=01;32'             # executable
+        addcolor 'fi=01;36'             # file
+        addcolor 'ln=01;36'             # link (hard or symbolic)
+        addcolor 'mh=00'                # multiple hard links exist
+        addcolor 'or=40;31;01'          # orphan - symlink to nowhere
+        addcolor 'ow=04;1;32'           # other-writable (002) and not sticky
+        addcolor 'tw=04;1;32'           # other-writable (002) and sticky
+        addcolor 'pi=40;33'             # named pipe or fifo
+        addcolor 'rs=0'                 # reset code (?)
+        addcolor 'sg=30;43'             # set GID bit set
+        addcolor 'so=01;35'             # socket endpoint
+        addcolor 'st=37;44'             # sticky bit
+        addcolor 'su=37;41'             # set UID bit set
+        #
+        # filename criteria (alphabetic)
+        #
+        addcolor '*.bmp=00;35'          # BMP image file (Bitmap Image File)
+        addcolor '*.cpio=00;31'         # CPIO file package
+        addcolor '*.csh=00;32'          # C-shell script
+        addcolor '*.doc=00;35'          # Microsoft Word Document
+        addcolor '*.docx=00;35'         # Microsoft Word Document
+        addcolor '*.gif=00;35'          # GIF image file (Graphics Interface Format)
+        addcolor '*.gz=00;31'           # GNU compressed file (gzip)
+        addcolor '*.jpg=00;35'          # JPEG image file (Joiint Photographic Experts Group)
+        addcolor '*.png=00;35'          # Portable Network Graphics file
+        addcolor '*.ppt=00;35'          # Microsoft PowerPoint Document
+        addcolor '*.pptx=00;35'         # Microsoft PowerPoint Document
+        addcolor '*.rpm=00;31'          # RedHat package manager
+        addcolor '*.sh=00;32'           # shell script
+        addcolor '*.tar=00;31'          # tar file (Tape ARchive)
+        addcolor '*.tgz=00;31'          # compressed tar file (gzipped tar)
+        addcolor '*.tif=00;35'          # TIFF file (Tag Image File Format)
+        addcolor '*.tz=00;31'           # compressed tar file
+        addcolor '*.xbm=00;35'          # X Bitmap File (X11 windowing system)
+        addcolor '*.xls=00;35'          # Microsoft Excel Document
+        addcolor '*.xlsx=00;35'         # Microsoft Excel Document
+        addcolor '*.xpm=00;35'          # X Pixmap File (X11 windowing system)
+        addcolor '*.zip=00;31'          # compressed file (zip)
+
+        case "$OSTYPE" in
+                "Linux")
+                        #
+                        # See if we can be more specific about the distribution
+                        #
+                        if [[ -r "/etc/os-release" ]];
+                        then
+                                SYS_SPECIFIC=$(grep '^ID='<"/etc/os-release"|sed -e 's/^ID=\(.*\)/\1/')
+                        else
+                                SYS_SPECIFIC=Linux
+                        fi
+
+                        #
+                        # check for the GNU version of ls
+                        #
+                        if [[ $USECOLOR = "true" ]];
+                        then
+                                "grep" "--version" 2>&1|grep coreutils>/dev/null
+                                err=$?
+                                if (( $err == 0 ))
+                                then
+                                        export GREP_COLORS='ms=01;32'
+                                        alias grep='grep --color=auto'
+                                fi
+
+                                "ls" "--version" 2>&1|grep coreutils>/dev/null
+                                err=$?
+                                if (( $err == 0 ))
+                                then
+                                        alias ls='ls --color=auto -F'
+                                fi
+                        else
+                                unalias ls   &>/dev/null
+                                unalias grep &>/dev/null
+                        fi
+                        ;;
+                "Darwin")
+                        SYS_SPECIFIC="MacOS"
+
+                        #
+                        # check for grep and ls colorization
+                        #
+                        if [[ $USECOLOR = "true" ]];
+                        then
+                                #
+                                # LSCOLORS unknown in zsh
+                                #
+                                alias grep='grep --color=auto'
+
+                                #
+                                # MacOS Filesystem Entry Attributes
+                                #   Position    Purpose
+                                #       1       Directory
+                                #       2       symbolic link
+                                #       3       socket
+                                #       4       named pipe
+                                #       5       executable
+                                #       6       block device
+                                #       7       character device
+                                #       8       executable with set UID
+                                #       9       executable with set GID
+                                #      10       Directory other-writable (002) with sticky bit
+                                #      11       Directory other-writable (002) without sticky bit
+                                #
+                                # MacOS Color Attributes (foreground first, background second)
+                                #            (eg 'Cx' yields Bold Green on default background)
+                                #   Code        Color
+                                #     a         Black
+                                #     b         Red
+                                #     c         Green
+                                #     d         Brown
+                                #     e         Blue
+                                #     f         Magenta
+                                #     g         Cyan
+                                #     h         Light Grey
+                                #     A         Dark Grey
+                                #     B         Bold Red
+                                #     C         Bold Green
+                                #     D         Bold Brown (Yellow)
+                                #     E         Bold Blue
+                                #     F         Bold Magenta
+                                #     G         Bold Cyan
+                                #     H         Bright White
+                                #     x         Default
+                                #
+                                export LSCOLORS="CxgxGxGxDxAxhxBxBxBxBx"
+
+                                alias ls='ls --color=auto -F'
+                                zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+                        else
+                                unalias ls &>/dev/null
+                        fi
+
+                        newlist maclib DYLD_LIBRARY_PATH
+                        addmaclib -q ~/Dropbox/src/xcode-local/lib
+                        addmaclib -q ~/Dropbox/src/lib
+                        export EPICS_BASE=${EPICS_BASE:-"/usr/local/epics/base"}
+                        EPICS_SETUP=${EPICS_BASE}/config/epicsSetup.bash
+                        if [[ -e $EPICS_SETUP ]];
+                        then
+                                source $EPICS_SETUP
+                        else
+                                if [[ "$(arch)" = "arm64" ]];
+                                then
+                                        _macArch="darwin-aarch64"
+                                else
+                                        _macArch="darwin-x86"
+                                fi
+                                export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"${_macArch}"}
+                                addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
+                                unset _macArch
+                        fi
+
+                        #
+                        # Support for OpenDDS
+                        #
+                        if [[ -d ~/Dropbox/OpenDDS ]];
+                        then
+                                export DANCE_ROOT=unused
+                                export CIAO_ROOT=unused
+                                export DDS_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12
+                                export ACE_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers
+                                export TAO_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers/TAO
+                                export MPC_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers/MPC
+                                addmaclib -q ${DDS_ROOT}/lib
+                                addpath -q ${DDS_ROOT}/bin
+                                addmaclib -q ${ACE_ROOT}/lib
+                                addpath -q ${ACE_ROOT}/bin
+                        fi
+
+                        #
+                        # Support for RTI DDS
+                        #
+                        if [[ -d /Applications/rti_connext_dds-5.3.1 ]];
+                        then
+                                export NDDSHOME=/Applications/rti_connext_dds-5.3.1
+                                addpath -q ${NDDSHOME}/bin
+                                addlib -q ${NDDSHOME}/lib/x64Darwin17clang9.0/
+                                addmaclib -q ${NDDSHOME}/lib/x64Darwin17clang9.0/
+                        fi
+                        ;;
+                *)
+                        SYS_SPECIFIC=''
+                        ;;
+        esac
+        }
+
+#
+# print a list of defined functions
+#
+function showFunctions
+        {
+
+        print -l ${(ok)functions}
+        }
+
+#
+# read commands from file if present
+#
+function _checkAndRead
+        {
+
+        for fileName in "$@";
+        do
+                if [[ -r "$fileName" ]];
+                then
+                        source "$fileName"
+                fi
+        done
+        }
+
+function findVim
+        {
+
+        alias nv='nvim'
+        case "$OSTYPE" in
+                "Linux")
+                        if type gvim &>/dev/null
+                        then
+                                alias vi='gvim'
+                        else
+                                if type vim &>/dev/null
+                                then
+                                        alias vi='vim'
+                                else
+                                        unalias vi &>/dev/null
+                                fi
+                        fi
+                        ;;
+                "Darwin")
+                        if type mvim &>/dev/null
+                        then
+                                alias vi='mvim'
+                        else
+                                if type vim &>/dev/null
+                                then
+                                        alias vi='vim'
+                                else
+                                        unalias vi &>/dev/null
+                                fi
+                        fi
+
+                        if type newlist &>/dev/null
+                        then
+                                newlist maclib DYLD_LIBRARY_PATH
+                        fi
+                        ;;
+                *)
+                        if type vim &>/dev/null
+                        then
+                                alias vi='vim'
+                        else
+                                unalias vi &>/dev/null
+                        fi
+                        ;;
+        esac
+        }
+
+#-=-=-=-=-=-=-=-=
+# zsh-lists
+
+#-=-=-=-=-=-=-=-=
+#
+# newlist.sh
+# Doug Murray
+# 1991-2024
+#
+
+#
+# newlist.sh
+# Common file usable with bash or zsh
+#
+# Manage environment variables as lists rather than
+# lengthy text strings which are difficult to read.
+#
+# Usage:
+#       source this file, then afterwards in the
+#       .bashrc or .zshrc file, add commands like
+#          newlist path  PATH
+#          newlist lib   LD_LIBRARY_PATH
+#          newlist man   MANPATH
+#          newlist class CLASSPATH -n
+#          newlist cd    CDPATH
+#          newlist ca    EPICS_CA_ADDR_LIST -s' ' -e
+#          newlist pva   EPICS_PVA_ADDR_LIST -s' ' -e
+#          newlist edm   EDMDATAFILES -e
+#
+# The function "newlist" creates a set of functions
+# to make the contents of an environment variable
+# appear to be an array of text.
+#   These functions are named according to a suffix
+# given to the newlist command.  For example:
+#      newlist mine SOME_ENV_VAR
+#    will create
+#      insmine     <- to insert some text to the start of SOME_ENV_VAR
+#      addmine     <- to append some text to the end of SOME_ENV_VAR
+#      delmine     <- to delete some text (all instances) from SOME_ENV_VAR
+#      remmine     <- to remove all functions, leave SOME_ENV_VAR as is
+#      showmine    <- to display all contents of SOME_ENV_VAR
+#      setmine     <- to create a list, setting SOME_ENV_VAR to contain the given arguments
+# By default the environment variable is assumed to
+# be a list separated by colons (:) and each entry
+# is assumed to exist in the filesystem.  See the
+# newlist command below to change those options.
+#
+# As a more complete example, consider
+# a PATH variable that is set to:
+# "/usr/local/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Apple/usr/bin:/home/me/bin:/bin:/usr/bin"
+# By saying "newlist path PATH", the functions
+# described above are created, including "showpath":
+#
+#       showpath
+#        1:               /usr/local/bin
+#        2:               /usr/sbin
+#        3:               /sbin
+#        4:  unavailable->/opt/X11/bin
+#        5:               /Library/Apple/usr/bin
+#        6:               /home/me/bin
+#        7:               /bin
+#        8:               /usr/bin
+#
+# Details are described below.
+#
+
+#
+# Determine if we're using bash or zsh.
+# Assume zsh by default, but change to
+# bash if 'shopt' builtin cmd is available.
+#
+SHELL_USED=zsh
+if type shopt &>/dev/null
+then
+        SHELL_USED=bash
+fi
+
+#
+# commonly used separator for list fields
+# ($PATH, etc). can be changed with '-s' flag.
+# The REPL_SEP is used in substitutions, but
+# changed if the '-s' flag specifies the same
+# symbol, in which case the _BACKUP_SEP separator
+# will be used instead.
+# Only used in zsh version, bash uses IFS.
+#
+_LIST_MANAGE_SEP=':'
+_LIST_REPL_SEP='/'
+_LIST_BACKUP_SEP=':'
+
+#
+# Remove all current content from the named variable, then add new list entries
+#
+# usage: _ListMgrCreate VarName [-e][-n][-q][-v][-sX] arg1 ... 
+#
+# refer to 'newlist' below.
+#
+function _ListMgrCreate
+        {
+        let verbose=0
+        local component
+        local envVar
+
+        #
+        # get the env variable to create
+        #
+        envVar="$1"
+        shift
+
+        #
+        # consume options
+        #
+        for component in "$@";
+        do
+                case $component in
+                        -e | -n | -q | -s)
+                                continue
+                                ;;
+                        -v)
+                                let verbose=1
+                                continue
+                                ;;
+                esac
+        done
+
+        eval "unset $envVar"
+        _ListMgrChange append "$envVar" "$@"
+
+        if (( $verbose == 1 ))
+        then
+                printf "Created the '%s' list\n" "$envVar"
+                _ListMgrShow $envVar
+        fi
+        }
+
+#
+# Insert the given arguments in front of
+# those already in the named variable.
+# Duplicates are removed first.
+#
+# usage: _ListMgrInsert VarName [-e][-n][-q][-v][-sX] arg1 ...
+#
+# refer to 'newlist' below.
+#
+function _ListMgrInsert
+        {
+
+        _ListMgrChange insert "$@"
+        }
+
+#
+# Append the given arguments after
+# those already in the named variable.
+# Duplicates are removed first.
+#
+# usage: _ListMgrAppend VarName [-e][-n][-q][-v][-sX] arg1 ...
+#
+# refer to 'newlist' below.
+#
+function _ListMgrAppend
+        {
+
+        _ListMgrChange append "$@"
+        }
+
+#
+# Insert or Append the given arguments in front
+# or at the end of the named variable.
+# Duplicates are removed first.
+#
+# usage: _ListMgrChange [append|insert] VarName [-e][-n][-q][-v][-sX] arg1 ...
+#
+# refer to 'newlist' below.
+#
+function _ListMgrChange
+        {
+        let needExist=1
+        let needDir=1
+        let verbose=0
+        let quiet=0
+        local component
+        local doInsert
+        local envVar
+        _list_sep="${_LIST_MANAGE_SEP}"
+
+        #
+        # get the operation; insert or append
+        #
+        doInsert=$1
+        shift
+
+        #
+        # first delete the items from the list
+        #
+        _ListMgrDelete "$@"
+
+        #
+        # get the variable to manage...
+        #
+        envVar=$1
+        _ListContent=$(eval echo ${envVar:+'$'}${envVar:-})
+        shift
+
+        NC=
+        for component in "$@";
+        do
+                case $component in
+                        -e)
+                                let needExist=0
+                                continue
+                                ;;
+                        -n)
+                                let needDir=0
+                                continue
+                                ;;
+                        -v)
+                                let verbose=1
+                                continue
+                                ;;
+                        -q)
+                                let quiet=1
+                                continue
+                                ;;
+                        -s*)
+                                _list_sep=${component:2:1}
+                                _list_sep=${_list_sep:-" "}
+                                continue
+                                ;;
+                esac
+                if (( $needExist == 1 ))
+                then
+                        if (( $needDir == 1 ))
+                        then
+                                if [[ "${component:0:1}" != "/" &&  "${component:0:2}" != "~/" ]];
+                                then
+                                        if (( $quiet != 1))
+                                        then
+                                                printf "Warning: %s\n" "'$component' does not start with '/' or '~/'"
+                                        fi
+                                fi
+                                if [[ ! -d "$component" || ! -x "$component" ]];
+                                then
+                                        if (( $quiet != 1))
+                                        then
+                                                printf "%s\n" "$component is Unavailable."
+                                        fi
+                                        continue
+                                fi
+                        else
+                                if [[ ! -r "$component" ]];
+                                then
+                                        if (( $quiet != 1))
+                                        then
+                                                printf "%s\n" "$component is not readable."
+                                        fi
+                                        continue
+                                fi
+                        fi
+                fi
+                #
+                # construct New Content with each argument
+                # to append or insert to the list later
+                #
+                NC="$NC${NC:+$_list_sep}$component"
+                if (( $verbose == 1 ))
+                then
+                        if [[ "$doInsert" = "append" ]];
+                        then
+                                printf "Added %s to the end of the '%s' list\n" "$component" "$envVar" 
+                        else
+                                printf "Inserted %s at the beginning of the '%s' list\n" "$component" "$envVar" 
+                        fi
+                fi
+        done
+
+        #
+        # append value to end, or insert at beginning
+        #
+        if [[ "$doInsert" = "append" ]];
+        then
+                _ListContent="$_ListContent${_ListContent:+${NC:+$_list_sep}}$NC"
+        else
+                _ListContent="$NC${NC:+$_list_sep}$_ListContent"
+        fi
+
+        eval "export $envVar='$_ListContent'"
+        if (( $verbose == 1 ))
+        then
+                _ListMgrShow $envVar
+        fi
+        }
+
+#
+# List the contents of the named variable, in a reasonable
+# and readable form.
+#
+# usage: _ListMgrShow VarName [-e][-n][-q][-v][-sX]
+#
+# refer to 'newlist' below.
+#
+function _ListMgrShow
+        {
+        local component
+        let needExist=1
+        let needDir=1
+        let verbose=0
+        let quiet=0
+        let index=0
+        _list_sep="${_LIST_MANAGE_SEP}"
+        _repl_sep="${_LIST_REPL_SEP}"
+
+        #
+        # get the variable (list) to manage...
+        #
+        _ListContent=$(eval echo ${1:+'$'}${1:-})
+        shift
+
+        #
+        # gather arguments
+        #
+        for argument in "$@";
+        do
+                case $argument in
+                -e)
+                        let needExist=0
+                        continue
+                        ;;
+                -n)
+                        let needDir=0
+                        continue
+                        ;;
+                -v | -q)
+                        continue
+                        ;;
+                -s*)
+                        _list_sep=${argument:2:1}
+                        _list_sep=${_list_sep:-" "}
+
+                        if [[ "${_list_sep}" == "${_repl_sep}" ]];
+                        then
+                                _repl_sep="${_LIST_BACKUP_SEP}"
+                        fi
+                        continue
+                        ;;
+                esac
+        done
+
+        #
+        # For zsh, convert the list to an array (because IFS isn't
+        # available here), then traverse and legibly print
+        # For bash, just traverse the variable and legibly print
+        #
+        if [[ $SHELL_USED == "bash" ]];
+        then
+                IFS="$_list_sep"
+        else
+                eval $(printf "%s" "_ListContent=(\${(s${_repl_sep}${_list_sep}${_repl_sep})_ListContent})")
+        fi
+
+        for component in $_ListContent;
+        do
+                let index=$index+1;
+                printf "%4.3s: " "$index"
+                if (( $needExist == 1 ))
+                then
+                        if (( $needDir == 1 ))
+                        then
+                                if [[ ! -d $component || ! -x $component ]];
+                                then
+                                        printf "%s" " unavailable->"
+                                else
+                                        printf "%s" "              "
+                                fi
+                        else
+                                if [[ ! -r $component ]];
+                                then
+                                        printf "%s" "not readable->"
+                                else
+                                        printf "%s" "              "
+                                fi
+                        fi
+                else
+                        printf "%s" "              "
+                fi
+                printf "%s\n" "$component"
+        done
+
+        if [[ $SHELL_USED == "bash" ]];
+        then
+                unset IFS
+        fi
+        }
+
+#
+# Delete all instances of each argument from the
+# variable (list) given as the first argument.
+#
+# usage: _ListMgrDelete VarName [-e][-n][-q][-v][-sX] arg1 ...
+#
+# refer to 'newlist' below.
+#
+function _ListMgrDelete
+        {
+        let verbose=0
+        let changed=0
+        local component
+        local envVar
+        _list_sep="${_LIST_MANAGE_SEP}"
+        _repl_sep="${_LIST_REPL_SEP}"
+
+        #
+        # get the variable to
+        # manage and it's value.
+        #
+        envVar=$1
+        _ListContent=$(eval echo ${envVar:+'$'}${envVar:-})
+        shift
+
+        for toDelete in "$@";
+        do
+                case $toDelete in
+                -e | -n | -q)
+                        continue
+                        ;;
+                -v)
+                        let verbose=1
+                        continue
+                        ;;
+                -s*)
+                        _list_sep=${toDelete:2:1}
+                        _list_sep=${_list_sep:-" "}
+
+                        if [[ "${_list_sep}" == "${_repl_sep}" ]];
+                        then
+                                _repl_sep="${_LIST_BACKUP_SEP}"
+                        fi
+                        continue
+                        ;;
+                esac
+
+                #
+                # If zsh, convert the list to an
+                # array because IFS isn't available.
+                # In bash or zsh, rebuild the list without
+                # the deleted element.
+                #
+                if [[ $SHELL_USED == "bash" ]];
+                then
+                        IFS=$_list_sep
+                else
+                        eval $(printf "%s" "_ListContent=(\${(s${_repl_sep}${_list_sep}${_repl_sep})_ListContent})")
+                fi
+
+                NC=''
+                for component in $_ListContent;
+                do
+                        if [[ ! -z $component && $component != "$toDelete" ]];
+                        then
+                                NC="${NC}${NC:+$_list_sep}$component"
+                        else
+                                let changed=1
+                                if (( $verbose == 1 ))
+                                then
+                                        printf "Removed %s from list '%s'\n" "$component" "$envVar"
+                                fi
+                        fi
+                done
+                if [[ $SHELL_USED == "bash" ]];
+                then
+                        unset IFS
+                fi
+                _ListContent="${NC}"
+        done
+        if (( $changed == 1 ))
+        then
+                eval "export $envVar='$_ListContent'"
+                if (( $verbose == 1 ))
+                then
+                        _ListMgrShow $envVar
+                fi
+        else
+                if (( $verbose == 1 ))
+                then
+                        printf "Nothing to delete from the '%s' list\n" "$envVar"
+                fi
+        fi
+        }
+
+#
+# Remove the functions associated with the environment variable,
+# leaving the variable intact.
+#
+# usage: _ListMgrRemove CommandSuffix [-e][-n][-q][-v][-sX] ...
+#
+# Note this is different from other generated functions because
+# its argument is the command suffix rather than the environment
+# variable.  Refer to 'newlist' below.
+#
+function _ListMgrRemove
+        {
+        local component
+        local suff
+        let verbose=0
+
+        #
+        # get the list's suffix
+        #
+        suff=$1
+        shift
+
+        #
+        # should be options only
+        #
+        for component in "$@";
+        do
+                case $component in
+                        -e | -n | -q | -s)
+                                continue
+                                ;;
+                        -v)
+                                let verbose=1
+                                continue
+                                ;;
+                esac
+        done
+
+        if (( $verbose == 1 ))
+        then
+                printf "Removing the functions created to manage the list named '$suff':\n"
+                printf "    removing function   set%s\n" "$suff"
+                printf "    removing function  show%s\n" "$suff"
+                printf "    removing function   ins%s\n" "$suff"
+                printf "    removing function   add%s\n" "$suff"
+                printf "    removing function   del%s\n" "$suff"
+                printf "    removing function   rem%s\n" "$suff"
+        fi
+
+        eval "unset -f 'set$suff'"
+        eval "unset -f 'ins$suff'"
+        eval "unset -f 'add$suff'"
+        eval "unset -f 'del$suff'"
+        eval "unset -f 'rem$suff'"
+        eval "unset -f 'show$suff'"
+
+        #
+        # don't try removing the list's name from
+        # 'lists' if we've just removed 'lists'.
+        #
+        if [[ "$suff" != "lists" ]];
+        then
+                dellists "$suff"
+        fi
+        }
+
+#
+# Create functions to manage an environment variable
+# meant to contain a list of delimited names.
+# This includes PATH, LD_LIBRARY_PATH, MANPATH, CDPATH, etc.
+#
+# usage: newlist CommandSuffix VarName [-e][-n][-q][-v][-sX]
+#
+#            The 'CommandSuffix' is used to create the
+#            function name, and the VarName is the
+#            environment variable containing the list.
+
+#       -e : the constructed functions will not require
+#            the list element to exist in the file system
+#       -n : the constructed functions will not require
+#            the list element to exist as a directory
+#       -q : the constructed functions will work quietly
+#       -v : the constructed functions will be verbose
+#       -sX: the constructed functions will use X as
+#            the delimiter, which is ${_LIST_MANAGE_SEP} by default,
+#            typically a colon (:)
+#
+# Functions are created to insert, append, delete, reset,
+# create and show all elements in the list.  The list
+# is created if it doesn't already exist.
+#
+# Example:
+#     newlist path PATH
+# will create an environment variable named PATH if
+# it doesn't already exist.  If will also create a
+# command 'addpath' which will add an element to
+# that environment variable.  For instance,
+#     addpath /bin
+# will add /bin to the PATH.  If it's already in the
+# PATH, it will be moved to the end.  Similarly,
+# inspath is created to insert the directory at the
+# beginning of the list. The delpath function will remove
+# the directory from PATH, rempath removes the functions
+# leaving the environment variable as is, setpath will remove
+# the contents of the environment variable then add
+# new content, and showpath lists all of the
+# variable's elements.  
+#
+# A list of all lists is also maintained to indicate
+# active list names.
+#
+function newlist
+        {
+        let verbose=0
+        local suff
+        local envVar
+
+        if [[ $# -lt 2 ]];
+        then
+                printf "usage: newlist <NAME> <ENVIRONMENT-VARIABLE> -v -q -s'X' -e -n\n"
+                printf "       -n          - items are not required to exist as directories \n"
+                printf "       -e          - items are not required to exist in the file\n"
+                printf "                     system (implies -n)\n"
+                printf "       -q          - list management functions will work quietly\n"
+                printf "       -v          - list management functions will be verbose\n"
+                printf "       -s'X'       - use X as a separator in the list, uses ':'\n"
+                printf "                     default (a space ' ' is a valid separator)\n"
+                printf "             NOTE: - ALL OPTIONS MUST APPEAR LAST on command line.\n\n"
+
+		printf "The 'newlist' command will create functions used to manage\n"
+                printf "              environment variables.\n"
+		printf "Example: to manage the \$PATH variable,\n"
+                printf "  'newlist path PATH' will create the following six functions:\n"
+		printf "      showpath     - show the contents of \$PATH as a list\n"
+		printf "      addpath X... - add new given names, or move them if\n"
+		printf "                     they already exist to the end of \$PATH\n"
+		printf "      inspath X... - insert new given names, or move them if\n"
+		printf "                     they already exist to the start of \$PATH\n"
+		printf "      delpath X... - remove the given names from \$PATH\n"
+		printf "      setpath X... - replace \$PATH with the given names\n"
+		printf "      rempath      - remove all six generated functions\n"
+
+                return
+        fi
+
+        suff=$1
+        shift
+
+        if [[ -z $suff || $suff =~ ^- ]];
+        then
+                printf "   Invalid suffix\n"
+                printf "usage: newlist <SUFFIX> <ENVIRONMENT-VARIABLE> -v -q -s'X' -e -n\n"
+                return
+        fi
+
+        if [[ ${1:0:1} = '-' ]];
+        then
+                printf "  Invalid Environment variable\n"
+                printf "usage: newlist <SUFFIX> <ENVIRONMENT-VARIABLE> -v -q -s'X' -e -n\n"
+                return
+        fi
+
+        #
+        # get for printing with -v,
+        # don't shift, keep with $@
+        #
+        envVar="$1"
+
+        #
+        # check only for verbose flag here
+        # commands will check options
+        #
+        for component in "$@";
+        do
+                if [[ $component == "-v" ]];
+                then
+                        let verbose=1
+                        break;
+                fi
+        done
+
+        #
+        # The $@ parameter adds the initial newlist arguments indicating delimiters,
+        # verbose flags and so forth.  The \$@ parameter isn't processed but adds a
+        # $@ to the function body, which then expands when the defined function is
+        # called.  The semicolon is required because the closing brace needs a
+        # delimiter to appear before it.
+        #
+        eval "function set$suff  { _ListMgrCreate      $@ \"\$@\" ; }"
+        eval "function ins$suff  { _ListMgrInsert      $@ \"\$@\" ; }"
+        eval "function add$suff  { _ListMgrAppend      $@ \"\$@\" ; }"
+        eval "function del$suff  { _ListMgrDelete      $@ \"\$@\" ; }"
+        eval "function show$suff { _ListMgrShow        $@ \"\$@\" ; }"
+        eval "function rem$suff  { _ListMgrRemove $suff \"\$@\" ; }"
+
+        if (( $verbose == 1 ))
+        then
+                printf "Creating functions to manage the '%s' list, referred to as '%s':\n" "$envVar" "$suff"
+                printf "    set%s <- creates and sets the '%s' list to the named elements\n" "$suff" "$envVar"
+                printf "   show%s <- shows all elements within the '%s' list\n" "$suff" "$envVar"
+                printf "    ins%s <- inserts the named elements to the head of the '%s' list\n" "$suff" "$envVar"
+                printf "    add%s <- appends the named elements to the tail of the '%s' list\n" "$suff" "$envVar"
+                printf "    del%s <- deletes the named elements from the '%s' list\n" "$suff" "$envVar"
+                printf "    rem%s <- removes these functions, leaving the '%s' list as is\n" "$suff" "$envVar"
+        fi
+
+        #
+        # add to the list of lists
+        #
+        addlists "$suff"
+        }
+
+#
+# Set up the first list,
+# a list of internal lists
+#
+newlist lists _INTERNAL_LIST_NAMES_ -e -n -q
+
+
+#-=-=-=-=-=-=-=-=
+
+#
+# Create list functions
+#
+newlist path   PATH
+newlist cd     CDPATH
+newlist man    MANPATH
+newlist class  CLASSPATH -n
+newlist edm    EDMDATAFILES -e
+newlist lib    LD_LIBRARY_PATH
+newlist ca     EPICS_CA_ADDR_LIST -s' ' -e
+newlist pva    EPICS_PVA_ADDR_LIST -s' ' -e
+
+#
+# Add to various lists
+#
+addlib -q /usr/local/lib
+
+inspath -q /usr/local/bin
+inspath -q /usr/local/opt/bison/bin
+inspath -q /usr/local/opt/python/libexec/bin
+addpath -q ~/bin
+addpath -q /bin
+addpath -q /usr/bin
+addpath -q /usr/afsws/bin
+addpath -q /sw/bin
+addpath -q /opt/Qt/6.9.0/macos/bin
+addca 134.79.219.255
+addca 172.26.97.63
+
+#
+# Support for Wine
+#
+addpath -q /opt/usr/bin
+
+if [[ $USERID -eq 0 ]];
+then
+        addpath -q /sw/sbin
+        addpath -q /sbin
+        addpath -q /usr/sbin
+        addpath -q ~/sbin
+fi
+
+insman -q /usr/local/man
+addman -q /usr/share/man
+addman -q /usr/kerberos/man
+addman -q /usr/share/doc/libtiff-devel-3.7.1/html/man
+addman -q /usr/share/doc/PyXML-0.8.4/man
+addman -q /usr/share/doc/xorg-x11-doc-6.8.2/man
+addman -q /usr/share/doc/kernel-doc-2.6.12/Documentation/DocBook/man
+addman -q /usr/share/doc/festival-devel-1.95/speech_tools/doc/man
+addman -q /usr/share/man
+addman -q /usr/share/linuxdoc-tools/dist/linuxdoc-tools/man
+addman -q /usr/share/pvm3/man
+addman -q /usr/share/eclipse/plugins/org.python.pydev_0.9.3/PySrc/ThirdParty/logilab/pylint/man
+addman -q /usr/local/src/openafs-1.2.13/src/man
+addman -q /usr/local/share/man
+addman -q /var/cache/man
+addman -q /etc/gconf/gconf.xml.defaults/schemas/desktop/gnome/url-handlers/man
+addman -q /etc/gconf/gconf.xml.defaults/desktop/gnome/url-handlers/man
+addman -q /home/rtems/rtems4.7/man
+addman -q /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man
+
+#-=-=-=-=-=-=-=-=
+
+#
+# zsh-git
+#
+# git support for xterm, prompts and setup
+#
+
+function _git-ahead-behind
+        {
+
+        curr_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null);
+        curr_remote=$(git config branch.$curr_branch.remote 2>/dev/null);
+        curr_merge_branch=$(git config branch.$curr_branch.merge 2>/dev/null|cut -d / -f 3);
+        git rev-list --left-right --count $curr_branch...$curr_remote/$curr_merge_branch 2>/dev/null|tr -s '\t' '|';
+        }
+
+function git-branch-name
+        {
+
+        git branch 2>/dev/null|sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+        }
+
+function git-branch
+        {
+        GITBRANCH=$(git-branch-name)
+        if [[ -z "$GITBRANCH" ]];
+        then
+                GITBRANCH="no repo"
+        fi
+        printf "%s" "$GITBRANCH"
+        }
+
+function git-offset
+        {
+        GITBRANCH=$(git-branch-name)
+        if [[ -z "$GITBRANCH" ]];
+        then
+                GITOFFSETS="0|0"
+        else
+                GITOFFSETS=$(_git-ahead-behind)
+        fi
+        printf "$GITOFFSETS"
+        }
+
+function git-text
+        {
+        GITBRANCH=$(git-branch-name)
+        if [[ -z "$GITBRANCH" ]];
+        then
+                GITBRANCH="no repo"
+                GITOFFSETS="0|0"
+        else
+                GITOFFSETS=$(_git-ahead-behind)
+        fi
+        printf "[$GITBRANCH $GITOFFSETS]"
+        }
+
+function git-personal()
+        {
+        git config --global user.name 'drdoug'
+        git config --global user.email 'drdoug@mimeticsystems.com'
+        }
+
+function git-slac()
+        {
+        git config --global user.name 'Doug Murray'
+        git config --global user.email 'drm@slac.stanford.edu'
+        }
+
+alias gitname='git config user.name;git config user.email'
+alias gits='git-text;printf " ";git status'
+alias gitl="git log --graph --decorate --oneline --all"
+alias gitadd='git add $(git diff --name-only|sort -u)'
+alias gitcheck='git remote -v update'
+
+#-=-=-=-=-=-=-=-=
+
+#
+# vim rules the airwaves
+#
+
+bindkey -v
+
+bindkey '^P' up-history
+bindkey '^N' down-history
+bindkey '^?' backward-delete-char
+bindkey '^h' backward-delete-char
+bindkey '^w' backward-kill-word
+bindkey '^r' history-incremental-search-backward
+
+function zle-line-finish
+        {
+
+        print -n -- "\E]50;CursorShape=0\C-G"  # block cursor
+        }
+
+function zle-keymap-select zle-line-init
+        {
+
+        case $KEYMAP in
+        vicmd)
+                EDIT_MODE_PROMPT="E"
+                psvar[${PSV_VI}]=$EDIT_MODE_PROMPT
+                print -n -- "\E]50;CursorShape=0\C-G"  # block cursor
+                ;;
+        viins)
+                EDIT_MODE_PROMPT='I'
+                psvar[${PSV_VI}]=$EDIT_MODE_PROMPT
+                print -n -- "\E]50;CursorShape=1\C-G"  # line cursor
+                ;;
+        main)
+                EDIT_MODE_PROMPT=''
+                psvar[${PSV_VI}]=$EDIT_MODE_PROMPT
+                print -n -- "\E]50;CursorShape=0\C-G"  # block cursor
+                ;;
+        viopp)
+                EDIT_MODE_PROMPT="O"
+                psvar[${PSV_VI}]=$EDIT_MODE_PROMPT
+                ;;
+        visual)
+                EDIT_MODE_PROMPT="V"
+                psvar[${PSV_VI}]=$EDIT_MODE_PROMPT
+                ;;
+        *)
+                EDIT_MODE_PROMPT="${KEYMAP}"
+                psvar[${PSV_VI}]=$EDIT_MODE_PROMPT
+                ;;
+        esac
+        zle reset-prompt
+        }
+
+zle -N zle-line-init
+zle -N zle-line-finish
+zle -N zle-keymap-select
+KEYTIMEOUT=5
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#
+# Prompting
+#
+
+COLORTABLE=${_STARTUP_DIR}/colorTable
+
+PROMPT_ID='\uEA6C'
+PROMPT_LOCK='\uF023'
+PROMPT_OTHER='\uF109'
+PROMPT_LINUX='\uE712'
+PROMPT_MACOS='\uF302'
+PROMPT_UBUNTU='\uF31B'
+PROMPT_REDHAT='\uF316'
+PROMPT_CENTOS='\uF304'
+PROMPT_GIT_BRANCH='\uE0A0'
+PROMPT_R_UP_TRANSITION='\uE0BA'
+PROMPT_L_UP_TRANSITION='\uE0BC'
+PROMPT_BLOCK_TRANSITION='\uE0CC'
+PROMPT_R_DOWN_TRANSITION='\uE0BE'
+PROMPT_L_DOWN_TRANSITION='\uE0B8'
+PROMPT_R_SPIKE_TRANSITION='\uE0CA'
+PROMPT_L_SPIKE_TRANSITION='\uE0C8'
+PROMPT_R_FLAME_TRANSITION='\uE0C2'
+PROMPT_L_FLAME_TRANSITION='\uE0C0'
+PROMPT_R_PIXEL_TRANSITION='\uE0C5'
+PROMPT_L_PIXEL_TRANSITION='\uE0C4'
+PROMPT_R_CURVE_TRANSITION='\uE0B6'
+PROMPT_L_CURVE_TRANSITION='\uE0B4'
+PROMPT_R_ARROW_TRANSITION='\uE0B2'
+PROMPT_L_ARROW_TRANSITION='\uE0B0'
+#PROMPT_COMMIT='\uF151'         #stagedstr
+#PROMPT_STAGE='\uF01B'          #unstagedstr
+#PROMPT_BRANCH='\uE725'         #branch
+
+#
+# determine is label over the given
+# color should be bblack or white
+#
+function isBackgroundDark
+        {
+        local i=$1
+
+        if (( i == 4 || i == 12 ))
+        then
+                return 1
+        fi
+
+        if (( i >= 232 && i <= 243 ))
+        then
+                return 1
+        fi
+
+        if (( i <= 16 && i % 8 < 2 ))
+        then
+                return 1
+        fi
+
+        if (( i >= 17 && i <= 231 ))
+        then
+                (( i -= 16 ))
+                if (( ( i % 6 * 11 + i / 6 % 6 * 14 + i / 36 * 10) < 58 ))
+                then
+                        return 1
+                fi
+        fi
+        return 0
+        }
+
+typeset -a _colorNames
+typeset -A _colorTable
+_gotColors=''
+
+#
+# Read colors from local database.
+#
+function getColors
+        {
+        local i
+        local _color
+
+        #
+        # already retrieved, return now
+        # 
+        if [[ ! -z $_gotColors ]];
+        then
+                return 0
+        fi
+
+        let i=1
+        while read -r _color _index
+        do
+                _colorNames[$i]=$_color
+                _colorTable[$_color]=$_index
+                (( i++ ))
+        done < "${COLORTABLE}"
+
+        _gotColors=true
+
+        if (( $i == 1 ))
+        then
+                _colorNames=("Black" "Red" "Green" "Yellow" "Blue" "Purple" "Cyan" "White" "Grey")
+                _colorTables=("0" "1" "2" "3" "4" "5" "6" "7" "236")
+        fi
+        }
+
+#
+# display colors with names and index numbers
+#
+function showcolors
+        {
+        local _color
+        local _verbose=''
+
+        getColors
+
+        case $1 in
+        -h )
+                printf "%s\n" "Show available colors with names and index numbers for prompts."
+                printf "%s\n" ""
+                printf "%s\n" "Usage:"
+                printf "%s\n" "       $0      display colors normally"
+                printf "%s\n" "       $0 -h   display this message"
+                printf "%s\n" "       $0 -v   display colors spread out for effect"
+                return 0
+                ;;
+        -v )
+                _verbose=true
+                ;;
+        esac
+
+        for _index in {0..255} ;
+        do
+                let fgrd=16
+
+                isBackgroundDark $_index
+                err=$?
+                if (( $err != 0 ))
+                then
+                        (( --fgrd ))
+                fi
+
+                _color=$_colorNames[(( _index + 1 ))]
+
+                printf "$(tput setaf ${fgrd})$(tput setab ${_index}) %16.16s [%3d] $(tput sgr0) " $_color $_index
+                if (( _index == 7 )) || (( _index == 15 )) || ( (( _index > 15 )) && (( (_index-15) % 6 == 0 )) );
+                then
+                        printf "$(tput sgr0)\n";
+                        if [[ ! -z $_verbose ]];
+                        then
+                                printf "\n"
+                        fi
+                fi
+        done
+        }
+
+VERSION_MAJOR=$(print $ZSH_VERSION|sed 's/^\([^\.]*\).*/\1/')
+VERSION_MINOR=$(print $ZSH_VERSION|sed 's/^[^\.]*\.\([^\.]*\)\..*/\1/')
+
+function promptHelp
+        {
+
+        printf "%s\n" "prompt: Adjust the command prompt"
+        printf "%s\n" "  NOTE: predefined prompts are available with the 'p' command"
+        printf "%s\n" ""
+        printf "%s\n" "Usage:"
+        printf "%s\n" "       prompt {Colors | Snippets}..."
+        printf "%s\n" "       prompt -h"
+        printf "%s\n" "       prompt -p"
+        printf "%s\n" "       prompt -v"
+        printf "%s\n" "NOTE: rprompt sets the prompt on the right side of the command line."
+
+        printf "\n"
+        printf "%s\n" "   Options:"
+        printf "%s\n" "           -h - Display this message."
+        printf "%s\n" "           -p - construct the prompt from the 'pstr' or 'rpstr' variables."
+        printf "%s\n" "                Use  'pstr+='colors snippets' to build a complex prompt."
+        printf "%s\n" "                Use 'rpstr+='colors snippets' to build a prompt to"
+        printf "%s\n" "                             display on the right side of the window."
+        printf "%s\n" "                Additional arguments on the command line after '-p' will be ignored."
+        printf "%s\n" "           -v - print the current prompt command, suitable for saving and executing."
+        printf "%s\n" "                Additional arguments on the command line after '-v' will be ignored.\n"
+
+        printf "%s\n" "    Colors:"
+        printf "%s\n" "                Black Blue Cyan Grey Green Magenta Red Yellow White"
+        printf "%s\n" "                and 246 more; type 'showcolors' to see them."
+        printf "%s\n" "        NNN   - select color number NNN (from 0 to 255)"
+        printf "%s\n" "        NOTE:   If 2 colors are provided in sequence, the second one"
+        printf "%s\n" "                is used as a background color.  A transition symbol"
+        printf "%s\n" "                can be specified before a new foreground/background"
+        printf "%s\n" "                pair to highlight the change; see Transitions below.\n"
+
+        printf "%s\n" "  Snippets:"
+
+        printf "%s\n" "        .     - add '#' if root, otherwise add '>'"
+        printf "%s\n" "        ,     - add '#' if root, otherwise add '$'"
+        printf "%s\n" "        B     - (or 'b') toggle Bold text mode"
+        printf "%s\n" "        date  - day, month, date: Tue Jan 23"
+        printf "%s\n" "        Date  - YYYY-MM-DD: 1996-01-23"
+        printf "%s\n" "        dir   - name of current directory"
+        printf "%s\n" "        dir2  - name of current directory and its parent"
+        printf "%s\n" "        dir3  - name of current directory, its parent and grandparent"
+        printf "%s\n" "        Dir   - full path name of current directory"
+        printf "%s\n" "        gitb  - git branch in current directory, or 'no repo'"
+        printf "%s\n" "        gito  - git downstream and upstream offsets"
+        printf "%s\n" "        Gitb  - git branch and offsets in current directory only if one exists"
+        printf "%s\n" "                PROMPT_GIT_FORMAT has printf style format, '%s [%s]' by default"
+        printf "%s\n" "        hist  - number in command history"
+        printf "%s\n" "        host  - hostname"
+        printf "%s\n" "        Host  - hostname, fully qualified"
+        printf "%s\n" "        id    - display a new icon if the effective user ID is root"
+        printf "%s\n" "        lock  - display a lock icon if unable to write in current directory"
+        printf "%s\n" "        nl    - newline"
+        printf "%s\n" "        os    - operating system icon"
+        printf "%s\n" "        path  - full path name of current directory"
+        printf "%s\n" "        ret   - last command's return value (or caught signal name)"
+        printf "%s\n" "        Ret   - last command's return value, (or signal name) only if non-zero"
+        printf "%s\n" "        sp    - space"
+        printf "%s\n" "        time  - HH:MM AM/PM"
+        printf "%s\n" "        Time  - HH:MM 24-hour clock"
+        printf "%s\n" "        ul    - toggle underline text mode"
+        printf "%s\n" "        user  - user name"
+        printf "%s\n" "        vcs   - version control branch information for git, hg, svn, cvs"
+        printf "%s\n" "     <other>  - include <other> literally in the prompt"
+        printf "%s\n" "Transitions:"
+        printf "%s\n" "        '>' or '<' - arrow transition to new colors (default)"
+        printf "%s\n" "        ')' or '(' - curve transition to new colors"
+	printf "%s\n" "        #     - pixel block transition to new colors"
+	printf "%s\n" "        /     - upward slant transition to new colors"
+	printf "%s\n" "        \     - downward slant transition to new colors"
+	printf "%s\n" "        ~     - flame transition to new colors"
+	printf "%s\n" "        =     - spike transition to new colors"
+	printf "%s\n" "        +     - block transition to new colors"
+        printf "%s\n" "    Example:"
+        printf "%s\n" "        prompt Green user @ host sp Grey30 time sp White hist sp Red Ret White ';'"
+        printf "%s\n" "  Currently:"
+        printf "%s\n" "         L:     ${pstr}"
+        printf "%s\n" "         R:     ${rpstr}"
+        }
+
+#
+# psvar[1] - vi command line editing mode segment
+# psvar[2] - special marker segment if EUID is root
+# psvar[3] - Previous command's return code segment
+# psvar[4] - Reserved for vcs segment
+# psvar[5] - Reserved for Git segment
+# psvar[6] - Reserved for Lock segment, when directory is not writable
+# psvar[7] - First prompt segment having a single background color
+# psvar[8] - Next prompt segment having a single background color
+#
+PSV_VI=1
+PSV_ID=2
+PSV_RET=3
+PSV_VCS=4
+PSV_GIT=5
+PSV_LOCK=6
+PSV_StartSegment=7
+
+_idPromptUsed=''
+_vcsPromptUsed=''
+_gitPromptUsed=''
+_lockPromptUsed=''
+
+EDIT_MODE_PROMPT=''
+
+#
+# This is performed before each prompt is displayed.
+# The psvar array contains variables available to the
+# prompt which can be updated dynamically
+#
+function precmd
+        {
+
+
+        #
+        # return code analysis must always come first
+        #
+        psvar[${PSV_RET}]=$?
+        if [[ ${psvar[${PSV_RET}]} == 0 ]];
+        then
+                psvar[${PSV_RET}]=''
+        else
+                if (( ${psvar[${PSV_RET}]} > 128 ));
+                then
+                        psvar[${PSV_RET}]=$(kill -l ${psvar[${PSV_RET}]})
+                fi
+        fi
+
+        if [[ ! -z $_lockPromptUsed ]];
+        then
+                psvar[${PSV_LOCK}]=''
+                if [[ ! -w $PWD ]];
+                then
+                        psvar[${PSV_LOCK}]="$(print $PROMPT_LOCK)"
+                fi
+        fi
+
+        if [[ ! -z $_idPromptUsed ]];
+        then
+                psvar[${PSV_ID}]=''
+                if [[ $USERID == 0 ]];
+                then
+                        psvar[${PSV_ID}]="$(print $PROMPT_ID)"
+                fi
+        fi
+
+        if [[ ! -z $_vcsPromptUsed ]];
+        then
+                vcs_info
+                if [[ -n $vcs_info_msg_0_ ]];
+                then
+                        psvar[${PSV_VCS}]="$(print ${PROMPT_GIT_BRANCH} $vcs_info_msg_0_)"
+                else
+                        psvar[${PSV_VCS}]=''
+                fi
+        fi
+
+        if [[ ! -z $_gitPromptUsed ]];
+        then
+                if [[ ! -z $(git-branch-name) ]];
+                then
+                        psvar[${PSV_GIT}]="$(printf "${PROMPT_GIT_FORMAT}" "$(git-branch-name)" "$(_git-ahead-behind)")"
+                else
+                        psvar[${PSV_GIT}]=''
+                fi
+        fi
+        }
+
+#
+# Set the foreground and background colors, as
+# well as a possibly hidden item.  Either a
+# request for such an item, or a change in the
+# background color is used to indicate a new
+# segment.  All segments are added to the
+# prompt string
+#
+function promptSegment
+        {
+        local _color=$1
+
+        if [[ -z $_fg ]];
+        then
+                #
+                # no foreground color yet, set it now
+                #
+                _fg=$_color
+                _seg+="%F{$_fg}"
+                return
+        fi
+
+        #
+        # foreground color has been set, this must be a background color
+        #
+        if [[ -z ${_bg} ]];
+        then
+                #
+                # this is first segment
+                #
+                _bg="$_color"
+                if [[ ! -z $_buildRightPrompt ]];
+                then
+                        _seg+="%F{$_bg}"
+                        _seg+="$(print $_rpromptTransition)"
+                        _seg+="%F{$_fg}"
+                fi
+                _seg+="%K{$_bg}"
+
+                #
+                # Reset the 'foreground color found' indicator
+                #
+                _fg=''
+                return
+        fi
+
+        #
+        # for the regular left side prompt, set
+        # the foreground to the background color
+        #
+        if [[ -z $_buildRightPrompt ]];
+        then
+                _seg+="%F{$_bg}"
+        fi
+
+        #
+        # If a potentially hidden item was requested
+        # for the prompt, then add this segment before
+        # closing it off. A check is done before the
+        # prompt is displayed to see if the item is
+        # supposed to appear.
+        #
+        case $_checkHiddenSegment in
+        Ret)
+                psvar[$_segIndex]="%(${PSV_RET}V.${_seg}.)"
+                ;;
+        lock)
+                psvar[$_segIndex]="%(${PSV_LOCK}V?${_seg}?)"
+                ;;
+        vcs)
+                psvar[$_segIndex]="%(${PSV_VCS}V?${_seg}?)"
+                ;;
+        git)
+                psvar[$_segIndex]="%(${PSV_GIT}V?${_seg}?)"
+                ;;
+        vi)
+                psvar[$_segIndex]="%(${PSV_VI}V?${_seg}?)"
+                ;;
+        id)
+                psvar[$_segIndex]="%(${PSV_ID}V?${_seg}?)"
+                ;;
+        *)
+                psvar[$_segIndex]="$_seg"
+                ;;
+        esac
+        _checkHiddenSegment=''
+
+        #
+        # here we know that both foreground and background
+        # colors are set, and a potentially hidden item
+        # has been added if requested.  Close off this
+        # current segment and save it.
+        #
+        (( _segIndex++ ))
+        _seg=''
+        _bg="$_color"
+
+        if [[ ! -z $_buildRightPrompt ]];
+        then
+                #
+                # draw arrow first with foreground color
+                # set to previous background on right side
+                # in a new segment
+                #
+                _seg+="%F{$_bg}"
+                _seg+="$(print $_rpromptTransition)"
+                _seg+="%K{$_bg}"
+        else
+                #
+                # start a new segment on the left
+                #
+                _seg+="%K{$_bg}"
+                _seg+="$(print $_lpromptTransition)"
+        fi
+        _seg+="%F{$_fg}"
+
+        #
+        # Reset the 'foreground color found' indicator
+        #
+        _fg=''
+        }
+
+#
+# fun with prompts.
+#
+        #
+        # zsh prompt sequence "snippets"
+        #  %M   hostname
+        #  %n   username
+        #  %y   tty name
+        #  %l   tty name compressed
+        #  %%   %
+        #  %)   )
+        #  %#   a # if root, a % otherwise
+        #  %?   status of last executed command
+        #  %1d  last component of directory path
+        #  %-1d first component of directory path
+        #  %0d  full directory path
+        #  %d   full directory path
+        #  %/   full directory path
+        #  %~   full directory path with ~ in place of home
+        #  %h   current history command number
+        #  %!   current history command number
+        #  %j   number of jobs running
+        #  %L   value of SHLEVEL
+        #  %N   name of function, script currently executing
+        #  %D   date yy-mm-dd
+        #  %T   time 24-hour
+        #  %t   time 12-hour
+        #  %@   time 12-hour
+        #  %*   time 24-hour with seconds
+        #  %w   date day-dd format
+        #  %W   date mm-dd-yy format
+        #  %D{strftime}  
+        #  %B   start bold
+        #  %b   stop bold
+        #  %E   clear to end of line
+        #  %U   start underline
+        #  %u   stop underline
+        #  %S   start standout
+        #  %s   stop standout
+        #  %F   start foreground color %F{Green} or %F{10}
+        #  %f   stop foreground color
+        #  %K   start background color %K{Green} or %K{10}
+        #  %k   stop background color
+
+pstr=''
+rpstr=''
+_buildRightPrompt=''
+
+function prompt
+        {
+
+        _lpromptTransition="$PROMPT_L_ARROW_TRANSITION"
+        _buildRightPrompt=''
+        _commonPrompt $@
+        return $?
+        }
+
+function rprompt
+        {
+
+        _rpromptTransition="$PROMPT_R_ARROW_TRANSITION"
+        _buildRightPrompt=true
+        _commonPrompt $@
+        return $?
+        }
+
+function _commonPrompt
+        {
+        _lpromptSource=''
+        _rpromptSource=''
+
+        if [[ $# -eq 0 || $1 == '-h' ]];
+        then
+                promptHelp
+                return 0
+        fi
+
+        case $1 in
+        -p)
+                if [[ ! -z $_buildRightPrompt ]];
+                then
+                        if [[ ! -z $rpstr ]];
+                        then
+                                _rpromptSource=$rpstr
+                        else
+                                promptHelp
+                                return 1
+                        fi
+                else
+                        if [[ ! -z $pstr ]];
+                        then
+                                _lpromptSource=$pstr
+                        else
+                                promptHelp
+                                return 1
+                        fi
+                fi
+                ;;
+        -v)
+                if [[ ! -z $_buildRightPrompt ]];
+                then
+                        if [[ -z $rpstr ]];
+                        then
+                                printf "No right side prompt settings available.\n"
+                                promptHelp
+                                return 1
+                        fi
+
+                        printf "%s\n" "rprompt $rpstr"
+                else
+                        if [[ -z $pstr ]];
+                        then
+                                printf "No left side prompt settings available.\n"
+                                promptHelp
+                                return 1
+                        fi
+
+                        printf "%s\n" "prompt $pstr"
+                fi
+                return 0
+                ;;
+        -)
+                if [[ ! -z $_buildRightPrompt ]];
+                then
+                        RPS1=''
+                else
+                        PS1=''
+                fi
+                return 0
+                ;;
+        *)
+                if [[ ! -z $_buildRightPrompt ]];
+                then
+                        rpstr="$@"
+                        _rpromptSource=$rpstr
+                else
+                        pstr="$@"
+                        _lpromptSource=$pstr
+                fi
+                ;;
+        esac
+
+        getColors
+
+        _boldStarted=''
+        _vcsPromptUsed=''
+        _gitPromptUsed=''
+        _lockPromptUsed=''
+        _underlineStarted=''
+        _checkHiddenSegment=''
+        PROMPT_GIT_FORMAT=${PROMPT_GIT_FORMAT:-"%s [%s]"}
+
+        _fg=''
+        _bg=''
+        _seg=''
+
+        _segIndex=$PSV_StartSegment
+
+        if [[ ! -z $_buildRightPrompt ]];
+        then
+                _pSource=(${(s/ /)_rpromptSource})
+        else
+                _pSource=(${(s/ /)_lpromptSource})
+        fi
+
+        for cmd ("${_pSource[@]}");
+        do
+                #
+                # check for color names first
+                #
+                color=$_colorTable[$cmd]
+                if [[ ! -z $color ]];
+                then
+                        promptSegment $color
+                        continue
+                fi
+
+                #
+                # then check for color indexes
+                #
+                if [[ $cmd =~ '^[0-9]+$' ]];
+                then
+                        if (( $cmd >= 0 && $cmd <= 255 ))
+                        then
+                                promptSegment $cmd
+                                continue
+                        fi
+                fi
+
+                #
+                # finally check for symbols
+                #
+                case $cmd in
+                b|B)
+                        if [[ ( $VERSION_MAJOR -eq 5 && $VERSION_MINOR -ge 4 ) || $VERSION_MAJOR -gt 5 ]];
+                        then
+                                if [[ ! -z _boldStarted ]];
+                                then
+                                        _seg+="%b"
+                                        _boldStarted=''
+                                else
+                                        _seg+="%B"
+                                        _boldStarted=true
+                                fi
+                        fi
+                        ;;
+                Gitb) 
+                        _seg+='${psvar[${PSV_GIT}]}'
+                        _checkHiddenSegment="git"
+                        _gitPromptUsed=true
+                        ;;
+                lock)
+                        _seg+='${psvar[${PSV_LOCK}]}'
+                        _checkHiddenSegment="lock"
+                        _lockPromptUsed=true
+                        ;;
+                id)
+                        _seg+='${psvar[${PSV_ID}]}'
+                        _checkHiddenSegment="id"
+                        _idPromptUsed=true
+                        ;;
+                os)
+                        case $SYS_SPECIFIC in
+                        MacOS)
+                                _seg+="$(print $PROMPT_MACOS)"
+                                ;;
+                        centos)
+                                _seg+="$(print $PROMPT_CENTOS)"
+                                ;;
+                        rhel)
+                                _seg+="$(print $PROMPT_REDHAT)"
+                                ;;
+                        ubuntu)
+                                _seg+="$(print $PROMPT_UBUNTU)"
+                                ;;
+                        Linux)
+                                _seg+="$(print $PROMPT_LINUX)"
+                                ;;
+                        *)
+                                _seg+="$(print $PROMPT_OTHER)"
+                                ;;
+                        esac
+                        ;;
+                Ret)
+                        _seg+='${psvar[${PSV_RET}]}'
+                        _checkHiddenSegment="Ret"
+                        ;;
+                ul)
+                        if [[ ! -z _underlineStarted ]];
+                        then
+                                _seg+="%u"
+                                _underlineStarted=''
+                        else
+                                _seg+="%U"
+                                _underlineStarted=true
+                        fi
+                        ;;
+                vi)
+                        _seg+='${psvar[${PSV_VI}]}'
+                        _checkHiddenSegment="vi"
+                        ;;
+                vcs)
+                        _seg+='${psvar[${PSV_VCS}]}'
+                        _checkHiddenSegment="vcs"
+                        _vcsPromptUsed=true
+                        ;;
+                date)   _seg+="%D{%a %b %f}"         ;;
+                Date)   _seg+="%D{%Y-%m-%d}"         ;;
+                Dir)    _seg+="%0d"                  ;;
+                dir)    _seg+="%1d"                  ;;
+                dir2)   _seg+="%2d"                  ;;
+                dir3)   _seg+="%3d"                  ;;
+                gitb)   _seg+='$(git-branch)'        ;;
+                gito)   _seg+='$(_git-ahead-behind)' ;;
+                hist)   _seg+="%h"                   ;;
+                Hist)   _seg+="%i"                   ;;
+                host)   _seg+="%m"                   ;;
+                Host)   _seg+="%M"                   ;;
+                nl)     _seg+="\n"                   ;;
+                path)   _seg+="%0d"                  ;;
+                ret)    _seg+='${psvar[${PSV_RET}]}' ;;
+                sp)     _seg+=" "                    ;;
+                time)   _seg+="%D{%I:%M %p}"         ;;
+                Time)   _seg+="%T"                   ;;
+                tty)    _seg+="%y"                   ;;
+                user)   _seg+="%n"                   ;;
+                ,)      _seg+="\$"                   ;;
+                .)      _seg+="%(#.# .>)"            ;;
+                #
+                # transitions
+                #
+                '>'|'<')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_ARROW_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_ARROW_TRANSITION"
+                        fi
+                        ;;
+                ')'|'(')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_CURVE_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_CURVE_TRANSITION"
+                        fi
+                        ;;
+                '#')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_PIXEL_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_PIXEL_TRANSITION"
+                        fi
+                        ;;
+                '/')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_UP_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_UP_TRANSITION"
+                        fi
+                        ;;
+                '\')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_DOWN_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_DOWN_TRANSITION"
+                        fi
+                        ;;
+                '~')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_FLAME_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_FLAME_TRANSITION"
+                        fi
+                        ;;
+                '=')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_L_SPIKE_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_R_SPIKE_TRANSITION"
+                        fi
+                        ;;
+                '+')
+                        if [[ -z $_buildRightPrompt ]];
+                        then
+                                _lpromptTransition="$PROMPT_BLOCK_TRANSITION"
+                        else
+                                _rpromptTransition="$PROMPT_BLOCK_TRANSITION"
+                        fi
+                        ;;
+                #
+                # anything else
+                #
+                *)
+                        _seg+="${cmd}"
+                        ;;
+                esac
+                _fg=''
+        done
+
+        if [[ ! -z _vcsPromptUsed ]];
+        then
+                zstyle ':vcs_info:*' check-for-changes true
+        else
+                zstyle ':vcs_info:*' check-for-changes false
+        fi
+
+        if [[ ! -z $_bg ]];
+        then
+                if [[ -z $_buildRightPrompt ]];
+                then
+                        _seg+="%F{$_bg}"
+                fi
+                case $_checkHiddenSegment in
+                Ret)
+                        psvar[$_segIndex]="%(${PSV_RET}V.${_seg}.)"
+                        ;;
+                lock)
+                        psvar[$_segIndex]="%(${PSV_LOCK}V?${_seg}?)"
+                        ;;
+                vcs)
+                        psvar[$_segIndex]="%(${PSV_VCS}V?${_seg}?)"
+                        ;;
+                git)
+                        psvar[$_segIndex]="%(${PSV_GIT}V?${_seg}?)"
+                        ;;
+                id)
+                        psvar[$_segIndex]="%(${PSV_ID}V?${_seg}?)"
+                        ;;
+                *)
+                        psvar[$_segIndex]="$_seg"
+                        ;;
+                esac
+                (( _segIndex++ ))
+                _seg="%k"
+                if [[ -z $_buildRightPrompt ]];
+                then
+                        _seg+="$(print $_lpromptTransition)"
+                fi
+        else
+                _seg+="%k"
+        fi
+        _seg+="%f"
+        psvar[$_segIndex]="$_seg"
+
+        #
+        # finally fill the prompt string with the segments
+        #
+        TMP_PROMPT=''
+        for (( index = ${PSV_StartSegment}; index <= ${_segIndex}; index++ ))
+        do
+                if [[ ! -z "${psvar[$index]}" ]];
+                then
+                        TMP_PROMPT+="${psvar[$index]}"
+                fi
+        done
+        if [[ ! -z $_buildRightPrompt ]];
+        then
+                RPS1=${TMP_PROMPT}
+        else
+                PS1=${TMP_PROMPT}
+        fi
+        return 0
+        }
+
+#
+# some help to select
+# a preset prompt format
+#
+function presetPromptHelp
+        {
+        #
+        # these messages correspond to the numeric
+        # options in the case statement of the 'p'
+        # function below.  Specifically, the first
+        # prompt refers to case 1) and so forth.
+        #
+        typeset -A promptOptions
+        promptOptions=(
+                'mild' 'simple prompt; username and history number'
+                'soft'  'color prompt; username, host, directory and history number'
+                'light'     'color prompt for light windows with right side indicators and git details'
+                'faint'     'color prompt with right side indicators and version control info'
+                'tiny'     'vivid simple prompt'
+                'small'     'vivid but terse prompt with right side git details and time'
+                'min'     'vivid prompt with right side time indicators and git details'
+                'beige'     'vivid prompt with brown-ish right side time indicators and version control info'
+                'large' 'vivid blue prompt with green right side indicators, version control info, date and time'
+                'grey' 'vivid grey prompt with no right side indicators, version control info'
+                'sharp' 'vivid prompt; blue left and right side with arrows with date and time'
+                'loud'  'vivid prompt; blue left and right side with time'
+                )
+
+        printf "%s\n\n" "p: select a preset format for command line prompts:"
+
+        for key in "${(@k)promptOptions}";
+        do
+                txt=' '
+                if [[ $CHOSEN_PRESET_PROMPT == $key ]];
+                then
+                        txt='>'
+                fi
+                printf "%-9.9s %s %s\n" "p $key"  "${txt}" "$promptOptions[$key]"
+        done
+        printf "%s\n" ""
+        printf "%s\n" "p -h - display this message"
+        printf "%s\n" "Use 'prompt' to adjust prompt details."
+        printf "%s\n" " Currently:"
+        printf "%s\n" "         L:  ${pstr}"
+        printf "%s\n" "         R:  ${rpstr}"
+        }
+
+#
+# create some
+# predefined prompts
+#
+CHOSEN_PRESET_PROMPT='loud'
+function p
+        {
+
+        if [[ $# -eq 0 || $1 == '-h' ]];
+        then
+                presetPromptHelp
+                return 0
+        fi
+
+        prevChoice=${CHOSEN_PRESET_PROMPT}
+        CHOSEN_PRESET_PROMPT=$1
+        case $1 in
+        "loud")
+                #
+                # user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] time
+                #
+                pstr=''
+                pstr+='Grey66 Blue3 user @ White host sp '
+                pstr+='> Black Black > '
+                pstr+='B White DodgerBlue sp dir2 sp '
+                pstr+='> Black Black > '
+                pstr+='B Black SkyBlue2 sp hist sp '
+                pstr+='White Maroon id sp '
+                prompt -p
+
+                rpstr=''
+                rpstr+='Black PaleGreen1 sp vi sp '
+                rpstr+='< Black Black < '
+                rpstr+='White DarkRed sp Ret sp '
+                rpstr+='Black Orange sp lock sp '
+                rpstr+='B White DarkGreen sp vcs sp gito sp '
+                rpstr+='< Black Black < '
+                rpstr+='B Black SpringGreen3 sp time sp '
+                rpstr+='< Black Black < '
+                rprompt -p
+                ;;
+        "grey")
+                #
+                # user parent/dir histnum [GIT][rootIcon]
+                #
+                pstr=''
+                pstr+='White Grey15 user sp '
+                pstr+='> Black Black > '
+                pstr+='B Green1 Grey23 sp vcs sp gito sp '
+                pstr+='B White Grey35 sp dir2 sp '
+                pstr+='> Black Black > '
+                pstr+='B White Grey46 sp hist sp '
+                pstr+='White Maroon sp id sp '
+                prompt -p
+                rprompt -
+                ;;
+        "sharp")
+                #
+                # user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
+                #
+                pstr=''
+                pstr+='Grey66 Blue3 user @ White host sp '
+                pstr+='> Grey85 DodgerBlue > B White Blue3 dir2 '
+                pstr+='> Grey85 DodgerBlue > White Blue3 hist '
+                pstr+='> Grey85 DodgerBlue '
+                pstr+='White DodgerBlue sp id sp'
+                prompt -p
+
+                rpstr=''
+                rpstr+='< Black DodgerBlue < '
+                rpstr+='B Gold Blue2 vi '
+                rpstr+='B DarkOrange Blue2 Ret '
+                rpstr+='B Orange Blue2 lock '
+                rpstr+='B White Blue2 vcs gito '
+                rpstr+='Grey78 Blue2 date '
+                rpstr+='< Black DodgerBlue < '
+                rpstr+='White Blue2 time '
+                rprompt -p
+                ;;
+        "large")
+                #
+                # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
+                #
+                pstr=''
+                pstr+='White Black sp os sp '
+                pstr+=') B White Blue3 sp user Grey70 @ host sp '
+                pstr+='~ B White DodgerBlue sp dir2 sp '
+                pstr+='> B Black Turquoise sp hist sp '
+                pstr+='White Maroon sp id sp'
+                prompt -p
+
+                rpstr=''
+                rpstr+='Black Gold sp vi sp '
+                rpstr+='White Maroon sp Ret sp '
+                rpstr+='Black Orange sp lock sp '
+                rpstr+='B White DarkGreen vcs sp gito sp '
+                rpstr+='Black SeaGreen2 sp date sp '
+                rpstr+='Black DarkSeaGreen2 sp time sp '
+                rprompt -p
+                ;;
+        "beige")
+                #
+                # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
+                #
+                pstr=''
+                pstr+='White Black sp os sp '
+                pstr+='B White Orange3 sp user Cornsilk @ host sp '
+                pstr+='B White Yellow5 sp dir2 sp '
+                pstr+='B Black DarkGoldenrod sp hist sp '
+                pstr+='White Maroon sp id sp'
+                prompt -p
+
+                rpstr=''
+                rpstr+='Black Gold sp vi sp '
+                rpstr+='White Maroon sp Ret sp '
+                rpstr+='Black DarkRed sp lock sp '
+                rpstr+='< B Black Khaki vcs sp gito sp '
+                rpstr+='( Black LightGoldenrod2 sp date sp '
+                rpstr+='White Orange2 sp time sp '
+                rprompt -p
+                ;;
+        "min")
+                #
+                # sys dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] time
+                #
+                pstr=''
+                pstr+='B White Blue3 sp host sp '
+                pstr+='~ B White DodgerBlue sp dir sp '
+                pstr+='> B Black Turquoise sp hist sp '
+                pstr+='White Red sp id sp'
+                prompt -p
+
+                rpstr=''
+                rpstr+='Black Gold sp vi sp '
+                rpstr+='White Maroon sp Ret sp '
+                rpstr+='Black Orange sp lock sp '
+                rpstr+='B White DarkGreen vcs sp gito sp '
+                rpstr+='Black DarkSeaGreen2 sp time sp '
+                rprompt -p
+                ;;
+        "small")
+                #
+                # dir histnum [rootIcon]         [retCode][lock][GIT] time
+                #
+                pstr=''
+                pstr+='B White DarkGreen sp dir sp '
+                pstr+='> Black Black > '
+                pstr+='B Black Green2 sp hist sp '
+                pstr+='White Maroon sp id sp '
+                prompt -p
+
+                rpstr=''
+                rpstr+='White DarkRed sp Ret sp '
+                rpstr+='Black Orange sp lock sp '
+                rpstr+='< Black Black < '
+                rpstr+='B White DarkGreen sp vcs sp gito sp '
+                rpstr+='< Black Black < '
+                rpstr+='B Black SpringGreen3 sp time sp '
+                rpstr+='< Black Black < '
+                rprompt -p
+                ;;
+        "tiny")
+                #
+                # user histnum [rootIcon]
+                #
+                prompt 'White Blue3 sp user sp dir sp hist sp White Maroon sp id sp'
+                rprompt -
+                ;;
+        "faint")
+                #
+                # for Dark Screen
+                # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
+                #
+                prompt 'B DodgerBlue user @ host CornflowerBlue sp dir2 SkyBlue sp White hist .'
+
+                rpstr=''
+                rpstr+='Gold sp vi sp '
+                rpstr+='Maroon sp Ret sp '
+                rpstr+='SandyBrown sp lock sp '
+                rpstr+='LightSkyBlue vcs sp gito sp '
+                rpstr+='DodgerBlue sp date sp '
+                rpstr+='SkyBlue sp time sp '
+                rprompt -p
+                ;;
+        "light")
+                #
+                # for Light Screen
+                # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
+                #
+                pstr=''
+                pstr+='Blue3 user Navy @ host '
+                pstr+='sp Black dir2 '
+                pstr+='sp Purple4 hist .'
+                prompt -p
+
+                rpstr=''
+                rpstr+='Gold sp vi sp '
+                rpstr+='Maroon sp Ret sp '
+                rpstr+='Orange sp lock sp '
+                rpstr+='Purple4 sp vcs sp gito sp '
+                rpstr+='Maroon sp date sp '
+                rpstr+='Blue3 sp time sp '
+                rprompt -p
+                ;;
+        "0"|"soft")
+                #
+                # user@sys time histnum rootSym
+                #
+                prompt 'B DodgerBlue user @ host sp SkyBlue time sp White hist .'
+                rprompt -
+                ;;
+        "mild")
+                #
+                # user@sys histnum rootSym
+                #
+                prompt 'White user sp hist .'
+                rprompt -
+                ;;
+        *)
+                #
+                # false alarm - reset the preset prompt choice
+                #
+                CHOSEN_PRESET_PROMPT=${prevChoice}
+                echo "Unrecognized prompt: '$1'"
+                echo ""
+                presetPromptHelp
+                return 0
+                ;;
+        esac
+        }
+#
+# start with a simple colored prompt and check for warp terminal
+#
+
+p ${CHOSEN_PRESET_PROMPT}
+if [[ $TERM_PROGRAM = "WarpTerminal" ]];
+then
+        PROMPT="${PROMPT}"$'\n'
+fi
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#
+# dirs.zsh
+#
+# the following functions manage directory history.
+# Typing 'b' goes back to the most recently visited
+# directory, typing 'B' goes forward in the opposite
+# direction.  Basically a circular list of visited
+# directories. These commands, and the basic cd and
+# chdir commands work because of the chpwd hook,
+# called when a new directory is visited.
+# Details below:
+#
+#  -numbered directory history for quick return
+#   command               action
+#     v                 (verbose) list previous directories visited (MAXDIRS)
+#     v [-q] n          (verbose) switch MAXDIRS to be n, and list previous directories
+#                        (this creates "n" functions, named 1 through n)
+#     b                 go back to previous directory (most recent directory)
+#     B                 go backwards through directory list
+#     1                 switch with directory numbered 1 (previous directory)
+#     2                 switch with directory numbered 2 (second to previous directory)
+#     3                 switch with directory numbered 3 (third to previous directory)
+#     n                 switch with directory numbered n (nth previous directory, up to MAXDIRS)
+#
+
+MAXDIRS=30              # default numbered directory aliases; change with v cmd
+
+#
+# not interactive, be terse
+#
+if [[ ! $- =~ i ]];
+then
+        WINDOWHEADER="no"
+        SHOWGITBRANCH="no"
+fi
+
+#
+# set up header for window title
+# to show directory name. Disabled
+# if WINDOWHEADER is not 'yes'.
+#
+function _initDirName
+        {
+
+        #
+        # tput needs TERM if not interactive...
+        #
+        export TERM=${TERM:-"dumb"}
+
+        case $TERM in
+        xterm*)
+                PRE_WINTABHEADER=$'\e'"]0;"
+                PRE_TABHEADER=$'\e'"]1;"
+                PRE_WINHEADER=$'\e'"]2;"
+                POST_WINHEADER=$'\a'
+                ;;
+        sun*)
+                if [[ $TTY != "/dev/console" && $TTY != "/dev/syscon" ]];
+                then
+                        PRE_WINHEADER=$'\e'"]l"
+                        POST_WINHEADER=$'\e'"\\"
+                else
+                        PRE_WINHEADER=""
+                        POST_WINHEADER="\\n"
+                fi
+                ;;
+        *)
+                PRE_WINHEADER=""
+                POST_WINHEADER="\\n"
+                ;;
+        esac
+        }
+
+#
+# actually display the window header
+#
+function _windowHeaderUpdate
+        {
+
+        if [[ $WINDOWHEADER != "yes" ]];
+        then
+                return
+        fi
+
+        _gitText=""
+        if [[ $SHOWGITBRANCH == "yes" ]];
+        then
+                if type git-text &>/dev/null
+                then
+                        _gitText=$(git-text)
+                fi
+        fi
+
+        if [[ "$TERM_PROGRAM" == "iTerm.app" ]];
+        then
+                #
+                # MacOS
+                #
+                printf "%b%s  %s%b" "${PRE_TABHEADER}" "${PWD}" "${_gitText}" "${POST_WINHEADER}"
+        else
+                #
+                # try Linux terminal
+                #
+                printf "%b%s %s%b" "${PRE_WINTABHEADER}" "${PWD}" "${_gitText}" "${POST_WINHEADER}"
+        fi
+        }
+
+#
+# Read previous directory list from local
+# file saved at last interactive logout.
+# The .zlogout file saves the array.
+#
+function _getPreviousDirs
+        {
+
+        if [[ -r "${PREVIOUSLY_VISITED_DIRS}" ]];
+        then
+                read -A _DIRS<"${PREVIOUSLY_VISITED_DIRS}"
+        else
+                for (( index = 1; index <= $MAXDIRS; index++ ))
+                do
+                        if [[ -z "${_DIRS[$index]}" ]];
+                        then
+                                _DIRS[$index]=~
+                        fi
+                done
+        fi
+        }
+
+#
+# verbose; function to list all visited directories.
+# Also used to create array of visited directories.
+# Array can be adjusted larger or smaller.
+#
+# usage: v [-q][DirectoryArraySize]
+#
+function v
+        {
+        let index=0
+        let quiet=0
+        let existing=$MAXDIRS
+
+        #
+        # check for size adjustments
+        #
+        if (( $# >= 1 ))
+        then
+                #
+                # typically -q only used when initializing the directory array
+                #
+                if [[ $1 = "-q" ]];
+                then
+                        let quiet=1
+                        shift
+                        if (( $# <= 0 ))
+                        then
+                                return 0
+                        fi
+                fi
+
+                #
+                # somewhat arbitrary limit
+                #
+                if [[ "$1" =~ "^[0-9]+$" ]];
+                then
+                        if (( $1 > 2 && $1 < 99 ))
+                        then
+                                if (( $1 > $MAXDIRS ))
+                                then
+                                        if (( $quiet != 1 ))
+                                        then
+                                                printf "%s: Increasing saved directories from %d to %d\n" "$0" "$MAXDIRS" "$1"
+                                        fi
+                                        MAXDIRS=$1;
+                                else
+                                        if (( $quiet != 1 ))
+                                        then
+                                                if (( $MAXDIRS == $1 ))
+                                                then
+                                                        printf "%s: Keeping %d saved directories\n" "$0" "$MAXDIRS"
+                                                else
+                                                        printf "%s: Decreasing saved directories from %d to %d\n" "$0" "$MAXDIRS" "$1"
+                                                fi
+                                        fi
+                                        _decreaseNumDirs "$1"
+                                fi
+                                shift
+                        else
+                                printf "%s: number of saved directories must be between 3 and 99\n" "$0"
+                                return 1
+                        fi
+                fi
+
+                #
+                # check for extra args
+                #
+                if (( $# > 0 ))
+                then
+                        printf "Unrecognized argument.\nUsage: $0 [-q][NumDirectoriesToRemember]\n"
+                fi
+
+                #
+                # set empty directory slots to home
+                #
+                for (( index = 1; index <= $MAXDIRS; index++ ))
+                do
+                        if [[ -z "${_DIRS[$index]}" ]];
+                        then
+                                _DIRS[$index]=~
+                        fi
+
+                        #
+                        # Generate a function for each number between 1 and MAXDIRS,
+                        # each of which will chdir to the numbered entry in the
+                        # array, then swap the contents with the top entry of the array.
+                        #
+                        eval "function $index { _visitListedDirectory $index ; }"
+                done
+
+                #
+                # remove residual functions if new DIRS is smaller than before
+                #
+                while [[ $index -le $existing ]];
+                do
+                        ${_DIRS[$index]}=()
+                        unset -f "$index"
+                        let index=$index+1;
+                done
+        fi
+
+        if (( $quiet != 0 ))
+        then
+                return 0
+        fi
+
+        printf "%7.7s: %s\n" "now-> " "${PWD}"
+        for (( index = 1; index <= ${MAXDIRS}; index++ ))
+        do
+                if (( $index == 1 ))
+                then
+                        printf "%7.7s: %s\n" "b->1" "${_DIRS[$index]}"
+                        continue
+                fi
+                if (( $index == ${#_DIRS} ))
+                then
+                        printf "%7.7s: %s\n" "B->${#_DIRS}" "${_DIRS[$index]}"
+                        continue
+                fi
+                printf "%7.7s: %s\n" "$index" "${_DIRS[$index]}"
+        done
+        }
+
+#
+# To shorten an array, it seems we need to copy the
+# original array, delete it then copy back only the
+# elements that fit into the decreased space.
+#
+function _decreaseNumDirs
+        {
+        local index
+        let size=$1
+
+        # we need double quotes around the reference to provide a list with
+        # double-quoted entries.  Othersize, we get each element (characters).
+        # Using ${_DIRS[*]} is not affected by quotes.
+        tmp=("${_DIRS[@]}")
+
+        unset _DIRS
+        for (( index = 1; index < $1; index++ ))
+        do
+                if [[ -z "${_DIRS[$index]}" ]];
+                then
+                        _DIRS[$index]=${tmp[$index]}
+                fi
+        done
+        unset tmp
+        MAXDIRS=$index
+        }
+
+#
+# This is a zsh hook which is called when
+# the process moves to a new directory.
+#
+function chpwd
+        {
+
+        #
+        # check if triggered by numeric function (ie 1 to $MAXDIRS)
+        #
+        _windowHeaderUpdate
+
+        #
+        # if a simple swap of directories was made with
+        # an existing entry, don't push anything
+        #
+        if [[ "${funcstack[2]}" = '_visitListedDirectory' ]];
+        then
+                return 0
+        fi
+
+        if [[ "${funcstack[2]}" = 'b' ]];
+        then
+                _DIRS[1,-2]=(${_DIRS[2,-1]})
+                _DIRS[-1]="${OLDPWD}"
+        else
+                #
+                # Whether 'B' or an explicit 'cd' command,
+                # push that previous directory on the stack
+                # and drop the last directory from the end
+                #
+                _DIRS[2,-1]=(${_DIRS[1,-2]})
+                _DIRS[1]="${OLDPWD}"
+        fi
+        return 0;
+        }
+
+#
+# function: back
+# Change to most recent directory
+#
+# usage: b
+#
+function b
+        {
+
+        chdir "${_DIRS[1]}"
+        }
+
+#
+# function: un-back
+# Change to least recent directory - opposite of back
+# (f for forward was not available...)
+#
+# usage: B
+#
+function B
+        {
+
+        chdir "${_DIRS[-1]}"
+        }
+
+#
+# Common code called by each of the created functions,
+# named 1 through $MAXDIRS, to reduce their size
+#
+function _visitListedDirectory
+        {
+
+        _newDir="${1:-1}"
+        chdir "${_DIRS[$_newDir]}"
+        err=$?
+        if (( $err != 0 ))
+        then
+                printf "%s\n" "Directory (${_DIRS[$_newDir]}) is not available at this time."
+                return 1
+        fi
+        DIR="${_DIRS[$_newDir]}"
+        _DIRS[$_newDir]="${OLDPWD}"
+        return 0
+        }
+
+set -A _DIRS
+
+_initDirName ; unset -f _initDirName
+_windowHeaderUpdate
+_getPreviousDirs
+v -q $MAXDIRS
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#
+# the fun start here
+#
+setupCommands
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# zsh-hostSpecificSetup
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+COMPUTER_LOCAL_NAME=~/.config/PersonalComputersName
+
+#
+# Host specific setup file
+# Common to bash and zsh
+#
+
+function _CommonSLACSettings
+        {
+
+        EPICS_VERSION="R7.0.3.1-1.0"
+        PYTHON_VERSION="3.7.2"
+
+        epicsDir="epics/base/${EPICS_VERSION}"
+
+        #
+        # if AFS and /usr/local both exist,
+        # get EPICS from /usr/local.
+        #
+        if [[ -d "/usr/local/lcls/${epicsDir}" ]];
+        then
+                export EPICS_BASE=${EPICS_BASE:-"/usr/local/lcls/${epicsDir}"}
+        fi
+
+        if [[ -d "/afs/slac/g/lcls/${epicsDir}" ]];
+        then
+                export EPICS_BASE=${EPICS_BASE:-"/afs/slac/g/lcls/${epicsDir}"}
+        fi
+        unset epicsDir
+
+        #
+        # find the host architecture
+        #
+        if [[ -r ${EPICS_BASE}/startup/EpicsHostArch ]];
+        then
+                export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+        fi
+ 
+        #
+        # set up other local variables relating to
+        # modules, extensions and the facility
+        #
+        EPICS_SETUP="${EPICS_BASE}/../../setup"
+        if [[ -r ${EPICS_SETUP}/epicsenv-${EPICS_VERSION}.bash ]];
+        then
+                source ${EPICS_SETUP}/epicsenv-${EPICS_VERSION}.bash
+        fi
+
+        #
+        # assume redhat 6 if HOST not set
+        #
+        export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"rhel6-x86_64"}
+
+        if ! type newlist &>/dev/null
+        then
+                printf "The newlist function is not available.  Functionality will be limited."
+                return
+        fi
+
+        #
+        # At this point, we know
+        # path support is available
+        #
+        addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
+
+        #
+        # if AFS and /usr/local both exist,
+        # get Python from /usr/local.
+        #
+        if [[ -d "/usr/local/lcls/package" ]];
+        then
+                export PACKAGE_TOP=${PACKAGE_TOP-"/usr/local/lcls/package"}
+                inspath -q $PACKAGE_TOP/anaconda/envs/python3_rhel7_env/bin
+                inslib -q $PACKAGE_TOP/anaconda/envs/python3_rhel7_env/lib
+                inslib -q $PACKAGE_TOP/anaconda/envs/python3_rhel7_env/lib/python3.7/lib-dynload
+        fi
+
+        if [[ -d "/afs/slac/g/lcls/package" ]];
+        then
+                export PACKAGE_TOP=${PACKAGE_TOP-"/afs/slac/g/lcls/package"}
+                inspath -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/bin
+                inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib
+                inslib -q $PACKAGE_TOP/python/python${PYTHON_VERSION}/linux-x86_64/lib/python3.7/lib-dynload
+
+                #
+                # HDF5 and net tools support
+                #
+                addpath -q /afs/slac/g/lcls/package/hdf5/1.10.8/$EPICS_HOST_ARCH/bin
+                addpath -q /afs/slac/package/net/bin
+        fi
+
+        export GIT_ROOT=${GIT_ROOT-'/afs/slac/g/cd/swe/git/repos'}
+        }
+
+K8S_CONFIGFILE=~/.config/kubernetes/config
+function checkForKubernetes
+        {
+
+        if [[ ! -r "${K8S_CONFIGFILE}" ]];
+        then
+                return
+        fi
+
+        inspath '/sdf/sw/package/kubectl/1.30.3/bin'
+        inspath '/sdf/sw/package/kubectx/0.9.5'
+        module load kubectl
+        module load kubectx
+        export KUBECONFIG=${K8S_CONFIGFILE}
+        #
+        # The following text is generated by an
+        # online authentication app found at
+        # https://k8s.slac.stanford.edu/sdf-k8s01
+        #
+        kubectl config set-cluster "k8s-sandbox" --server=https://k8s.slac.stanford.edu:443/api/k8s-sandbox
+        kubectl config set-credentials "drm@slac.stanford.edu@k8s-sandbox"  \
+                --auth-provider=oidc  \
+                --auth-provider-arg='idp-issuer-url=https://dex.slac.stanford.edu'  \
+                --auth-provider-arg='client-id=vcluster--k8s-sandbox'  \
+                --auth-provider-arg='client-secret=OWJpJG9ePEZMXEgkSGpMVyxDcj95Zjk3cWlFJmJ2cC5uMyskVnwiKV9gdVdKXH0+bSNgaCZ7cCknLyRNPlk/bwo=' \
+                --auth-provider-arg='refresh-token=' \
+                --auth-provider-arg='id-token=eyJhbGciOiJSUzI1NiIsImtpZCI6IjNkYjc0OWFiMzJmYmY0YTQ2MTExMGI2MDY1NTU0NDJiNjY1ZDEwMzgifQ.eyJpc3MiOiJodHRwczovL2RleC5zbGFjLnN0YW5mb3JkLmVkdSIsInN1YiI6IkNoVmtjbTFBYzJ4aFl5NXpkR0Z1Wm05eVpDNWxaSFVTQkhOaGJXdyIsImF1ZCI6InZjbHVzdGVyLS1rOHMtc2FuZGJveCIsImV4cCI6MTczMzQ1Mzk3MiwiaWF0IjoxNzMzNDI1MTcyLCJhdF9oYXNoIjoiSk81TWRYLUt2SlEzS244dVhUeGF5ZyIsImNfaGFzaCI6IjA4U29STnU1TlRqWlBOVVZvUjBWVEEiLCJlbWFpbCI6ImRybUBzbGFjLnN0YW5mb3JkLmVkdSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiZHJtIn0.wCkAavwuQQnGd7iQtHUwf00DKc2zZoyTdkC1YeKy4Mq1wPcDanEiAJqkRAi2B2hRJ8TT_N7XggM2q9rMznq233ccjAUp65BO9cVk-mToS98SV_8GA3ZtVDe-lwvFqyuGrtauZ-Zl83uCYUbT62Egqwis_S6DPWtwkeInN9Iq1wfJpkcPmea9vDESwKODMG1X1D2wnK6IxHC2RQGoG0wruPdHiQivYO0ZdN1c5ZlpLnnVsPahDzVTSYe64DsIT-phYKWd9QzLBYOeg82HHuWfD4iC78DNK6UQ3jeCZZGyxS1zxd0GMS4Gvz9olnZLfvN8dKS-QEsqWVIRGLaDny6biQ'
+        kubectl config set-context "k8s-sandbox" --cluster="k8s-sandbox" --user="drm@slac.stanford.edu@k8s-sandbox"
+        kubectl config use-context "k8s-sandbox"
+        }
+
+function hostSpecificSetup
+        {
+
+        #
+        # Some DHCP servers like to assign dynamic
+        # and cryptic names to override the assigned
+        # local hostname.  If this is a "personal"
+        # computer, indicated by the  existence of a
+        # specific file, then just use the initial
+        # name as supplied by the computer.
+        #
+        if [[ -r "$COMPUTER_LOCAL_NAME" ]];
+        then
+                SYSTEM_NAME=$(< $COMPUTER_LOCAL_NAME)
+        else
+                SYSTEM_NAME=$(hostname -s)
+        fi
+
+        if type shopt &>/dev/null
+        then
+                shopt -s extglob
+        fi
+
+        case "$SYSTEM_NAME" in
+                "MurrayMacBookPro" | "DougM3" )
+                        #
+                        # Personal Laptop
+                        #
+                        if ! type newlist &>/dev/null
+                        then
+                                return
+                        fi
+
+                        inspath -q /opt/homebrew/bin
+                        inspath -q /opt/homebrew/opt/make/libexec/gnubin
+                        inspath -q /Users/dougm/Home/bin
+                        inspath -q /Users/dougm/bin
+
+                        #
+                        # Support for Wine, Qt, Xcode, etc.
+                        #
+                        addpath -q /opt/usr/bin
+                        addpath -q /opt/Qt/6.7.0/macos/bin
+                        addpath -q /opt/Qt/6.4.0/macos/bin
+
+                        addmaclib -q ~/Dropbox/src/lib
+                        addman -q /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man
+
+                        export XDG_CONFIG_HOME=~/.config
+
+                        #
+                        # check for local EPICS
+                        #
+                        export EPICS_BASE=${EPICS_BASE:-"/usr/local/epics/base"}
+                        if [[ -d "${EPICS_BASE}" ]];
+                        then
+                                EPICS_SETUP=${EPICS_BASE}/config/epicsSetup.bash
+                                if [[ -e $EPICS_SETUP ]];
+                                then
+                                        source $EPICS_SETUP
+                                else
+                                        export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"darwin-x86"}
+                                        addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
+                                fi
+                        fi
+
+                        #
+                        # Support for OpenDDS
+                        #
+                        if [[ -d ~/Dropbox/OpenDDS ]];
+                        then
+                                export DANCE_ROOT=unused
+                                export CIAO_ROOT=unused
+                                export DDS_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12
+                                export ACE_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers
+                                export TAO_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers/TAO
+                                export MPC_ROOT=~/Dropbox/OpenDDS/OpenDDS-3.12/ACE_wrappers/MPC
+                                addmaclib -q ${DDS_ROOT}/lib
+                                addpath -q ${DDS_ROOT}/bin
+                                addmaclib -q ${ACE_ROOT}/lib
+                                addpath -q ${ACE_ROOT}/bin
+                        fi
+
+                        #
+                        # Support for RTI DDS
+                        #
+                        if [[ -d /Applications/rti_connext_dds-5.3.1 ]];
+                        then
+                                export NDDSHOME=/Applications/rti_connext_dds-5.3.1
+                                addpath -q ${NDDSHOME}/bin
+                                addlib -q ${NDDSHOME}/lib/x64Darwin17clang9.0/
+                                addmaclib -q ${NDDSHOME}/lib/x64Darwin17clang9.0/
+                        fi
+
+                        ;;
+                "PC102884" )
+                        #
+                        # SLAC MacBook Pro M2 2023
+                        #
+                        export EPICS_BASE=/usr/local/epics/epics-base
+                        export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        inspath -q /opt/homebrew/bin
+
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        ;;
+                "pc99383" )
+                        #
+                        # Dell Desktop Machine Rocky Linux 9
+                        #
+                        _CommonSLACSettings
+                        export EPICS_BASE=/usr/local/epics/base
+                        if [[ -f ${EPICS_BASE}/startup/EpicsHostArch ]];
+                        then
+                                export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        fi
+                        export EPICS_PVA_AUTO_ADDR_LIST=NO
+                        inspath ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}
+                        inslib ${EPICS_BASE}/lib/${EPICS_HOST_ARCH}
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        ;;
+                "rhel6-64*" )
+                        _CommonSLACSettings
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        export EPICS_CA_AUTO_ADDR_LIST=NO
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        export EPICS_PVA_ADDR_LIST="$EPICS_CA_ADDR_LIST"
+                        ;;
+                sdfiana* )
+                        export EPICS_BASE=/sdf/home/d/drm/src/epics/base
+                        if [[ -r ${EPICS_BASE}/startup/EpicsHostArch ]];
+                        then
+                                export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        fi
+                        inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        addpath -q ~/.local/bin
+                        umask 2
+                        # k8s disabled for now
+                        # checkForKubernetes
+                        ;;
+                nx* )
+                        alias gtgray="gnome-terminal --profile='DougM Gray'"
+                        alias gtgrey="gnome-terminal --profile='DougM Gray'"
+                        alias gtblue="gnome-terminal --profile='DougM Blue'"
+                        alias gtbrown="gnome-terminal --profile='DougM Brown'"
+                        alias gtburg="gnome-terminal --profile='DougM Burgundy'"
+                        alias gtgreen="gnome-terminal --profile='DougM Green'"
+                        alias gtindigo="gnome-terminal --profile='DougM Indigo'"
+                        alias gtteal="gnome-terminal --profile='DougM Teal'"
+                        alias gt="gtgrey;gtblue;gtbrown;gtburg;gtgreen;gtindigo;gtteal"
+                        ;;
+                sdf* )
+                        alias gtgray="gnome-terminal --profile='DougM Gray'"
+                        alias gtgrey="gnome-terminal --profile='DougM Gray'"
+                        alias gtblue="gnome-terminal --profile='DougM Blue'"
+                        alias gtbrown="gnome-terminal --profile='DougM Brown'"
+                        alias gtburg="gnome-terminal --profile='DougM Burgundy'"
+                        alias gtgreen="gnome-terminal --profile='DougM Green'"
+                        alias gtindigo="gnome-terminal --profile='DougM Indigo'"
+                        alias gtteal="gnome-terminal --profile='DougM Teal'"
+                        alias gt="gtgrey;gtblue;gtbrown;gtburg;gtgreen;gtindigo;gtteal"
+                        export EPICS_BASE=/sdf/home/d/drm/src/epics/base
+                        export EPICS_CA_ADDR_LIST="134.79.219.255 172.26.97.63"
+                        export EPICS_PVA_ADDR_LIST="134.79.151.21"
+                        export EPICS_PVA_BROADCAST_PORT=5169
+                        export EPICS_PVA_AUTO_ADDR_LIST=NO
+                        export EPICS_PVA_SERVER_PORT=5168
+                        if [[ -r ${EPICS_BASE}/startup/EpicsHostArch ]];
+                        then
+                                export EPICS_HOST_ARCH=$(${EPICS_BASE}/startup/EpicsHostArch)
+                        fi
+                        inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
+                        umask 2
+                        # k8s disabled for now
+                        # checkForKubernetes
+                        ;;
+                "lcls-dev3" )
+                        _CommonSLACSettings
+                        export MATLAB_TOP=/u1/software/matlab
+                        export MATLAB_VERSION=R2017b
+                        inslib $MATLAB_TOP/$MATLAB_VERSION/bin/glnxa64
+                        inslib $MATLAB_TOP/$MATLAB_VERSION/sys/os/glnxa64
+                        export PATH=$MATLAB_TOP/$MATLAB_VERSION/bin:$PATH
+                        #
+                        # evil script sets prompt and other aliases. bad script.
+                        #
+                        _x="${PS1}"
+                        source /afs/slac/g/lcls/tools/script/ENVS64.bash
+                        PS1="${_x}"
+                        unset _x
+                        printf "The message above (%s) comes from ENVS64.bash and should be fixed.\n" "-bash: [: too many arguments"
+                        #DM prompt green user @ Green host sp Gray2 time Orange Gitb sp White hist sp Red Ret White .
+                        export PYEPICS_LIBCA=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libca.so
+                        export PYEPICS_LIBCOM=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libCom.so
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        ;;
+                "aird-b50-srv01" )
+                        _CommonSLACSettings
+                        export EPICS_HOST_ARCH="rhel7-x86_64"
+                        #
+                        # DANGER: (bash only)
+                        #         sourcing this wonderful script
+                        #         twice will remove PATH, making
+                        #         this current session unusable
+                        #
+                        # source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        #
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        export JAVA_VERS=jdk-11.0.2
+                        export JAVA_HOME=/afs/slac/g/lcls/package/java/$JAVA_VERS
+                        export MAVEN_VERS=3.6.0
+                        export MAVEN_HOME=/afs/slac/g/lcls/package/maven/$MAVEN_VERS
+                        addpath -q ${JAVA_HOME}/bin
+                        addpath -q ${MAVEN_HOME}/bin
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        addpath -q /afs/slac/g/lcls/epics/extensions/R1.1.1/bin/rhel7-x86_64
+                        addpath -q /afs/slac/g/lcls/epics/extensions/pvxs/R1.2.2-0.1.0/bin/rhel7-x86_64
+                        ;;
+                "mccas0" )
+                        _CommonSLACSettings
+                        #
+                        # HDF5 tools and BSAS-NC FileWriter monitoring
+                        #
+                        addpath /afs/slac/g/lcls/package/anaconda/envs/python3_rhel7_env/bin
+                        addpath /afs/slac/g/lcls/package/bsasStore/current/bsasFileWriterMonitor
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        ;;
+                "lcls-daemon0" )
+                        _CommonSLACSettings
+
+                        #
+                        # production network, uid laci; need python path for iocConsole
+                        #
+                        newlist py PYTHONPATH -e
+                        inspy /usr/local/lcls/epics/base/base-cpp-R4-6-0/pvaPy/lib/python/2.7/linux-x86
+                        inspy /usr/local/lcls/tools/python/toolbox
+                        inspy /usr/local/lcls/epics/base/base-cpp-R4-4-0/pvaPy/lib/linux-x86
+
+                        #
+                        # production network, uid laci; EPICS subnets
+                        #
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca 172.27.3.255:5068
+                        addca mcc-dmz
+                        addca 172.21.40.63:5064
+                        addca 172.27.72.24:5070
+                        addca 172.27.131.255:5068
+                        addca 172.27.43.255:5068
+                        ;;
+                "testfac-srv01" )
+                        _CommonSLACSettings
+                        export ACCTEST_ROOT=/afs/slac/g/acctest
+                        source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
+                        ;;
+                "testfac-camsrv01" )
+                        _CommonSLACSettings
+                        export ACCTEST_ROOT=/afs/slac/g/acctest
+                        source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
+                        ;;
+                "testfac-camsrv02" )
+                        _CommonSLACSettings
+                        export ACCTEST_ROOT=/afs/slac/g/acctest
+                        source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
+                        ;;
+                "testfac-asta-cs01" )
+                        _CommonSLACSettings
+                        export ACCTEST_ROOT=/afs/slac/g/acctest
+                        source /afs/slac/g/acctest/tools/script/ENVS_acctest.bash
+                        ;;
+                "lcls-dev2" )
+                        _CommonSLACSettings
+                        source /afs/slac/g/lcls/tools/script/ENVS.bash
+                        export JAVAVER=1.7.0_01
+                        source /afs/slac/g/lcls/epics/setup/go_epics_3-14-12.bash
+                        export JAVA_HOME=/afs/slac/g/lcls/package/java/jdk1.7.0_01
+                        export PATH=$JAVA_HOME/bin:$PATH
+                        export NETBEANS_HOME=/afs/slac/g/lcls/package/netbeans/netbeans-7.0.1
+                        export PATH=$NETBEANS_HOME/bin:$PATH
+                        export CSS_EPICS_VER=3.1.0
+                        export CSS_EPICS_HOME=/afs/slac/g/lcls/package/CSS/CSS_EPICS_$CSS_EPICS_VER
+                        export PATH=$CSS_EPICS_HOME:$PATH:/usr/afsws/bin
+                        export PATH=$PACKAGE_TOP/python/current/bin:$PATH
+                        inslib $PACKAGE_TOP/python/current/lib
+                        inslib $PACKAGE_TOP/python/current/lib/python2.7/lib-dynload
+                        ;;
+                "aird-pc90626" )
+                        _CommonSLACSettings
+                        source /afs/slac/g/lcls/tools/script/ENVS64.bash
+                        source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        export PACKAGE_TOP=/afs/slac/g/lcls/package
+                        export PATH=$PACKAGE_TOP/python/python2.7.9/linux-x86_64/bin:$PATH
+                        export PYEPICS_LIBCA=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libca.so
+                        export PYEPICS_LIBCOM=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libCom.so
+                        inslib $PACKAGE_TOP/python/python2.7.9/linux-x86_64/lib
+                        inslib $PACKAGE_TOP/python/python2.7.9/linux-x86_64/lib/python2.7/lib-dynload
+                        ;;
+                "rdsrv300" )
+                        _CommonSLACSettings
+                        /usr/bin/aklog
+                        /usr/bin/klist
+                        /usr/bin/tokens
+                        source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        ;;
+                "rdsrv315" )
+                        _CommonSLACSettings
+                        /usr/bin/aklog
+                        /usr/bin/klist
+                        /usr/bin/tokens
+                        ;;
+                "rdsrv223" )
+                        _CommonSLACSettings
+                        source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        ;;
+                *)
+                        _CommonSLACSettings
+                        if [[ -r /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash ]];
+                        then
+                                source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        fi
+                        export JAVA_HOME=/afs/slac/g/lcls/package/java/jdk1.7.0_01
+                        export PATH=$JAVA_HOME/bin:$PATH
+                        export NETBEANS_HOME=/afs/slac/g/lcls/package/netbeans/netbeans-7.0.1
+                        export PATH=$NETBEANS_HOME/bin:$PATH:/usr/afsws/bin
+                        ;;
+        esac
+        }
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+#
+# Set up host-specific environment variables
+#
+hostSpecificSetup
+findVim
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+

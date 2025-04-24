@@ -20,7 +20,7 @@ if has( 'nvim')
 else
         set ttyfast
         set nocompatible
-        set viminfo='100,%,<1000,:100,n~/.vim/viminfo
+        set viminfo='100,%,<1000,:100,n$XDG_CONFIG_HOME/vim/viminfo
         set printoptions=paper:letter,portrait:y,duplex:off
         set cpoptions=jwz
 endif
