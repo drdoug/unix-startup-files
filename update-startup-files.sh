@@ -12,7 +12,7 @@ declare -a allFiles=( \
          \
         dot-zshenv                              ~/.zshenv \
         config-zsh-zshrc                        ~/.config/shells/.zshrc \
-        config-zsh-zshrc.single                 ~/.config/shells/.zshrc.single \
+        config-zsh-zshrc-single                 ~/.config/shells/.zshrc-single \
         config-zsh-zlogout                      ~/.config/shells/.zlogout \
         config-zsh-dirs.zsh                     ~/.config/shells/dirs.zsh \
          \
