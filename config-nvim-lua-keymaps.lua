@@ -12,14 +12,14 @@
  Shift:    |              <S-F1>|              <S-F2>|              <S-F3>|              <S-F4>|
  Key:      |                <F1>|                <F2>|                <F3>|                <F4>|
            +--------------------+--------------------+--------------------+--------------------+
-     CTRL: |                    |Show "make" prompt  |                    |                    |
-     SHFT: |Prompt for grep word|List Messages       |                    |                    |
-     FUNC: |Grep for *cursor    |Current Message     |Goto Previous Error |Goto Next Error     |
+     CTRL: | Toggle Completion  |Show "make" prompt  |                    |                    |
+     SHFT: |Prompt for grep word|Current Message     |                    |                    |
+     FUNC: |Grep for *cursor    |List Messages       |Goto Previous Error |Goto Next Error     |
  Control:  |               <F29>|               <F30>|               <F31>|               <F32>|
  Shift:    |               <F17>|               <F18>|               <F19>|               <F20>|
  Key:      |               <F5> |               <F6> |               <F7> |               <F8> |
            +--------------------+--------------------+--------------------+--------------------+
-     CTRL: |                    |                    |                    |                    |
+     CTRL: |                    |                    |                    |   Plugin Manager   |
      SHFT: |Alternate File Split|Toggle Side Columns |Quit this Buffer    |                    |
      FUNC: |Alternate File Here |Toggle Line Numbers |List all Buffers    |   File Selector    |
  Control:  |               <F33>|               <F34>|               <F35>|               <F36>|
@@ -56,15 +56,17 @@ map( 'n',       '<S-F4>',       ':vertical diffsplit #<CR>',    { desc = 'Show D
 
 map( 'n',       '<F5>',         SearchProjectFromCursor,        { desc = 'Search Project for Word beneath Cursor' })
 map( 'n',       '<F17>',        SearchProjectFromPrompt,        { desc = 'Prompt User for Pattern then Search Project' })
-map( 'n',       '<F6>',         ':cc<CR>',                      { desc = 'Show Current Search or Error Message' })
-map( 'n',       '<F18>',        ':clist<CR>',                   { desc = 'Show All Search or Error Messages' })
+map( 'n',       '<F29>',        ToggleCodeCompletion,           { desc = 'Toggle Code Completion Suggestions' })
+map( 'n',       '<F6>',         ':clist<CR>',                   { desc = 'Show All Search or Error Messages' })
+map( 'n',       '<F18>',        ':cc<CR>',                      { desc = 'Show Current Search or Error Message' })
 map( 'n',       '<F7>',         ':cprev<CR>',                   { desc = 'Jump to Previous Found Location' })
 map( 'n',       '<F8>',         ':cnext<CR>',                   { desc = 'Jump to Next Found Location' })
 map( 'n',       '<F9>',         ':e#<CR>',                      { desc = 'Switch to Most Recent Buffer' })
 map( 'n',       '<F21>',        ':split #<CR>',                 { desc = 'Split Screen then Switch to Most Recent Buffer' })
 map( 'n',       '<F10>',        ToggleLineNumbers,              { desc = 'Show or Hide Line Numbers' })
 map( 'n',       '<F22>',        ToggleSideColumns,              { desc = 'Show or Hide Left Columns for Folds and Indicators' })
-map( 'n',       '<F11>',        ':buffers<CR>',                { desc = 'Show All Current Buffers' })
+map( 'n',       '<F11>',        ':buffers<CR>',                 { desc = 'Show All Current Buffers' })
+map( 'n',       '<F36>',        ':Lazy home<CR>',               { desc = 'Show Plugin Manager Status' })
 --
 -- buffers
 --
@@ -84,24 +86,24 @@ map( 'n',       '<leader>fh',   builtin.help_tags,              { desc = 'Telesc
 --
 -- language support
 --
-map( 'n',       'K',            vim.lsp.buf.hover,              {})
-map( 'n',       '<C-k>',        vim.lsp.buf.signature_help,              {})
-map( 'n',       '<leader>gD',   vim.lsp.buf.declaration,        {})
-map( 'n',       '<leader>gd',   vim.lsp.buf.definition,         {})
-map( 'n',       '<leader>gi',   vim.lsp.buf.implementation,         {})
-map( 'n',       '<leader>ca',   vim.lsp.buf.code_action,        {})
-map( 'v',       '<leader>ca',   vim.lsp.buf.code_action,        {})
-map( 'n',       '<leader>wa',   vim.lsp.buf.add_workspace_folder,        {})
-map( 'n',       '<leader>wr',   vim.lsp.buf.remove_workspace_folder,        {})
+map( 'n',       'K',            vim.lsp.buf.hover,                      {})
+map( 'n',       '<C-k>',        vim.lsp.buf.signature_help,             {})
+map( 'n',       '<leader>gD',   vim.lsp.buf.declaration,                {})
+map( 'n',       '<leader>gd',   vim.lsp.buf.definition,                 {})
+map( 'n',       '<leader>gi',   vim.lsp.buf.implementation,             {})
+map( 'n',       '<leader>ca',   vim.lsp.buf.code_action,                {})
+map( 'v',       '<leader>ca',   vim.lsp.buf.code_action,                {})
+map( 'n',       '<leader>wa',   vim.lsp.buf.add_workspace_folder,       {})
+map( 'n',       '<leader>wr',   vim.lsp.buf.remove_workspace_folder,    {})
 map( 'n',       '<leader>wl',   function()
                                         print( vim.inspect( vim.lsp.buf.list_workspace_folders()))
-                                        end,        {})
-map( 'n',       '<leader>D',    vim.lsp.buf.type_definition,         {})
-map( 'n',       '<leader>rn',   vim.lsp.buf.rename,         {})
-map( 'n',       '<leader>gr',   vim.lsp.buf.references,         {})
+                                        end,                            {})
+map( 'n',       '<leader>D',    vim.lsp.buf.type_definition,            {})
+map( 'n',       '<leader>rn',   vim.lsp.buf.rename,                     {})
+map( 'n',       '<leader>gr',   vim.lsp.buf.references,                 {})
 map( 'n',       '<leader>f',    function()
-                                        vim.lsp.buf.format { async = true }
-                                end,         {})
+                                        vim.lsp.buf.format              { async = true }
+                                end,                                    {})
 
 -- ---------------------NEW STARTS HERE ---------------------
 

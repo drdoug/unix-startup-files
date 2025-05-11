@@ -35,6 +35,7 @@ declare -a allFiles=( \
         config-nvim-lua-plugins-neotree.lua     ~/.config/nvim/lua/plugins/neotree.lua \
         config-nvim-lua-plugins-telescope.lua   ~/.config/nvim/lua/plugins/telescope.lua \
         config-nvim-lua-plugins-treesitter.lua  ~/.config/nvim/lua/plugins/treesitter.lua \
+        config-nvim-lua-plugins-completion.lua  ~/.config/nvim/lua/plugins/completion.lua \
         config-nvim-lua-plugins-lsp-config.lua  ~/.config/nvim/lua/plugins/lsp-config.lua \
         )
 

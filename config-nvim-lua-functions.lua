@@ -66,8 +66,10 @@ function SearchProjectFromCursor()
                 print( "No word under cursor")
                 return
         end
+        word = "\\<" .. word .. "\\>"
         searchForPattern( word, false)
-        vim.cmd( "cnext")
+        vim.cmd( "cfirst")
+        vim.cmd( "clist")
 end
 
 --
@@ -108,6 +110,10 @@ function ListQFix()
         end
 end
 
+--
+-- Show a popup window with a
+-- filesystem listing for navigation
+--
 function ShowFilesystem()
         -- return ":Neotree action=focus source=filesystem position=float toggle=true dir=. reveal=true<CR>"
         local neotree = require('neo-tree')
@@ -130,4 +136,18 @@ function ShowFilesystem()
                         },
                 })
         vim.cmd( "Neotree float filesystem")
+end
+
+--
+-- Toggle the state of the
+-- autocompletion function
+--
+function ToggleCodeCompletion()
+        vim.b.completion = not vim.b.completion
+
+        if vim.b.completion then
+                print("Code Completion: enabled")
+        else
+                print("Code Completion: disabled")
+        end
 end

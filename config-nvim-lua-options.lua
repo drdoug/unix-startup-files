@@ -2,7 +2,7 @@ vim.cmd
         [[
         syntax enable
         colorscheme aurora
-        let g:mapleader="\\"
+        let g:mapleader=","
         ]]
 
 local opt=vim.opt

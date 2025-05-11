@@ -67,15 +67,11 @@ hi NormalFloat                            guibg=gray16
 hi FloatBorder     guifg=white            guibg=grey16
 hi Number          guifg=limegreen
 hi Operator        guifg=thistle
-hi Pmenu           guifg=orange           guibg=yellow  " unused...
-hi PmenuExtra      guifg=white            guibg=gray4  " unused...
-hi PmenuExtraSel   guifg=white            guibg=gray4  " unused...
-hi PmenuKind       guifg=white            guibg=gray4  " unused...
-hi PmenuKindSel    guifg=white            guibg=gray4  " unused...
-hi PMenu           guifg=skyblue1         guibg=gray30
-hi PmenuSbar                              guibg=gray5
-hi PmenuSel                               guibg=gray70
-hi PmenuThumb      guifg=skyblue1
+hi PMenu                                  guibg=gray14
+hi PMenuSel        guifg=DarkSlateBlue    guibg=white
+hi PMenuSbar       guifg=gold             guibg=gray5
+hi PMenuThumb      guifg=darkblue
+hi PmenuExtra      guifg=blue
 hi PreCondit       guifg=lightskyblue                          gui=bold
 hi PreProc         guifg=deepskyblue                           gui=bold
 hi Question        guifg=deepskyblue

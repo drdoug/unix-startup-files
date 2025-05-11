@@ -148,6 +148,8 @@ return
                         commands = {},
                         window =
                                 {
+                                relativenumber = false,
+                                number = true,
                                 position = "float",
                                 width = 40,
                                 mapping_options =

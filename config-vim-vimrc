@@ -12,7 +12,7 @@ if &t_Co > 2
 endif
 
 if has( 'nvim')
-        let g:mapleader="\\"
+        let g:mapleader=","
         " set shada='100,%,<1000,h,:100,n~/.config/nvim/saved.shada
         set shada="NONE"
         set statuscolumn=%5.7l
