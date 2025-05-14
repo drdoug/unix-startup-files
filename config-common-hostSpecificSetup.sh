@@ -341,6 +341,7 @@ function hostSpecificSetup
                         export HTTPS_PROXY=http://sdfproxy.sdf.slac.stanford.edu:3128
                         export HTTP_PROXY=$HTTPS_PROXY
                         export EPICS_HOST_ARCH="rhel9-x86_64"
+                        export VIMRUNTIME=${XDG_CONFIG_HOME}/vim/runtime
                         #
                         # DANGER: (bash only)
                         #         sourcing this wonderful script

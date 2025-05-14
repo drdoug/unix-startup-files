@@ -158,6 +158,7 @@ while getopts "dFCX" opt; do
         C )
                 createNeededDirs ~/.config/shells
                 createNeededDirs ~/.vim/colors
+                createNeededDirs ~/.config/vim/colors
                 createNeededDirs ~/.config/nvim/colors
                 createNeededDirs ~/.config/nvim/lua/plugins
                 ;;
