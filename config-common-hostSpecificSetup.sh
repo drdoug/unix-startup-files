@@ -51,7 +51,7 @@ function _CommonSLACSettings
         #
         # assume redhat 6 if HOST not set
         #
-        export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"rhel6-x86_64"}
+        export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"rhel9-x86_64"}
 
         if ! type newlist &>/dev/null
         then
@@ -328,6 +328,27 @@ function hostSpecificSetup
                         #DM prompt green user @ Green host sp Gray2 time Orange Gitb sp White hist sp Red Ret White .
                         export PYEPICS_LIBCA=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libca.so
                         export PYEPICS_LIBCOM=$EPICS_BASE_TOP/$EPICS_BASE_VER/lib/$EPICS_HOST_ARCH/libCom.so
+                        export EPICS_PVA_AUTO_ADDR_LIST=YES
+                        addca lcls-daemon0
+                        addca lcls-prod01:5068
+                        addca lcls-prod01:5063
+                        addca mcc-dmz
+                        addca 134.79.219.255
+                        addca 172.26.97.63
+                        ;;
+                "dev-epicsgw" )
+                        _CommonSLACSettings
+                        export HTTPS_PROXY=http://sdfproxy.sdf.slac.stanford.edu:3128
+                        export HTTP_PROXY=$HTTPS_PROXY
+                        export EPICS_HOST_ARCH="rhel9-x86_64"
+                        #
+                        # DANGER: (bash only)
+                        #         sourcing this wonderful script
+                        #         twice will remove PATH, making
+                        #         this current session unusable
+                        #
+                        # source /afs/slac/g/lcls/epics/setup/epicsenv-7.0.3.1-1.0.bash
+                        #
                         export EPICS_PVA_AUTO_ADDR_LIST=YES
                         addca lcls-daemon0
                         addca lcls-prod01:5068

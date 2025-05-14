@@ -399,7 +399,7 @@ setLists
 
 #-=-=-=-=-=-=-=-=
 # bashrc-hostSpecificSetup
-_checkAndRead "${_STARTUP_DIR}"/hostSpecificSetup.bash
+_checkAndRead "${_STARTUP_DIR}"/hostSpecificSetup.sh
 
 #-=-=-=-=-=-=-=-=
 
