@@ -1143,8 +1143,10 @@ function _commonPrompt
         -)
                 if [[ ! -z $_buildRightPrompt ]];
                 then
+                        rpstr=''
                         RPS1=''
                 else
+                        pstr=''
                         PS1=''
                 fi
                 return 0
