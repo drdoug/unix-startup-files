@@ -1502,7 +1502,7 @@ function presetPromptHelp
 # create some
 # predefined prompts
 #
-CHOSEN_PRESET_PROMPT='loud'
+CHOSEN_PRESET_PROMPT='mild'
 function p
         {
 
