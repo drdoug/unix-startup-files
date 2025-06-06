@@ -162,3 +162,31 @@ function StartLiveGrep()
                 silent = true,
                 }
 end
+
+--
+-- Toggle C++11 Static Code Analysis
+--
+local clangd_cmd_with_tidy = { "clangd", "--clang-tidy" }
+local clangd_cmd_without_tidy = { "clangd" }
+
+local clangd_enabled = false
+
+function ToggleClangTidy()
+        clangd_enabled = not clangd_enabled
+        local new_cmd = clangd_enabled and clangd_cmd_with_tidy or clangd_cmd_without_tidy
+
+        vim.lsp.stop_client( vim.lsp.get_active_clients( { name = "clangd" }), true)
+
+        require('lspconfig').clangd.setup(
+                {
+                cmd = new_cmd,
+                -- on_attach = function( client, bufnr)
+                -- -- Your existing on_attach code here
+                -- end,
+                -- capabilities = require( 'cmp_nvim_lsp').default_capabilities()
+                })
+
+        vim.cmd("edit")  -- reload the buffer to trigger clangd restart
+        print("Clang-Tidy " .. ( clangd_enabled and "enabled" or "disabled"))
+end
+

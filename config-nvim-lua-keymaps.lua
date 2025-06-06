@@ -13,7 +13,7 @@
  Key:      |                <F1>|                <F2>|                <F3>|                <F4>|
            +--------------------+--------------------+--------------------+--------------------+
      CTRL: |   Start Live Grep  |Show "make" prompt  |                    | Use Suggested Fix  |
-     SHFT: |Prompt for grep word|Current Message     |                    |                    |
+     SHFT: |Prompt for grep word|Current Message     |                    |Toggle Static Analys|
      FUNC: |Grep for *cursor    |List Messages       |Goto Previous Error |Goto Next Error     |
  Control:  |               <F29>|               <F30>|               <F31>|               <F32>|
  Shift:    |               <F17>|               <F18>|               <F19>|               <F20>|
@@ -61,6 +61,7 @@ map( 'n',       '<F6>',         ':clist<CR>',                   { desc = 'Show A
 map( 'n',       '<F18>',        ':cc<CR>',                      { desc = 'Show Current Search or Error Message' })
 map( 'n',       '<F7>',         ':cprev<CR>',                   { desc = 'Jump to Previous Found Location' })
 map( 'n',       '<F8>',         ':cnext<CR>',                   { desc = 'Jump to Next Found Location' })
+map( 'n',       '<F20>',        ToggleClangTidy,                { desc = 'Toggle Static Analysis Suggestions' })
 map( 'n',       '<F32>',        vim.lsp.buf.code_action,        { desc = 'Use Suggested Fix(es) when Problems are Found' })
 map( 'n',       '<F9>',         ':e#<CR>',                      { desc = 'Switch to Most Recent Buffer' })
 map( 'n',       '<F21>',        ':split #<CR>',                 { desc = 'Split Screen then Switch to Most Recent Buffer' })

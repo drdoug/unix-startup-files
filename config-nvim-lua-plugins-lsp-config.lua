@@ -37,6 +37,7 @@ return
                         lspconfig.clangd.setup(
                                 {
                                 filetypes = { "c", "cc", "cpp", },
+                                cmd = { "/usr/bin/clangd" },
 --                              Leave this for now...
 --                                on_attach = function( client, bufnr)
 --                                        client.server_capabilities.signatureHelpProvider = false

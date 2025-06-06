@@ -1,3 +1,4 @@
-Checks: '-*,bugprone-*,cert-*,clang-analyzer-*,concurrency-*,cppcoreguidelines-*,misc-*,modernize-*,-modernize-use-trailing-return-type,performance-*,portability-*,readability-*,-readability-misleading-indentation'
-HeaderFilterRegex: '.*'
-FormatStyle: none
+Checks: '-readability-misleading-indentation'
+# Checks: '-*,bugprone-*,cert-*,clang-analyzer-*,concurrency-*,cppcoreguidelines-*,misc-*,modernize-*,-modernize-use-trailing-return-type,performance-*,portability-*,readability-*,-readability-misleading-indentation'
+# HeaderFilterRegex: '.*'
+# FormatStyle: none
