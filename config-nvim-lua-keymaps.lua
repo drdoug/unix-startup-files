@@ -12,16 +12,16 @@
  Shift:    |              <S-F1>|              <S-F2>|              <S-F3>|              <S-F4>|
  Key:      |                <F1>|                <F2>|                <F3>|                <F4>|
            +--------------------+--------------------+--------------------+--------------------+
-     CTRL: | Toggle Completion  |Show "make" prompt  |                    |                    |
+     CTRL: |   Start Live Grep  |Show "make" prompt  |                    | Use Suggested Fix  |
      SHFT: |Prompt for grep word|Current Message     |                    |                    |
      FUNC: |Grep for *cursor    |List Messages       |Goto Previous Error |Goto Next Error     |
  Control:  |               <F29>|               <F30>|               <F31>|               <F32>|
  Shift:    |               <F17>|               <F18>|               <F19>|               <F20>|
  Key:      |               <F5> |               <F6> |               <F7> |               <F8> |
            +--------------------+--------------------+--------------------+--------------------+
-     CTRL: |                    |                    |                    |   Plugin Manager   |
+     CTRL: |                    |Toggle Completion   |                    |   Plugin Manager   |
      SHFT: |Alternate File Split|Toggle Side Columns |Quit this Buffer    |                    |
-     FUNC: |Alternate File Here |Toggle Line Numbers |List all Buffers    |   File Selector    |
+     FUNC: |Alternate File GoTo |Toggle Line Numbers |List all Buffers    |   File Selector    |
  Control:  |               <F33>|               <F34>|               <F35>|               <F36>|
  Shift:    |               <F21>|               <F22>|               <F23>|               <F24>|
  Key:      |               <F9> |               <F10>|               <F11>|               <F12>|
@@ -56,15 +56,17 @@ map( 'n',       '<S-F4>',       ':vertical diffsplit #<CR>',    { desc = 'Show D
 
 map( 'n',       '<F5>',         SearchProjectFromCursor,        { desc = 'Search Project for Word beneath Cursor' })
 map( 'n',       '<F17>',        SearchProjectFromPrompt,        { desc = 'Prompt User for Pattern then Search Project' })
-map( 'n',       '<F29>',        ToggleCodeCompletion,           { desc = 'Toggle Code Completion Suggestions' })
+map( 'n',       '<F29>',        StartLiveGrep,                  { desc = 'Grep Live while Typing' })
 map( 'n',       '<F6>',         ':clist<CR>',                   { desc = 'Show All Search or Error Messages' })
 map( 'n',       '<F18>',        ':cc<CR>',                      { desc = 'Show Current Search or Error Message' })
 map( 'n',       '<F7>',         ':cprev<CR>',                   { desc = 'Jump to Previous Found Location' })
 map( 'n',       '<F8>',         ':cnext<CR>',                   { desc = 'Jump to Next Found Location' })
+map( 'n',       '<F32>',        vim.lsp.buf.code_action,        { desc = 'Use Suggested Fix(es) when Problems are Found' })
 map( 'n',       '<F9>',         ':e#<CR>',                      { desc = 'Switch to Most Recent Buffer' })
 map( 'n',       '<F21>',        ':split #<CR>',                 { desc = 'Split Screen then Switch to Most Recent Buffer' })
 map( 'n',       '<F10>',        ToggleLineNumbers,              { desc = 'Show or Hide Line Numbers' })
 map( 'n',       '<F22>',        ToggleSideColumns,              { desc = 'Show or Hide Left Columns for Folds and Indicators' })
+map( 'n',       '<F34>',        ToggleCodeCompletion,           { desc = 'Toggle Code Completion Suggestions' })
 map( 'n',       '<F11>',        ':buffers<CR>',                 { desc = 'Show All Current Buffers' })
 map( 'n',       '<F36>',        ':Lazy home<CR>',               { desc = 'Show Plugin Manager Status' })
 --

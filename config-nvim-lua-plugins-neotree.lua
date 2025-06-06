@@ -7,27 +7,27 @@ return
                 "nvim-lua/plenary.nvim",
                 "nvim-tree/nvim-web-devicons",
                 "MunifTanjim/nui.nvim",
-                {
-                's1n7ax/nvim-window-picker',
-                version = '2.*',
-                config = function()
-                        require 'window-picker'.setup(
-                                {
-                                filter_rules =
+                        {
+                        's1n7ax/nvim-window-picker',
+                        version = '2.*',
+                        config = function()
+                                require 'window-picker'.setup(
                                         {
-                                        include_current_win = true,
-                                        autoselect_one = true,
-                                        -- buffer options
-                                        bo =
+                                        filter_rules =
                                                 {
-                                                -- window or buffers to ignore
-                                                filetype = { 'neo-tree', "neo-tree-popup", "notify" },
-                                                buftype = { 'terminal', "quickfix" },
+                                                include_current_win = true,
+                                                autoselect_one = true,
+                                                -- buffer options
+                                                bo =
+                                                        {
+                                                        -- window or buffers to ignore
+                                                        filetype = { 'neo-tree', "neo-tree-popup", "notify" },
+                                                        buftype = { 'terminal', "quickfix" },
+                                                        },
                                                 },
-                                        },
-                                })
-                end,
-                },
+                                        })
+                        end,
+                        },
                 },
         config = function()
                 require( 'neo-tree').setup(

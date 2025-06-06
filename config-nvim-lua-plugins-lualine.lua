@@ -91,7 +91,7 @@ return
                                 },
                         command =
                                 {
-                                a = { fg = colors.Black, bg = colors.goldenrod },
+                                a = { fg = colors.Yellow, bg = colors.DarkGreen },
                                 },
                         }
 

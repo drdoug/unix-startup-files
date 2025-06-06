@@ -38,7 +38,7 @@ end
 -- quickfixlist if showAllResults is true
 --
 local function searchForPattern( pattern, showAllResults)
-        local gCmd = string.format( "rg --vimgrep --type-add 'source:*.{h,c,cc,hpp,cpp,py,js,md,ts,java,txt,rb,go,rs,php,lua}' -t source %s", vim.fn.shellescape( pattern))
+        local gCmd = string.format( "rg --vimgrep --sort=path --type-add 'source:*.{h,c,cc,hpp,cpp,py,js,md,ts,java,txt,rb,go,rs,php,lua}' -t source %s", vim.fn.shellescape( pattern))
         local gOut = vim.fn.systemlist( gCmd)
 
         if vim.v.shell_error ~= 0 then
@@ -150,4 +150,15 @@ function ToggleCodeCompletion()
         else
                 print("Code Completion: disabled")
         end
+end
+
+--
+-- Perform live grep
+--
+function StartLiveGrep()
+        require( 'telescope.builtin').live_grep
+                {
+                noremap = true,
+                silent = true,
+                }
 end

@@ -23,6 +23,7 @@ declare -a allFiles=( \
         config-vim-gvimrc                       ~/.config/vim/gvimrc \
         config-vim-colors-aurora.vim            ~/.config/vim/colors/aurora.vim \
          \
+        config-nvim-dot-clang-tidy              ~/.clang-tidy \
         config-nvim-init.vim                    ~/.config/nvim/init.vim \
         config-nvim-lua-init.lua                ~/.config/nvim/lua/init.lua \
         config-nvim-lua-options.lua             ~/.config/nvim/lua/options.lua \
