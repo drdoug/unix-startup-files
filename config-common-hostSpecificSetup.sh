@@ -1,7 +1,5 @@
 
 
-COMPUTER_LOCAL_NAME=~/.config/PersonalComputersName
-
 #
 # Host specific setup file
 # Common to bash and zsh
@@ -49,7 +47,7 @@ function _CommonSLACSettings
         fi
 
         #
-        # assume redhat 6 if HOST not set
+        # assume Rocky9 if HOST not set
         #
         export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"rhel9-x86_64"}
 
@@ -136,9 +134,9 @@ function hostSpecificSetup
         # specific file, then just use the initial
         # name as supplied by the computer.
         #
-        if [[ -r "$COMPUTER_LOCAL_NAME" ]];
+        if [[ "$SYS_SPECIFIC" == "MacOS" ]];
         then
-                SYSTEM_NAME=$(< $COMPUTER_LOCAL_NAME)
+                SYSTEM_NAME=$(scutil --get ComputerName)
         else
                 SYSTEM_NAME=$(hostname -s)
         fi
@@ -159,11 +157,17 @@ function hostSpecificSetup
                         fi
 
                         #
+                        # conda and related
+                        #
+                        addpath /opt/miniforge3/bin
+                        addlib /opt/miniforge3/lib
+
+                        #
                         # wasm
                         #
-                        inspath /opt/emsdk
-                        inspath /opt/emsdk/upstream/emscripten
-                        inspath /opt/Qt-6.9.0/6.9.0/wasm_singlethread/bin
+                        addpath /opt/emsdk
+                        addpath /opt/emsdk/upstream/emscripten
+                        addpath /opt/Qt-6.9.0/6.9.0/wasm_singlethread/bin
 
                         #
                         # homebrew

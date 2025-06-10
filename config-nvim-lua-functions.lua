@@ -1,17 +1,22 @@
 --
--- Hide or Show Line Numbers
+-- Cycle between line numbers, relative line numbers
+-- or no line numbers. Default is relative numbers.
 --
-local _showNumbers=true
-function ToggleLineNumbers()
-        if _showNumbers
+function CycleLineNumberModes()
+        local number = vim.wo.number
+        local relativenumber = vim.wo.relativenumber
+
+        if not number and not relativenumber
         then
-                vim.cmd( 'set nonu nornu')
-                -- vim.cmd( 'set statuscolumn=""')
-                _showNumbers = false
-        else
-                vim.cmd( 'set nu rnu')
-                -- vim.cmd( 'set statuscolumn="%=%{v:relnum?v:relnum:v:lnum} "')
-                _showNumbers = true
+                vim.wo.number = true
+                vim.wo.relativenumber = false
+            elseif number and not relativenumber
+            then
+                vim.wo.relativenumber = true
+            elseif number and relativenumber
+            then
+                vim.wo.number = false
+                vim.wo.relativenumber = false
         end
 end
 
