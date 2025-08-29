@@ -21,6 +21,10 @@ return
                                 {
                                 enable = false,
                                 },
+                        fold =
+                                {
+                                enable = true,
+                                },
                         ensure_installed =
                                 {
                                 "bash",
@@ -42,6 +46,23 @@ return
                                 "yaml",
                                 "swift",
                                 },
+                        textobjects =
+                                {
+                                move =
+                                        {
+                                        enable = true,
+                                        set_jumps = true,
+                                        goto_next_start =
+                                                {
+                                                [']m'] = '@function.outer',
+                                                },
+                                        goto_previous_start =
+                                                {
+                                                ['[m'] = '@function.outer',
+                                                },
+                                        },
+                                }
+
                         }
                 )
         end

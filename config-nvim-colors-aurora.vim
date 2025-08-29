@@ -169,7 +169,7 @@ if &t_Co > 255
         hi NonText             ctermfg=lightgreen ctermbg=black              cterm=none        
         hi Pmenu               ctermfg=lightgreen ctermbg=darkblue
         hi PmenuSbar                              ctermbg=darkblue
-        hi PmenuSel                               ctermbg=darkblue
+        hi PmenuSel blend=0                       ctermbg=darkblue
         hi PmenuThumb          ctermfg=cyan
         hi Question            ctermfg=white      ctermbg=lightblue          cterm=bold        
         hi Scrollbar           ctermfg=white      ctermbg=lightblue          cterm=none        

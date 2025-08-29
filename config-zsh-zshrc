@@ -242,21 +242,29 @@ function setupCommands
                         addmaclib -q ~/Dropbox/src/xcode-local/lib
                         addmaclib -q ~/Dropbox/src/lib
                         export EPICS_BASE=${EPICS_BASE:-"/usr/local/epics/base"}
+
+                        if [[ "$(arch)" = "arm64" ]];
+                        then
+                                _macArch="darwin-aarch64"
+                        else
+                                _macArch="darwin-x86"
+                        fi
+
                         EPICS_SETUP=${EPICS_BASE}/config/epicsSetup.bash
                         if [[ -e $EPICS_SETUP ]];
                         then
                                 source $EPICS_SETUP
                         else
-                                if [[ "$(arch)" = "arm64" ]];
-                                then
-                                        _macArch="darwin-aarch64"
-                                else
-                                        _macArch="darwin-x86"
-                                fi
                                 export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"${_macArch}"}
                                 addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
-                                unset _macArch
                         fi
+
+                        export EPICS_PVXS=${EPICS_PVXS:-"/usr/local/epics/pvxs"}
+                        if [[ -d $EPICS_PVXS ]];
+                        then
+                                addpath -q ${EPICS_PVXS}/bin/${EPICS_HOST_ARCH}/
+                        fi
+                        unset _macArch
 
                         #
                         # Support for OpenDDS

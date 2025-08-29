@@ -38,18 +38,23 @@ return
                                 {
                                 filetypes = { "c", "cc", "cpp", },
                                 cmd = { "/usr/bin/clangd" },
---                              Leave this for now...
---                                on_attach = function( client, bufnr)
---                                        client.server_capabilities.signatureHelpProvider = false
---                                        on_attach( client, bufnr)
---                                end,
---                                capabilities = capabilities
                                 })
                         lspconfig.cmake.setup( {})
                         lspconfig.lua_ls.setup( {})
                         lspconfig.marksman.setup( {})
                         lspconfig.pyright.setup( {})
                         lspconfig.vimls.setup( {})
-                end
+                        vim.api.nvim_create_autocmd( "LspAttach",
+                                {
+                                callback = function( args)
+                                        local client = vim.lsp.get_client_by_id( args.data.client_id)
+                                        if client and client.server_capabilities.foldingRangeProvider
+                                        then
+                                                vim.wo.foldmethod = "expr"
+                                                vim.wo.foldexpr = "v:lua.vim.lsp.foldexpr()"
+                                        end
+                                end,
+                                })
+                end,
                 },
         }

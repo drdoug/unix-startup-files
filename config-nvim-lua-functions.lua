@@ -143,6 +143,14 @@ function ShowFilesystem()
         vim.cmd( "Neotree float filesystem")
 end
 
+function ToggleFoldPreview()
+        local winid = require( "ufo").peekFoldedLinesUnderCursor()
+        if not winid
+        then
+                vim.lsp.buf.hover()
+        end
+end
+
 --
 -- Toggle the state of the
 -- autocompletion function

@@ -1,43 +1,63 @@
 --[[
-           +--------------------+--------------------+--------------------+--------------------+
-           |                                   FUNCTION KEYS                                   |
-           |           Function Key Mapping for Neovim on MacOS External Keyboard              |
-           |   Keymap for standard keyboard using a Terminal Emulator (iTerm2, XTerm, etc)     |
-           |    NOTE: C-F8 and F11 must be disabled in System Prefs (See Mac in Notes App)     |
-           +--------------------+--------------------+--------------------+--------------------+
-     CTRL: |help                |make distclean      |                    |                    |
-     SHFT: |Close Current Window|make install        |                    |Alt File Differences|
-     FUNC: |Close All but CurWin|make                |Alt File Split Below|Alt File Split Right|
- Control:  |              <C-F1>|              <C-F2>|              <C-F3>|              <C-F4>|
- Shift:    |              <S-F1>|              <S-F2>|              <S-F3>|              <S-F4>|
- Key:      |                <F1>|                <F2>|                <F3>|                <F4>|
-           +--------------------+--------------------+--------------------+--------------------+
-     CTRL: |   Start Live Grep  |Show "make" prompt  |                    | Use Suggested Fix  |
-     SHFT: |Prompt for grep word|Current Message     |                    |Toggle Static Analys|
-     FUNC: |Grep for *cursor    |List Messages       |Goto Previous Error |Goto Next Error     |
- Control:  |               <F29>|               <F30>|               <F31>|               <F32>|
- Shift:    |               <F17>|               <F18>|               <F19>|               <F20>|
- Key:      |               <F5> |               <F6> |               <F7> |               <F8> |
-           +--------------------+--------------------+--------------------+--------------------+
-     CTRL: |                    |Toggle Completion   |                    |   Plugin Manager   |
-     SHFT: |Alternate File Split|Toggle Side Columns |Quit this Buffer    |                    |
-     FUNC: |Alternate File GoTo |Toggle Line Numbers |List all Buffers    |   File Selector    |
- Control:  |               <F33>|               <F34>|               <F35>|               <F36>|
- Shift:    |               <F21>|               <F22>|               <F23>|               <F24>|
- Key:      |               <F9> |               <F10>|               <F11>|               <F12>|
-           +--------------------+--------------------+--------------------+--------------------+
-                                                     +--------------------+
- Control:                                            | Show All Windows   |                     <- MacOS
- Shift:                                              |Go To Prev Window   |
- Function:                                           |Move Cursor up      |
- Key:                                                |UP Arrow            |
-                                +--------------------+--------------------+--------------------+
- Control:                       |Slide V-Desk Left   | Show App Windows   |Slide V-Desk Right  |<- MacOS
- Shift:                         |Edit Prev Buffer    |Go To Next Window   |Edit Next Buffer    |
- Function:                      |Move Cursor Left    |Move Cursor down    |Move Cursor Right   |
- Key:                           |LEFT Arrow          |DOWN Arrow          |RIGHT Arrow         |
-                                +--------------------+--------------------+--------------------+
-                                
+                    +----------------------+----------------------+----------------------+----------------------+
+                    |                                         FUNCTION KEYS                                     |
+                    |                                        Neovim on MacOS                                    |
+                    |                                                                                           |
+                    |                      Some Keys are reserved for MacOS, see Key Codes below                }
+                    |                                                                                           |
+                    +----------------------+----------------------+----------------------+----------------------+
+              MCSF: |                      |                      |                      |                      | 
+              MC F: |                      |                      |                      |                      |
+              M SF: |                      |                      |                      |                      |
+               CSF: |                      |                      |                      |                      |
+              M  F: |                      |Toggle Static Analysis|                      |                      |
+               C F: |help                  |make distclean        |                      |                      |
+                SF: |Close Current Window  |make install          |                      |Alt File Differences  |
+                 F: |Close All but CurWin  |make                  |Alt File Split Below  |Alt File Split Right  |
+Function Key:       |           <F1>       |           <F2>       |           <F3>       |           <F4>       |
+                    +----------------------+----------------------+----------------------+----------------------+
+              MCSF: |                      |                      |                      |                      | 
+              MC F: |                      |                      |                      |                      |
+              M SF: |                      |                      |                      |                      |
+               CSF: |                      |                      |                      |                      |
+              M  F: |                      |                      |                      |                      |
+               C F: |   Start Live Grep    |Show "make" prompt    |                      | Use Suggested Fix    |
+                SF: |Prompt for grep word  |Current Message       |Goto Previous Function|Goto Next Function    |
+                 F: |Grep for *cursor      |List Messages         |Goto Previous Error   |Goto Next Error       |
+Function Key:       |           <F5>       |           <F6>       |           <F7>       |           <F8>       |
+                    +----------------------+----------------------+----------------------+----------------------+
+              MCSF: |                      |                      |                      |                      | 
+              MC F: |                      |                      |                      |                      |
+              M SF: |                      |                      |                      |                      |
+               CSF: |                      |                      |                      |                      |
+              M  F: |                      |Toggle Fold Preview   |                      |                      |
+               C F: |                      |Toggle Completion     |                      |   Plugin Manager     |
+                SF: |Alternate File Split  |Toggle Side Columns   |Quit this Buffer      |                      |
+                 F: |Alternate File GoTo   |Toggle Line Numbers   |List all Buffers      |   File Selector      |
+Function Key:       |           <F9>       |           <F10>      |           <F11>      |           <F12>      |
+                    +----------------------+----------------------+----------------------+----------------------+
+
+                                           +----------------------+
+              MCSF:                        |                      |
+              MC F:                        |                      |
+              M SF:                        |                      |
+               CSF:                        |                      |
+              M  F:                        |Go UP to Previous Diag|
+               C F:                        | Show All App Windows |<- MacOS uses this
+                SF:                        |Go To Prev Function   |
+                 F:                        |UP Arrow              |
+Key:                                       |            <Up>      |
+                    +----------------------+----------------------+----------------------+
+              MCSF: |                      |                      |                      |
+              MC F: |Close Folding Section |                      |Open Folded Section   |
+              M SF: |                      |                      |                      |
+               CSF: |                      |                      |                      |
+              M  F: |Goto Previous Error   |Go DOWN to Next Diag  |Goto Next Error       |
+               C F: |Slide V-Desk Left     | Show App Windows     |Slide V-Desk Right    |<- MacOS uses this
+                SF: |Edit Prev Buffer      |Go To Next Function   |Edit Next Buffer      |
+                 F: |LEFT Arrow            |DOWN Arrow            |RIGHT Arrow           |
+Key:                |          <Left>      |          <Down>      |         <Right>      |
+                    +----------------------+----------------------+----------------------+
 --]]
 
 local map = vim.keymap.set
@@ -50,6 +70,7 @@ map( 'n',       '<S-F1>',       ':wincmd c<CR>',                { desc = 'Close 
 map( 'n',       '<F2>',         ':make -j<CR>',                 { desc = 'Make' })
 map( 'n',       '<S-F2>',       ':make -j install<CR>',         { desc = 'Make install' })
 map( 'n',       '<C-F2>',       ':make distclean<CR>',          { desc = 'Make distclean' })
+map( 'n',       '<M-F2>',       ToggleClangTidy,                { desc = 'Toggle Static Analysis Suggestions' })
 map( 'n',       '<F3>',         ':split #<CR>',                 { desc = 'Split Screen Below, add Alternate File (#)' })
 map( 'n',       '<F4>',         ':vsplit #<CR>',                { desc = 'Split Screen Right, add Alternate File (#)' })
 map( 'n',       '<S-F4>',       ':vertical diffsplit #<CR>',    { desc = 'Show Differences with Alternate File (#)' })
@@ -61,22 +82,33 @@ map( 'n',       '<F6>',         ':clist<CR>',                   { desc = 'Show A
 map( 'n',       '<F18>',        ':cc<CR>',                      { desc = 'Show Current Search or Error Message' })
 map( 'n',       '<F7>',         ':cprev<CR>',                   { desc = 'Jump to Previous Found Location' })
 map( 'n',       '<F8>',         ':cnext<CR>',                   { desc = 'Jump to Next Found Location' })
-map( 'n',       '<F20>',        ToggleClangTidy,                { desc = 'Toggle Static Analysis Suggestions' })
+map( 'n',       '<F19>',        ':AerialPrev<CR>',              { desc = 'Jump to Previous Function in File' })
+map( 'n',       '<F20>',        ':AerialNext<CR>',              { desc = 'Jump to Next Function in File' })
 map( 'n',       '<F32>',        vim.lsp.buf.code_action,        { desc = 'Use Suggested Fix(es) when Problems are Found' })
 map( 'n',       '<F9>',         ':e#<CR>',                      { desc = 'Switch to Most Recent Buffer' })
 map( 'n',       '<F21>',        ':split #<CR>',                 { desc = 'Split Screen then Switch to Most Recent Buffer' })
 map( 'n',       '<F10>',        CycleLineNumberModes,           { desc = 'Show Line Numbers, Relative or None' })
 map( 'n',       '<F22>',        ToggleSideColumns,              { desc = 'Show or Hide Left Columns for Folds and Indicators' })
 map( 'n',       '<F34>',        ToggleCodeCompletion,           { desc = 'Toggle Code Completion Suggestions' })
+map( 'n',       '<F58>',        ToggleFoldPreview,              { desc = 'Toggle Fold Preview' })
 map( 'n',       '<F11>',        ':buffers<CR>',                 { desc = 'Show All Current Buffers' })
 map( 'n',       '<F36>',        ':Lazy home<CR>',               { desc = 'Show Plugin Manager Status' })
+
 --
--- buffers
+-- buffers and navigation
 --
+map( 'n',       '<M-Left>',     ':cprev<CR>',                   { desc = 'Jump to Previous Found Location' })
+map( 'n',       '<M-Right>',    ':cnext<CR>',                   { desc = 'Jump to Next Found Location' })
+map( 'n',       '<M-Up>',       vim.diagnostic.goto_prev,       { desc = 'Go Up to Location of Previous Diagnostic Message' })
+map( 'n',       '<M-Down>',     vim.diagnostic.goto_next,       { desc = 'Go Down to Location of Next Diagnostic Message' })
 map( 'n',       '<S-Left>',     ':bp<CR>',                      { desc = 'Switch to Previous Buffer' })
 map( 'n',       '<S-Right>',    ':bn<CR>',                      { desc = 'Switch to Next Buffer' })
-map( 'n',       '<S-Up>',       ':wincmd W<CR>',                { desc = 'Switch to Previous Window' })
-map( 'n',       '<S-Down>',     ':wincmd w<CR>',                { desc = 'Switch to Next Window' })
+map( 'n',       '<S-Up>',       '[m',                           { desc = 'Switch to Previous Window' })
+map( 'n',       '<S-Down>',     ']m',                           { desc = 'Switch to Next Window' })
+map( 'n',       '<M-C-Left>',   'zc',                           { desc = 'Close the foldable segment starting beneath the cursor' })
+map( 'n',       '<M-C-Right>',  'zo',                           { desc = 'Open the folded segment at the cursor' })
+map( 'n',       '<M-C-S-Left>', 'zM',                           { desc = 'Close ALL foldable segments' })
+map( 'n',       '<M-C-S-Right>','zR',                           { desc = 'Open ALL folded segments' })
 --
 -- neo-tree support
 --
@@ -166,3 +198,58 @@ map("n", "<C-k>", "<cmd>TmuxNavigateUp<CR>", { noremap = true })
 map("n", "<C-l>", "<cmd>TmuxNavigateRight<CR>", { noremap = true })
 
 
+--[[
+                    +----------------------+----------------------+----------------------+----------------------+
+                    |                                         Function Keys                                     |
+                    |                                          KEY CODES                                        |
+                    |                     Use the following codes in neovim's MAP command                       |
+                    |           Function Keys Recognized by Neovim on MacOS Keyboards, including external.      |
+                    |           NOTE: C-F8 and F11 must be disabled in System Prefs (See Mac in Notes App)      |
+                    +----------------------+----------------------+----------------------+----------------------+
+Shift-Ctrl-Alt-Key: |           <M-C-S-F1> |           <M-C-S-F2> |           <M-C-S-F3> |           <M-C-S-F4> | 
+Ctrl-Alt-Key:       |           <M-C-F1>   |           <M-C-F2>   |           <M-C-F3>   |           <M-C-F4>   |
+Shift-Alt-Key:      |           <M-S-F1>   |           <M-S-F2>   |           <M-S-F3>   |           <M-S-F4>   |
+Shift-Ctrl-Key:     |           <C-S-F1>   |           <C-S-F2>   |           <C-S-F3>   |           <C-S-F4>   |
+Alt-Key:            |           <M-F1>     |           <M-F2>     |           <M-F3>     |           <M-F4>     |
+Ctrl-Key:           |           <C-F1>     |           <C-F2>     |           <C-F3>     |           <C-F4>     |
+Shift-Key:          |           <S-F1>     |           <S-F2>     |           <S-F3>     |           <S-F4>     |
+Function Key:       |           <F1>       |           <F2>       |           <F3>       |           <F4>       |
+                    +----------------------+----------------------+----------------------+----------------------+
+Shift-Ctrl-Alt-Key: |           <M-C-S-F5> |           <M-C-S-F6> |           <M-C-S-F7> |           <M-C-S-F8> |
+Ctrl-Alt-Key:       |           <M-C-F5>   |           <M-C-F6>   |           <M-C-F7>   |           <M-C-F8>   |
+Shift-Alt-Key:      |           <M-S-F5>   |           <M-S-F6>   |           <M-S-F7>   |           <M-S-F8>   |
+Shift-Ctrl-Key:     |           <F41>      |           <F42>      |           <F43>      |           <F44>      |
+Alt-Key:            |           <F53>      |           <F54>      |           <F55>      |           <F56>      |
+Ctrl-Key:           |           <F29>      |           <F30>      |           <F31>      |           <F32>      |
+Shift-Key:          |           <F17>      |           <F18>      |           <F19>      |           <F20>      |
+Function Key:       |           <F5>       |           <F6>       |           <F7>       |           <F8>       |
+                    +----------------------+----------------------+----------------------+----------------------+
+Shift-Ctrl-Alt-Key: |           <M-C-S-F9> |           <M-C-S-F10>|           <M-C-S-F11>|           <M-C-S-F12>|
+Ctrl-Alt-Key:       |           <M-C-F9>   |           <M-C-F10>  |           <M-C-F11>  |           <M-C-F12>  |
+Shift-Alt-Key:      |           <M-S-F9>   |           <M-S-F10>  |           <M-S-F11>  |           <M-S-F12>  |
+Shift-Ctrl-Key:     |           <F45>      |           <F46>      |           <F47>      |           <F48>      |
+Alt-Key:            |           <F57>      |           <F58>      |           <F59>      |           <F60>      |
+Ctrl-Key:           |           <F33>      |           <F34>      |           <F35>      |           <F36>      |
+Shift-Key:          |           <F21>      |           <F22>      |           <F23>      |           <F24>      |
+Function Key:       |           <F9>       |           <F10>      |           <F11>      |           <F12>      |
+                    +----------------------+----------------------+----------------------+----------------------+
+
+                                           +----------------------+
+Shift-Ctrl-Alt-Key:                        |            <M-C-S-Up>|
+Ctrl-Alt-Key:                              |            <M-C-Up>  |
+Shift-Alt-Key:                             |            <M-S-Up>  |
+Shift-Ctrl-Key:                            |            <C-S-Up>  |
+Alt-Key:                                   |            <M-Up>    |
+Ctrl-Key:                                  |            <C-Up>    |
+Shift-Key:                                 |            <S-Up>    |
+                    +----------------------+----------------------+----------------------+
+Shift-Ctrl-Alt-Key: |          <M-C-S-Left>|          <M-C-S-Down>|         <M-C-S-Right>|
+Ctrl-Alt-Key:       |          <M-C-Left>  |          <M-C-Down>  |         <M-C-Right>  |
+Shift-Alt-Key:      |          <M-S-Left>  |          <M-S-Down>  |         <M-S-Right>  |
+Shift-Ctrl-Key:     |          <C-S-Left>  |          <C-S-Down>  |         <C-S-Right>  |
+Alt-Key:            |          <M-Left>    |          <M-Down>    |         <M-Right>    |
+Ctrl-Key:           |          <C-Left>    |          <C-Down>    |         <C-Right>    |
+Shift-Key:          |          <S-Left>    |          <S-Down>    |         <S-Right>    |
+                    +----------------------+----------------------+----------------------+
+
+--]]
