@@ -2,15 +2,19 @@
 #
 # newlist.sh
 # Doug Murray
-# 1991-2024
+# 1991-2025
 #
 
 #
 # newlist.sh
 # Common file usable with bash or zsh
 #
-# Manage environment variables as lists rather than
-# lengthy text strings which are difficult to read.
+# Manage environment variables by presenting them
+# as lists rather than lengthy text strings which
+# are difficult to read. But rather than define a
+# set of commands to manage PATH, LD_LIBRARY_PATH
+# and others, these commands create some commands
+# for you.
 #
 # Usage:
 #       source this file, then afterwards in the
