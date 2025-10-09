@@ -7,7 +7,24 @@
 
 #
 # newlist.sh
-# Common file usable with bash or zsh
+# List Management for bash or zsh
+#
+# Instructions for the impatient:
+#   1. Rename and place this file under your home
+#      directory on your UNIX-like system:
+#          mv newlist.sh ~/.newlist.sh
+#   2. Edit your .bashrc or .zshrc files and add
+#      the following lines:
+#          source ~/.newlist.sh
+#          newlist path PATH
+#          newlist ca   EPICS_CA_ADDR_LIST -s' ' -e
+#   3. Run those commands, using ONE of the following
+#      methods:
+#        a: Logout and login again
+#        b: type 'source .bashrc' or 'source .zshrc'
+#        c: type the three commands in step 2 manually
+#
+# Details for the curious:
 #
 # Manage environment variables by presenting them
 # as lists rather than lengthy text strings which
