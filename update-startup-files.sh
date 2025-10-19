@@ -1,43 +1,48 @@
 #!/bin/bash
 
 declare -a allFiles=( \
-        dot-bash-profile                        ~/.bash_profile \
-        config-bash-bashrc                      ~/.config/shells/bashrc \
-        config-bash-git.bash                    ~/.config/shells/git.bash \
-        config-bash-dirs.bash                   ~/.config/shells/dirs.bash \
-        config-bash-colors.bash                 ~/.config/shells/colors.bash \
-        config-bash-prompt.bash                 ~/.config/shells/prompt.bash \
-        config-bash-prompt-ZSH.bash             ~/.config/shells/prompt-ZSH.bash \
-        config-bash-colorTable                  ~/.config/shells/colorTable \
+        dot-bash-profile                                ~/.bash_profile \
+        config-bash-bashrc                              ~/.config/shells/bashrc \
+        config-bash-git.bash                            ~/.config/shells/git.bash \
+        config-bash-dirs.bash                           ~/.config/shells/dirs.bash \
+        config-bash-colors.bash                         ~/.config/shells/colors.bash \
+        config-bash-prompt.bash                         ~/.config/shells/prompt.bash \
+        config-bash-prompt-ZSH.bash                     ~/.config/shells/prompt-ZSH.bash \
+        config-bash-colorTable                          ~/.config/shells/colorTable \
          \
-        dot-zshenv                              ~/.zshenv \
-        config-zsh-zshrc                        ~/.config/shells/.zshrc \
-        config-zsh-zshrc-single                 ~/.config/shells/.zshrc-single \
-        config-zsh-zlogout                      ~/.config/shells/.zlogout \
-        config-zsh-dirs.zsh                     ~/.config/shells/dirs.zsh \
+        dot-zshenv                                      ~/.zshenv \
+        config-zsh-zshrc                                ~/.config/shells/.zshrc \
+        config-zsh-zshrc-single                         ~/.config/shells/.zshrc-single \
+        config-zsh-zlogout                              ~/.config/shells/.zlogout \
+        config-zsh-dirs.zsh                             ~/.config/shells/dirs.zsh \
          \
-        config-common-newlist.sh                ~/.config/shells/newlist.sh \
-        config-common-hostSpecificSetup.sh      ~/.config/shells/hostSpecificSetup.sh \
+        config-common-newlist.sh                        ~/.config/shells/newlist.sh \
+        config-common-hostSpecificSetup.sh              ~/.config/shells/hostSpecificSetup.sh \
          \
-        config-vim-vimrc                        ~/.config/vim/vimrc \
-        config-vim-gvimrc                       ~/.config/vim/gvimrc \
-        config-vim-colors-aurora.vim            ~/.config/vim/colors/aurora.vim \
+        config-vim-vimrc                                ~/.config/vim/vimrc \
+        config-vim-gvimrc                               ~/.config/vim/gvimrc \
+        config-vim-colors-aurora.vim                    ~/.config/vim/colors/aurora.vim \
          \
-        config-nvim-dot-clang-tidy              ~/.clang-tidy \
-        config-nvim-init.vim                    ~/.config/nvim/init.vim \
-        config-nvim-lua-init.lua                ~/.config/nvim/lua/init.lua \
-        config-nvim-lua-options.lua             ~/.config/nvim/lua/options.lua \
-        config-nvim-lua-keymaps.lua             ~/.config/nvim/lua/keymaps.lua \
-        config-nvim-lua-functions.lua           ~/.config/nvim/lua/functions.lua \
-        config-nvim-lua-vim-settings.lua        ~/.config/nvim/lua/vim-settings.lua \
-        config-nvim-colors-aurora.vim           ~/.config/nvim/colors/aurora.vim \
-        config-nvim-lua-plugins-diags.lua       ~/.config/nvim/lua/plugins/diags.lua \
-        config-nvim-lua-plugins-lualine.lua     ~/.config/nvim/lua/plugins/lualine.lua \
-        config-nvim-lua-plugins-neotree.lua     ~/.config/nvim/lua/plugins/neotree.lua \
-        config-nvim-lua-plugins-telescope.lua   ~/.config/nvim/lua/plugins/telescope.lua \
-        config-nvim-lua-plugins-treesitter.lua  ~/.config/nvim/lua/plugins/treesitter.lua \
-        config-nvim-lua-plugins-completion.lua  ~/.config/nvim/lua/plugins/completion.lua \
-        config-nvim-lua-plugins-lsp-config.lua  ~/.config/nvim/lua/plugins/lsp-config.lua \
+        config-nvim-init.vim                            ~/.config/nvim/init.vim \
+        config-nvim-dot-clang-tidy                      ~/.clang-tidy \
+        config-nvim-colors-aurora.vim                   ~/.config/nvim/colors/aurora.vim \
+         \
+        config-nvim-lua-init.lua                        ~/.config/nvim/lua/init.lua \
+        config-nvim-lua-options.lua                     ~/.config/nvim/lua/options.lua \
+        config-nvim-lua-keymaps.lua                     ~/.config/nvim/lua/keymaps.lua \
+        config-nvim-lua-functions.lua                   ~/.config/nvim/lua/functions.lua \
+        config-nvim-lua-vim-settings.lua                ~/.config/nvim/lua/vim-settings.lua \
+         \
+        config-nvim-lua-plugins-ufo.lua                 ~/.config/nvim/lua/plugins/ufo.lua \
+        config-nvim-lua-plugins-diags.lua               ~/.config/nvim/lua/plugins/diags.lua \
+        config-nvim-lua-plugins-aerial.lua              ~/.config/nvim/lua/plugins/aerial.lua \
+        config-nvim-lua-plugins-lualine.lua             ~/.config/nvim/lua/plugins/lualine.lua \
+        config-nvim-lua-plugins-neotree.lua             ~/.config/nvim/lua/plugins/neotree.lua \
+        config-nvim-lua-plugins-telescope.lua           ~/.config/nvim/lua/plugins/telescope.lua \
+        config-nvim-lua-plugins-treesitter.lua          ~/.config/nvim/lua/plugins/treesitter.lua \
+        config-nvim-lua-plugins-completion.lua          ~/.config/nvim/lua/plugins/completion.lua \
+        config-nvim-lua-plugins-lsp-config.lua          ~/.config/nvim/lua/plugins/lsp-config.lua \
+        config-nvim-lua-plugins-indent-blankline.lua    ~/.config/nvim/lua/plugins/indent-blankline.lua \
         )
 
 function updateFile
