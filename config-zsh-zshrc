@@ -181,17 +181,25 @@ function setupCommands
                                 unalias grep &>/dev/null
                         fi
 
-                        if [[ -d $HOME/.local/Homebrew ]];
+                        if [[ -d /home/linuxbrew/.linuxbrew/bin ]];
                         then
-                                if [[ -d $HOME/.local/bin ]];
+                                inspath -q /home/linuxbrew/.linuxbrew/bin
+                                export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+                                export HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar"
+                                export HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew"
+                        else
+                                if [[ -d $HOME/.local/Homebrew ]];
                                 then
-                                        inspath -q $HOME/.local/bin
-                                else
-                                        inspath -q $HOME/.local/Homebrew/bin
+                                        if [[ -d $HOME/.local/bin ]];
+                                        then
+                                                inspath -q $HOME/.local/bin
+                                        else
+                                                inspath -q $HOME/.local/Homebrew/bin
+                                        fi
+                                        export HOMEBREW_PREFIX="$HOME/.local/Homebrew"
+                                        export HOMEBREW_CELLAR="$HOME/.local/Homebrew/Cellar"
+                                        export HOMEBREW_REPOSITORY="$HOME/.local/Homebrew"
                                 fi
-                                export HOMEBREW_PREFIX="$HOME/.local/Homebrew"
-                                export HOMEBREW_CELLAR="$HOME/.local/Homebrew/Cellar"
-                                export HOMEBREW_REPOSITORY="$HOME/.local/Homebrew"
                         fi
 
                         ;;
