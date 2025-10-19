@@ -180,6 +180,20 @@ function setupCommands
                                 unalias ls   &>/dev/null
                                 unalias grep &>/dev/null
                         fi
+
+                        if [[ -d $HOME/.local/Homebrew ]];
+                        then
+                                if [[ -d $HOME/.local/bin ]];
+                                then
+                                        inspath -q $HOME/.local/bin
+                                else
+                                        inspath -q $HOME/.local/Homebrew/bin
+                                fi
+                                export HOMEBREW_PREFIX="$HOME/.local/Homebrew"
+                                export HOMEBREW_CELLAR="$HOME/.local/Homebrew/Cellar"
+                                export HOMEBREW_REPOSITORY="$HOME/.local/Homebrew"
+                        fi
+
                         ;;
                 "Darwin")
                         SYS_SPECIFIC="MacOS"
