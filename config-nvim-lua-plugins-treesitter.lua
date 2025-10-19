@@ -44,7 +44,6 @@ return
                                 "vim",
                                 "vimdoc",
                                 "yaml",
-                                "swift",
                                 },
                         textobjects =
                                 {

@@ -14,6 +14,17 @@ endif
 
 let g:colors_name="aurora"
 
+        hi      AerialFunctionIcon        guifg=yellow guibg=NONE guisp=NONE gui=NONE cterm=NONE
+        hi      AerialLineNC              guibg=Gray
+        hi      AerialGuide1              guifg=Red
+        hi      AerialGuide2              guifg=Blue
+        hi link AerialClass               Type
+        hi link AerialClassIcon           Function
+        hi link AerialFunction            VisualNOS
+        hi link AerialNormal              Normal
+        hi link AerialLine                Menu
+        hi link AerialGuide               Comment
+
 hi Normal          guifg=ivory            guibg=gray4
 
 hi Boolean         guifg=mediumspringgreen
@@ -27,7 +38,7 @@ hi Cursor                                 guibg=khaki
 hi   ChangesCursor                        guibg=red
 hi   CommandCursor                        guibg=hotpink
 hi CursorColumn                           guibg=gray25
-hi CursorLine                             guibg=gray15
+hi CursorLine      guifg=yellow           guibg=gray14
 hi CursorLineNr    guifg=greenyellow      guibg=gray15         gui=none
 hi Debug           guifg=maroon                                gui=bold
 hi Define          guifg=skyblue

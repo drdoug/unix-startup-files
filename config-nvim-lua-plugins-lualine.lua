@@ -3,7 +3,7 @@ return
         'nvim-lualine/lualine.nvim',
         dependencies =
                 {
-                'nvim-tree/nvim-web-devicons'
+                'nvim-tree/nvim-web-devicons',
                 },
 
         config = function()
@@ -137,7 +137,32 @@ return
                                         {
                                         { 'filetype', colored = false, icon = { align = 'left' }, },
                                         { bufferNumber, color = { fg = colors.White } },
+                                        -- { 'aerial' },
                                         { '%=' },
+                                        {
+                                        "aerial",
+                                        sep = " > ",
+                                        depth = nil,
+
+                                        fmt = function( str)
+                                                if not str or str == "" then
+                                                        return ""
+                                                end
+
+                                                local parts = {}
+                                                for part in string.gmatch( str, "[^>]+") do
+                                                        part = vim.trim( part)
+                                                        table.insert( parts, part)
+                                                end
+
+                                                local text = parts[#parts] or ""
+                                                -- local first = text:gsub( "::.*", "")
+                                                local last = text:gsub( "%w+::.", "")
+
+                                                -- return first .. " > " .. last
+                                                return last
+                                        end,
+                                        },
                                         {
                                         'diagnostics',
                                         sections =

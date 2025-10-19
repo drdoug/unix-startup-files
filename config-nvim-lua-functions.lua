@@ -98,12 +98,12 @@ function ListQFix()
         local qflist = vim.fn.getqflist()
 
         if #qflist == 0 then
-                print("Quickfix list is empty!")
+                print( "Quickfix list is empty!")
                 return
         end
 
         -- Categorize and print entries
-        for _, entry in ipairs(qflist) do
+        for _, entry in ipairs( qflist) do
                 local message = string.format(
                                 "[%s:%d:%d] %s",
                                 entry.filename or "N/A",
@@ -111,7 +111,7 @@ function ListQFix()
                                 entry.col or 0,
                                 entry.text or "No message"
                                 )
-                print(message)
+                print( message)
         end
 end
 
@@ -120,27 +120,7 @@ end
 -- filesystem listing for navigation
 --
 function ShowFilesystem()
-        -- return ":Neotree action=focus source=filesystem position=float toggle=true dir=. reveal=true<CR>"
-        local neotree = require('neo-tree')
-
-        neotree.setup(
-                {
-                sources = { "filesystem" }, -- Ensure filesystem is enabled
-                window =
-                        {
-                        position = "float",
-                        popup =
-                                {
-                                size =
-                                        {
-                                        height = 0.6, -- 80% of the height of the editor
-                                        width = 0.5, -- 80% of the width of the editor
-                                        },
-                                border = "rounded", -- Rounded border for the popup
-                                },
-                        },
-                })
-        vim.cmd( "Neotree float filesystem")
+        vim.cmd( "Neotree filesystem toggle")
 end
 
 function ToggleFoldPreview()
@@ -159,9 +139,9 @@ function ToggleCodeCompletion()
         vim.b.completion = not vim.b.completion
 
         if vim.b.completion then
-                print("Code Completion: enabled")
+                print( "Code Completion: enabled")
         else
-                print("Code Completion: disabled")
+                print( "Code Completion: disabled")
         end
 end
 
@@ -190,7 +170,7 @@ function ToggleClangTidy()
 
         vim.lsp.stop_client( vim.lsp.get_active_clients( { name = "clangd" }), true)
 
-        require('lspconfig').clangd.setup(
+        require( 'lspconfig').clangd.setup(
                 {
                 cmd = new_cmd,
                 -- on_attach = function( client, bufnr)
@@ -199,7 +179,7 @@ function ToggleClangTidy()
                 -- capabilities = require( 'cmp_nvim_lsp').default_capabilities()
                 })
 
-        vim.cmd("edit")  -- reload the buffer to trigger clangd restart
-        print("Clang-Tidy " .. ( clangd_enabled and "enabled" or "disabled"))
+        vim.cmd( "edit")  -- reload the buffer to trigger clangd restart
+        print( "Clang-Tidy " .. ( clangd_enabled and "enabled" or "disabled"))
 end
 
