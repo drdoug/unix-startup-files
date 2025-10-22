@@ -1482,287 +1482,331 @@ function _commonPrompt
         }
 
 #
-# some help to select
-# a preset prompt format
+# create some
+# predefined prompts
 #
+CHOSEN_PROMPT_COLORS='green'
+CHOSEN_PROMPT_LAYOUT='silent'
+
+typeset -A _promptColorChoices
+_promptColorChoices=(
+        'blue'          'blue prompt elements'
+        'green'         'green prompt elements'
+        'brown'         'brown prompt elements'
+        'purple'        'purple prompt elements'
+        'yellow'        'yellow prompt elements'
+        'grey'          'grey prompt elements'
+        'red'           'red prompt elements'
+        'white'         'white prompt elements'
+        )
+
+typeset -A _promptLayoutChoices
+_promptLayoutChoices=(
+        'loud'          ' user@host par/dir 999>     <err l git  Wed Dec 31 12:59 PM'
+        'large'         'user@host par/dir 999>       <err l git  Wed Dec 31 12:59 PM'
+        'mild'          'host par/dir 999>                           <l git  12:59 PM'
+        'soft'          'par/dir 999>                                            <git '
+        'quiet'         'host par/dir 999>'
+        'silent'        'host 999>'
+        )
+
 function presetPromptHelp
         {
         #
-        # these messages correspond to the numeric
-        # options in the case statement of the 'p'
-        # function below.  Specifically, the first
-        # prompt refers to case 1) and so forth.
+        # These are arguments to the 'p' command below, and
+        # they are printed in no particular order along with
+        # their help strings. Color and Style (Layout).
         #
-        typeset -A promptOptions
-        promptOptions=(
-                'mild' 'simple prompt; username and history number'
-                'soft'  'color prompt; username, host, directory and history number'
-                'light'     'color prompt for light windows with right side indicators and git details'
-                'faint'     'color prompt with right side indicators and version control info'
-                'tiny'     'vivid simple prompt'
-                'small'     'vivid but terse prompt with right side git details and time'
-                'min'     'vivid prompt with right side time indicators and git details'
-                'beige'     'vivid prompt with brown-ish right side time indicators and version control info'
-                'large' 'vivid blue prompt with green right side indicators, version control info, date and time'
-                'grey' 'vivid grey prompt with no right side indicators, version control info'
-                'sharp' 'vivid prompt; blue left and right side with arrows with date and time'
-                'loud'  'vivid prompt; blue left and right side with time'
-                )
+        printf "%s\n"   "p: select a color and/or style for command line prompts"
+        printf "%s\n"   "   for example: 'p green mild' or 'p loud blue'"
+        printf "%s\n\n" "                'p yellow'     or 'p large'"
 
-        printf "%s\n\n" "p: select a preset format for command line prompts:"
-
-        for key in "${(@k)promptOptions}";
+        printf "%s:\n"  "colors"
+        for key in "${(@k)_promptColorChoices}";
         do
                 txt=' '
-                if [[ $CHOSEN_PRESET_PROMPT == $key ]];
+                if [[ $CHOSEN_PROMPT_COLORS == $key ]];
                 then
                         txt='>'
                 fi
-                printf "%-9.9s %s %s\n" "p $key"  "${txt}" "$promptOptions[$key]"
+                printf "%-9.9s %s %s\n" "p $key"  "${txt}" "$_promptColorChoices[$key]"
+        done
+
+        printf "\n"
+        printf "%s:\n"  "styles"
+        for key in "${(@k)_promptLayoutChoices}";
+        do
+                txt=' '
+                if [[ $CHOSEN_PROMPT_LAYOUT == $key ]];
+                then
+                        txt='>'
+                fi
+                printf "%-9.9s %s %s\n" "p $key"  "${txt}" "$_promptLayoutChoices[$key]"
         done
         printf "%s\n" ""
-        printf "%s\n" "p -h - display this message"
         printf "%s\n" "Use 'prompt' to adjust prompt details."
         printf "%s\n" " Currently:"
         printf "%s\n" "         L:  ${pstr}"
         printf "%s\n" "         R:  ${rpstr}"
         }
 
-#
-# create some
-# predefined prompts
-#
-CHOSEN_PRESET_PROMPT='mild'
 function p
         {
 
-        if [[ $# -eq 0 || $1 == '-h' ]];
+        #
+        # 1 or 2 arguments will work
+        #
+        if [[ $# -eq 0 || $# -gt 2 || $1 == '-h' ]];
         then
                 presetPromptHelp
+                if [[ $# -gt 2 ]];
+                then
+                        return 1
+                fi
                 return 0
         fi
 
-        prevChoice=${CHOSEN_PRESET_PROMPT}
-        CHOSEN_PRESET_PROMPT=$1
-        case $1 in
-        "loud")
+        prevColors=${CHOSEN_PROMPT_COLORS}
+        prevLayout=${CHOSEN_PROMPT_LAYOUT}
+
+        unset CHOSEN_PROMPT_COLORS
+        unset CHOSEN_PROMPT_LAYOUT
+
+        if [[ -v _promptColorChoices["$1"] ]];
+        then
+                CHOSEN_PROMPT_COLORS="$1"
+        else
+                if [[ -v _promptLayoutChoices["$1"] ]];
+                then
+                        CHOSEN_PROMPT_LAYOUT="$1"
+                else
+                        printf "%s\n\n" "The option '$1' is NOT RECOGNIZED as a color OR a style."
+                        presetPromptHelp
+                        CHOSEN_PROMPT_COLORS=${prevColors}
+                        CHOSEN_PROMPT_LAYOUT=${prevLayout}
+                        return 1
+                fi
+        fi
+
+        #
+        # At this point, either a color
+        # or a layout has been recognized
+        #
+        if [[ $# -eq 2 ]];
+        then
+                if [[ -n $CHOSEN_PROMPT_COLORS && -v _promptLayoutChoices["$2"] ]];
+                then
+                        CHOSEN_PROMPT_LAYOUT="$2"
+                else
+                        if [[ -n $CHOSEN_PROMPT_LAYOUT && -v _promptColorChoices[$2] ]];
+                        then
+                                CHOSEN_PROMPT_COLORS="$2"
+                        else
+                                if [[ -n $CHOSEN_PROMPT_COLORS ]];
+                                then
+                                        printf "%s\n\n" "The style '$2' is NOT RECOGNIZED."
+                                else
+                                        printf "%s\n\n" "The color '$2' is NOT RECOGNIZED."
+                                fi
+                                CHOSEN_PROMPT_COLORS=${prevColors}
+                                CHOSEN_PROMPT_LAYOUT=${prevLayout}
+                                presetPromptHelp
+                                return 1
+                        fi
+
+                fi
+        else
                 #
-                # user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] time
+                # only one of color or style supplied,
+                # so restore the unspecified option
                 #
-                pstr=''
-                pstr+='Grey66 Blue3 user @ White host sp '
-                pstr+='> Black Black > '
-                pstr+='B White DodgerBlue sp dir2 sp '
-                pstr+='> Black Black > '
-                pstr+='B Black SkyBlue2 sp hist sp '
-                pstr+='White Maroon id sp '
+                if [[ -n $CHOSEN_PROMPT_COLORS ]];
+                then
+                        CHOSEN_PROMPT_LAYOUT=${prevLayout}
+                else
+                        CHOSEN_PROMPT_COLORS=${prevColors}
+                fi
+        fi
+
+        case $CHOSEN_PROMPT_COLORS in
+                # Foreground (...._F) and Background (..._B)
+        'blue' )
+                _P_DARK_F=White;          _P_DARK_B=Blue3
+                _P_MEDIUM_F=White;        _P_MEDIUM_B=DodgerBlue2
+                _P_LIGHT_F=White;         _P_LIGHT_B=CornflowerBlue
+                ;;
+        'green' )
+                _P_DARK_F=White;          _P_DARK_B=DarkGreen
+                _P_MEDIUM_F=White;        _P_MEDIUM_B=Green4
+                _P_LIGHT_F=Black;         _P_LIGHT_B=Green1
+                ;;
+        'brown' )
+                _P_DARK_F=White;          _P_DARK_B=Orange3
+                _P_MEDIUM_F=White;        _P_MEDIUM_B=DarkOrange1
+                _P_LIGHT_F=Black;         _P_LIGHT_B=Orange
+                ;;
+        'purple' )
+                _P_DARK_F=White;          _P_DARK_B=Purple1
+                _P_MEDIUM_F=White;        _P_MEDIUM_B=SlateBlue
+                _P_LIGHT_F=Black;         _P_LIGHT_B=MediumPurple
+                ;;
+        'yellow' )
+                _P_DARK_F=Black;          _P_DARK_B=Yellow4
+                _P_MEDIUM_F=Black;        _P_MEDIUM_B=Yellow2
+                _P_LIGHT_F=Black;         _P_LIGHT_B=Yellow
+                ;;
+        'grey' )
+                _P_DARK_F=White;          _P_DARK_B=Grey23
+                _P_MEDIUM_F=White;        _P_MEDIUM_B=Grey35
+                _P_LIGHT_F=Black;         _P_LIGHT_B=Grey46
+                ;;
+        'red' )
+                _P_DARK_F=White;          _P_DARK_B=DarkRed1
+                _P_MEDIUM_F=White;        _P_MEDIUM_B=Red2
+                _P_LIGHT_F=White;         _P_LIGHT_B=Red3
+                ;;
+        'white' )
+                _P_DARK_F=Black;          _P_DARK_B=Silver
+                _P_MEDIUM_F=Black;        _P_MEDIUM_B=Grey93
+                _P_LIGHT_F=Black;         _P_LIGHT_B=Grey82
+                ;;
+        *)
+                #
+                # This "cannot happen" since the color has been checked above
+                #
+                CHOSEN_PROMPT_COLORS=${prevColors}
+                CHOSEN_PROMPT_LAYOUT=${prevLayout}
+                printf "%s\n" "Software error: Associative Color Array problem."
+                return 1
+                ;;
+        esac
+
+        case $CHOSEN_PROMPT_LAYOUT in
+        'loud' )
+                #
+                # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
+                #
+                pstr=""
+                pstr+="${_P_LIGHT_B} Black sp os sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_DARK_F} ${_P_DARK_B} sp user @ host sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_MEDIUM_F} ${_P_MEDIUM_B} sp dir2 sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_LIGHT_F} ${_P_LIGHT_B} sp hist sp "
+                pstr+="White Maroon sp id sp"
                 prompt -p
 
-                rpstr=''
-                rpstr+='Black PaleGreen1 sp vi sp '
-                rpstr+='< Black Black < '
-                rpstr+='White DarkRed sp Ret sp '
-                rpstr+='Black Orange sp lock sp '
-                rpstr+='B White DarkGreen sp vcs sp gito sp '
-                rpstr+='< Black Black < '
-                rpstr+='B Black SpringGreen3 sp time sp '
-                rpstr+='< Black Black < '
+                rpstr=""
+                rpstr+="Black Gold sp vi sp "
+                rpstr+="White Maroon sp Ret sp "
+                rpstr+="Orange Black sp lock sp "
+                rpstr+="B ${_P_LIGHT_F} ${_P_LIGHT_B} sp vcs sp gito sp "
+                rpstr+="< Black Black < "
+                rpstr+="${_P_MEDIUM_F} ${_P_MEDIUM_B} sp date sp "
+                rpstr+="< Black Black < "
+                rpstr+="${_P_DARK_F} ${_P_DARK_B} sp time sp "
                 rprompt -p
                 ;;
-        "grey")
-                #
-                # user parent/dir histnum [GIT][rootIcon]
-                #
-                pstr=''
-                pstr+='White Grey15 user sp '
-                pstr+='> Black Black > '
-                pstr+='B Green1 Grey23 sp vcs sp gito sp '
-                pstr+='B White Grey35 sp dir2 sp '
-                pstr+='> Black Black > '
-                pstr+='B White Grey46 sp hist sp '
-                pstr+='White Maroon sp id sp '
-                prompt -p
-                rprompt -
-                ;;
-        "sharp")
+        'large' )
                 #
                 # user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
                 #
-                pstr=''
-                pstr+='Grey66 Blue3 user @ White host sp '
-                pstr+='> Grey85 DodgerBlue > B White Blue3 dir2 '
-                pstr+='> Grey85 DodgerBlue > White Blue3 hist '
-                pstr+='> Grey85 DodgerBlue '
-                pstr+='White DodgerBlue sp id sp'
+                pstr=""
+                pstr+="B ${_P_DARK_F} ${_P_DARK_B} sp user @ host sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_MEDIUM_F} ${_P_MEDIUM_B} sp dir2 sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_LIGHT_F} ${_P_LIGHT_B} sp hist sp "
+                pstr+="White Maroon sp id sp"
                 prompt -p
 
-                rpstr=''
-                rpstr+='< Black DodgerBlue < '
-                rpstr+='B Gold Blue2 vi '
-                rpstr+='B DarkOrange Blue2 Ret '
-                rpstr+='B Orange Blue2 lock '
-                rpstr+='B White Blue2 vcs gito '
-                rpstr+='Grey78 Blue2 date '
-                rpstr+='< Black DodgerBlue < '
-                rpstr+='White Blue2 time '
+                rpstr=""
+                rpstr+="Black Gold sp vi sp "
+                rpstr+="White Maroon sp Ret sp "
+                rpstr+="Orange Black sp lock sp "
+                rpstr+="B ${_P_LIGHT_F} ${_P_LIGHT_B} sp vcs sp gito sp "
+                rpstr+="< Black Black < "
+                rpstr+="${_P_MEDIUM_F} ${_P_MEDIUM_B} sp date sp "
+                rpstr+="< Black Black < "
+                rpstr+="${_P_DARK_F} ${_P_DARK_B} sp time sp "
                 rprompt -p
                 ;;
-        "large")
+        'mild' )
                 #
-                # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
+                # host parent/dir histnum [rootIcon]            [lock][GIT] time
                 #
-                pstr=''
-                pstr+='White Black sp os sp '
-                pstr+=') B White Blue3 sp user Grey70 @ host sp '
-                pstr+='~ B White DodgerBlue sp dir2 sp '
-                pstr+='> B Black Turquoise sp hist sp '
-                pstr+='White Maroon sp id sp'
+                pstr=""
+                pstr+="${_P_DARK_F} ${_P_DARK_B} host sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_MEDIUM_F} ${_P_MEDIUM_B} sp dir2 sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_LIGHT_F} ${_P_LIGHT_B} sp hist sp "
+                pstr+="White Maroon sp id sp "
                 prompt -p
 
-                rpstr=''
-                rpstr+='Black Gold sp vi sp '
-                rpstr+='White Maroon sp Ret sp '
-                rpstr+='Black Orange sp lock sp '
-                rpstr+='B White DarkGreen vcs sp gito sp '
-                rpstr+='Black SeaGreen2 sp date sp '
-                rpstr+='Black DarkSeaGreen2 sp time sp '
+                rpstr=""
+                rpstr+="Orange Black sp lock sp "
+                rpstr+="B ${_P_LIGHT_F} ${_P_LIGHT_B} sp vcs sp gito sp "
+                rpstr+="< Black Black < "
+                rpstr+="${_P_DARK_F} ${_P_DARK_B} sp time sp "
                 rprompt -p
                 ;;
-        "beige")
+        'soft' )
                 #
-                # OSicon user@sys parent/dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] date time
+                # parent/dir histnum [rootIcon]                 [GIT]
                 #
-                pstr=''
-                pstr+='White Black sp os sp '
-                pstr+='B White Orange3 sp user Cornsilk @ host sp '
-                pstr+='B White Yellow5 sp dir2 sp '
-                pstr+='B Black DarkGoldenrod sp hist sp '
-                pstr+='White Maroon sp id sp'
+                pstr=""
+                pstr+="B ${_P_DARK_F} ${_P_DARK_B} sp dir2 sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_MEDIUM_F} ${_P_MEDIUM_B} sp hist sp "
+                pstr+="White Maroon sp id sp "
                 prompt -p
 
-                rpstr=''
-                rpstr+='Black Gold sp vi sp '
-                rpstr+='White Maroon sp Ret sp '
-                rpstr+='Black DarkRed sp lock sp '
-                rpstr+='< B Black Khaki vcs sp gito sp '
-                rpstr+='( Black LightGoldenrod2 sp date sp '
-                rpstr+='White Orange2 sp time sp '
+                rpstr=""
+                rpstr+="< B ${_P_MEDIUM_F} ${_P_MEDIUM_B} sp vcs sp gito sp "
                 rprompt -p
                 ;;
-        "min")
+        'quiet' )
                 #
-                # sys dir histnum [rootIcon]         [viIcon][retCode][lock][GIT] time
+                # host parent/dir histnum [rootIcon]
                 #
-                pstr=''
-                pstr+='B White Blue3 sp host sp '
-                pstr+='~ B White DodgerBlue sp dir sp '
-                pstr+='> B Black Turquoise sp hist sp '
-                pstr+='White Red sp id sp'
+                pstr=""
+                pstr+="${_P_DARK_F} ${_P_DARK_B} host sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_MEDIUM_F} ${_P_MEDIUM_B} sp dir sp "
+                pstr+="> Black Black > "
+                pstr+="B ${_P_LIGHT_F} ${_P_LIGHT_B} sp hist sp "
+                pstr+="White Maroon sp id sp "
                 prompt -p
-
-                rpstr=''
-                rpstr+='Black Gold sp vi sp '
-                rpstr+='White Maroon sp Ret sp '
-                rpstr+='Black Orange sp lock sp '
-                rpstr+='B White DarkGreen vcs sp gito sp '
-                rpstr+='Black DarkSeaGreen2 sp time sp '
-                rprompt -p
-                ;;
-        "small")
-                #
-                # dir histnum [rootIcon]         [retCode][lock][GIT] time
-                #
-                pstr=''
-                pstr+='B White DarkGreen sp dir sp '
-                pstr+='> Black Black > '
-                pstr+='B Black Green2 sp hist sp '
-                pstr+='White Maroon sp id sp '
-                prompt -p
-
-                rpstr=''
-                rpstr+='White DarkRed sp Ret sp '
-                rpstr+='Black Orange sp lock sp '
-                rpstr+='< Black Black < '
-                rpstr+='B White DarkGreen sp vcs sp gito sp '
-                rpstr+='< Black Black < '
-                rpstr+='B Black SpringGreen3 sp time sp '
-                rpstr+='< Black Black < '
-                rprompt -p
-                ;;
-        "tiny")
-                #
-                # user histnum [rootIcon]
-                #
-                prompt 'White Blue3 sp user sp dir sp hist sp White Maroon sp id sp'
                 rprompt -
                 ;;
-        "faint")
+        'silent' )
                 #
-                # for Dark Screen
-                # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
+                # host histnum
                 #
-                prompt 'B DodgerBlue user @ host CornflowerBlue sp dir2 SkyBlue sp White hist .'
-
-                rpstr=''
-                rpstr+='Gold sp vi sp '
-                rpstr+='Maroon sp Ret sp '
-                rpstr+='SandyBrown sp lock sp '
-                rpstr+='LightSkyBlue vcs sp gito sp '
-                rpstr+='DodgerBlue sp date sp '
-                rpstr+='SkyBlue sp time sp '
-                rprompt -p
-                ;;
-        "light")
-                #
-                # for Light Screen
-                # user@sys parent/dir histnum rootSym         [viIcon] [retCode] [lock] [VCS] date time
-                #
-                pstr=''
-                pstr+='Blue3 user Navy @ host '
-                pstr+='sp Black dir2 '
-                pstr+='sp Purple4 hist .'
-                prompt -p
-
-                rpstr=''
-                rpstr+='Gold sp vi sp '
-                rpstr+='Maroon sp Ret sp '
-                rpstr+='Orange sp lock sp '
-                rpstr+='Purple4 sp vcs sp gito sp '
-                rpstr+='Maroon sp date sp '
-                rpstr+='Blue3 sp time sp '
-                rprompt -p
-                ;;
-        "0"|"soft")
-                #
-                # user@sys time histnum rootSym
-                #
-                prompt 'B DodgerBlue user @ host sp SkyBlue time sp White hist .'
-                rprompt -
-                ;;
-        "mild")
-                #
-                # user@sys histnum rootSym
-                #
-                prompt 'White user sp hist .'
+                prompt "${_P_LIGHT_B} host sp hist ."
                 rprompt -
                 ;;
         *)
                 #
-                # false alarm - reset the preset prompt choice
+                # This "cannot happen" since the color has been checked above
                 #
-                CHOSEN_PRESET_PROMPT=${prevChoice}
-                echo "Unrecognized prompt: '$1'"
-                echo ""
-                presetPromptHelp
-                return 0
+                CHOSEN_PROMPT_COLORS=${prevColors}
+                CHOSEN_PROMPT_LAYOUT=${prevLayout}
+                printf "%s\n" "Software error: Associative Layout Array problem."
+                return 1
                 ;;
         esac
+
         }
+
 #
 # start with a simple colored prompt and check for warp terminal
 #
 
-p ${CHOSEN_PRESET_PROMPT}
+p ${CHOSEN_PROMPT_COLORS} ${CHOSEN_PROMPT_LAYOUT}
+
 if [[ $TERM_PROGRAM = "WarpTerminal" ]];
 then
         PROMPT="${PROMPT}"$'\n'
