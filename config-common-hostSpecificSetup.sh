@@ -289,7 +289,7 @@ function hostSpecificSetup
                         inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
                         addpath -q ~/.local/bin
                         umask 2
-                        checkForKubernetes
+                        # checkForKubernetes
                         ;;
                 nx* )
                         alias gtgray="gnome-terminal --profile='DougM Gray'"
@@ -324,7 +324,7 @@ function hostSpecificSetup
                         fi
                         inspath -q "${EPICS_BASE}/bin/${EPICS_HOST_ARCH}"
                         umask 2
-                        checkForKubernetes
+                        # checkForKubernetes
                         ;;
                 "lcls-dev3" )
                         _CommonSLACSettings
