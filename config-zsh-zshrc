@@ -323,6 +323,14 @@ function setupCommands
         }
 
 #
+# bring job n to the foreground
+#
+function f
+        {
+        fg %"$1"
+        }
+
+#
 # print a list of defined functions
 #
 function showFunctions
@@ -1831,7 +1839,11 @@ _checkAndRead "${_STARTUP_DIR}"/hostSpecificSetup.sh
 #
 # Set up host-specific environment variables
 #
-hostSpecificSetup
+if typeset -f hostSpecificSetup>/dev/null;
+then
+        hostSpecificSetup
+fi
+
 findVim
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
