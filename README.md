@@ -1,5 +1,6 @@
 # unix-startup-files
-Here are some common files used when logging into a UNIX-based system such as MacOS, Linux or others.
+
+These are some common files used when logging into a UNIX-based system such as MacOS, Linux or others.
 It includes support for **zsh**, **bash**, and various flavours of **vim** (**gvim**, **macvim**, **neovim**, etc.)
 
 A small bash script named ***update-startup-files.sh*** will check if the installed files are in sync with these.
