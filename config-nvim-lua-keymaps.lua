@@ -11,7 +11,7 @@
               M SF: |                      |                      |                      |                      |
                CSF: |                      |                      |                      |                      |
               M  F: |                      |Toggle Static Analysis|                      |                      |
-               C F: |help                  |make distclean        |                      |                      |
+               C F: |Key Reference         |make distclean        |                      |                      |
                 SF: |Close Current Window  |make install          |                      |Alt File Differences  |
                  F: |Close All but CurWin  |make                  |Alt File Split Below  |Alt File Split Right  |
 Function Key:       |           <F1>       |           <F2>       |           <F3>       |           <F4>       |
@@ -21,7 +21,7 @@ Function Key:       |           <F1>       |           <F2>       |           <F
               M SF: |                      |                      |                      |                      |
                CSF: |                      |                      |                      |                      |
               M  F: |Find all References   |                      |                      |Use Suggested Fix     |
-               C F: |   Start Live Grep    |Show "make" prompt    |Goto Definition       |Goto Declaration      |
+               C F: |   Start Live Grep    |Show "make" prompt    |Goto Declaration      |Goto Definition       |
                 SF: |Prompt for grep word  |Current Message       |Goto Previous Function|Goto Next Function    |
                  F: |Grep for *cursor      |List Messages         |Goto Previous Mesg/Err|Goto Next Mesg/Err    |
 Function Key:       |           <F5>       |           <F6>       |           <F7>       |           <F8>       |
@@ -31,9 +31,9 @@ Function Key:       |           <F5>       |           <F6>       |           <F
               M SF: |                      |                      |                      |                      |
                CSF: |                      |                      |                      |                      |
               M  F: |                      |Toggle Fold Preview   |                      |                      |
-               C F: |                      |Toggle Completion     |                      |   Plugin Manager     |
-                SF: |Alternate File Split  |Toggle Side Columns   |Quit this Buffer      |                      |
-                 F: |Alternate File GoTo   |Toggle Line Numbers   |List all Buffers      |   File Selector      |
+               C F: |                      |Toggle Completion     |Quit this Buffer      |   Plugin Manager     |
+                SF: |Alternate File Split  |Toggle Side Columns   |Browse Buffers        |   File Manager       |
+                 F: |Alternate File GoTo   |Toggle Line Numbers   |List all Buffers      |   File Browser       |
 Function Key:       |           <F9>       |           <F10>      |           <F11>      |           <F12>      |
                     +----------------------+----------------------+----------------------+----------------------+
 
@@ -65,6 +65,7 @@ local map = vim.keymap.set
 --
 -- Navigation
 --
+map( 'n', '<C-F1>',       ShowKeyHelp,                          { desc = 'Show function key and arrow key reference' })
 map( 'n', '<F1>',         ':on<CR>',                            { desc = 'Close All Windows except the Currently Active' })
 map( 'n', '<S-F1>',       ':wincmd c<CR>',                      { desc = 'Close the Currently Active Window' })
 map( 'n', '<F2>',         ':make -j<CR>',                       { desc = 'Make' })
@@ -85,6 +86,9 @@ map( 'n', '<F7>',         ':cprev<CR>',                         { desc = 'Jump t
 map( 'n', '<F8>',         ':cnext<CR>',                         { desc = 'Jump to Next Found Location' })
 map( 'n', '<F19>',        ':AerialPrev<CR>',                    { desc = 'Jump to Previous Function in File' })
 map( 'n', '<F20>',        ':AerialNext<CR>',                    { desc = 'Jump to Next Function in File' })
+map( 'n', '{',            '<cmd>AerialPrev<CR>',                { desc = 'Aerial: previous symbol' })
+map( 'n', '}',            '<cmd>AerialNext<CR>',                { desc = 'Aerial: next symbol' })
+map( 'n', '<leader>a',   '<cmd>AerialNavToggle<CR>',            { desc = 'Toggle Aerial Nav' })
 map( 'n', '<F31>',        vim.lsp.buf.declaration,              { desc = 'Go to declaration' })
 map( 'n', '<F32>',        vim.lsp.buf.definition,               { desc = 'Go to definition' })
 map( 'n', '<F56>',        vim.lsp.buf.code_action,              { desc = 'Use Suggested Fix(es) when Problems are Found' })
@@ -94,7 +98,10 @@ map( 'n', '<F10>',        CycleLineNumberModes,                 { desc = 'Show L
 map( 'n', '<F22>',        ToggleSideColumns,                    { desc = 'Show or Hide Left Columns for Folds and Indicators' })
 map( 'n', '<F34>',        ToggleCodeCompletion,                 { desc = 'Toggle Code Completion Suggestions' })
 map( 'n', '<F58>',        ToggleFoldPreview,                    { desc = 'Toggle Fold Preview' })
-map( 'n', '<F11>',        ':buffers<CR>',                       { desc = 'Show All Current Buffers' })
+map( 'n', '<F11>',        ':Telescope buffers<CR>',             { desc = 'Browse Buffers' })
+map( 'n', '<F23>',        ':buffers<CR>',                       { desc = 'Show All Current Buffers' })
+map( 'n', '<F35>',        ':bd<CR>',                            { desc = 'Quit and Unload Current Buffer' })
+map( 'n', '<F12>',        ':Telescope file_browser<CR>',        { desc = '[F]ile [B]rowser' })
 map( 'n', '<F36>',        ':Lazy home<CR>',                     { desc = 'Show Plugin Manager Status' })
 
 --
@@ -117,7 +124,7 @@ map( 'n', '<M-C-S-Right>','zR',                                 { desc = 'Open A
 --
 local builtin = require('telescope.builtin')
 map( 'n', '<leader>e',    ':Neotree toggle filesystem left<CR>',{ desc = "Toggle file explorer" })
-map( 'n', '<F12>',        ShowFilesystem,                       { desc = 'Directory Viewer' })
+map( 'n', '<F24>',        ShowFilesystem,                       { desc = 'Directory Viewer' })
 map( 'n', '<leader>ff',   builtin.find_files,                   { desc = 'Telescope find files' })
 map( 'n', '<leader>fg',   builtin.live_grep,                    { desc = 'Telescope live grep' })
 map( 'n', '<leader>fb',   builtin.buffers,                      { desc = 'Telescope buffers' })
@@ -174,7 +181,7 @@ map( 'n', '<leader>tsh',  '<cmd>Telescope help_tags<CR>',       { desc = '[S]ear
 map( 'n', '<leader>tsw',  '<cmd>Telescope grep_string<CR>',     { desc = '[S]earch current [W]ord' })
 map( 'n', '<leader>tsg',  '<cmd>Telescope live_grep<CR>',       { desc = '[S]earch by [G]rep' })
 map( 'n', '<leader>tsd',  '<cmd>Telescope diagnostics<CR>',     { desc = '[S]earch [D]iagnostics' })
-map( 'n', '<leader>fb',   '<cmd>Telescope file_browser<CR>',    { desc = '[F]ile [B]rowser' }, { noremap = true })
+map( 'n', '<leader>fb',   '<cmd>Telescope file_browser<CR>',    { desc = '[F]ile [B]rowser' })
 
 -- Git
 map( 'n', '<leader>gbt',  '<cmd>Gitsigns toggle_current_line_blame<CR>', { desc = '[G]it [B]lame [T]oggle'})
@@ -184,6 +191,15 @@ map( 'n', '[d',           vim.diagnostic.goto_prev)
 map( 'n', ']d',           vim.diagnostic.goto_next)
 map( 'n', '<leader>df',   vim.diagnostic.open_float)
 map( 'n', '<leader>de',   vim.diagnostic.setloclist)
+
+-- Claude Code
+map( 'n', '<leader>cc',  '<cmd>ClaudeCode<CR>',            { desc = 'Toggle Claude Code terminal' })
+map( 'n', '<leader>cf',  '<cmd>ClaudeCodeFocus<CR>',       { desc = 'Focus Claude Code terminal' })
+map( 'n', '<leader>cr',  '<cmd>ClaudeCode --resume<CR>',   { desc = 'Resume last Claude session' })
+map( 'n', '<leader>cb',  '<cmd>ClaudeCodeAdd %<CR>',       { desc = 'Add current buffer to Claude context' })
+map( 'v', '<leader>cs',  '<cmd>ClaudeCodeSend<CR>',        { desc = 'Send selection to Claude' })
+map( 'n', '<leader>cy',  '<cmd>ClaudeCodeDiffAccept<CR>',  { desc = 'Accept Claude diff' })
+map( 'n', '<leader>cn',  '<cmd>ClaudeCodeDiffDeny<CR>',    { desc = 'Deny Claude diff' })
 
 -- Zen
 map( 'n', '<leader>zn',   '<cmd>TZNarrow<CR>',                  { noremap = true })

@@ -167,7 +167,7 @@ function hostSpecificSetup
                         #
                         addpath /opt/emsdk
                         addpath /opt/emsdk/upstream/emscripten
-                        addpath /opt/Qt/6.10.0/wasm_singlethread/bin
+                        addpath /opt/Qt/6.11.1/wasm_multithread/bin
 
                         #
                         # homebrew

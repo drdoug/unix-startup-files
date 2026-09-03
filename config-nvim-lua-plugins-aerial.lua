@@ -96,13 +96,8 @@ return
                         markdown = { update_delay = 300, },
                         asciidoc = { update_delay = 300, },
                         man = { update_delay = 300, },
-                        on_attach = function(bufnr)
-                                vim.keymap.set( 'n', '{', '<cmd>AerialPrev<CR>', { buffer = bufnr })
-                                vim.keymap.set( 'n', '}', '<cmd>AerialNext<CR>', { buffer = bufnr })
-                        end,
                         lazy_load = true,
                         nerd_font = "auto",
-                        vim.keymap.set( 'n', '<leader>a', '<cmd>AerialNavToggle<CR>')
                         })
         end,
         cmd =
@@ -110,6 +105,5 @@ return
                 "Aerial",
                 "AerialToggle"
                 },
-        keys = { { "<leader>a", "<cmd>AerialNavToggle<cr>", desc = "Toggle Aerial" }, },
         }
 

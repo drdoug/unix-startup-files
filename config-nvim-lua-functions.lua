@@ -149,11 +149,63 @@ end
 -- Perform live grep
 --
 function StartLiveGrep()
-        require( 'telescope.builtin').live_grep
-                {
-                noremap = true,
-                silent = true,
-                }
+        require( 'telescope.builtin').live_grep()
+end
+
+--
+-- Show a floating window with function key
+-- and arrow key binding reference
+--
+function ShowKeyHelp()
+        local keymaps_path = vim.fn.stdpath('config') .. '/lua/keymaps.lua'
+        local ok, all_lines = pcall(vim.fn.readfile, keymaps_path)
+        if not ok then
+                vim.notify('Cannot read keymaps.lua', vim.log.levels.ERROR)
+                return
+        end
+
+        local content = {}
+        local in_block = false
+        for _, line in ipairs(all_lines) do
+                if line == '--[[' then
+                        in_block = true
+                elseif line == '--]]' then
+                        in_block = false
+                        table.insert(content, '')
+                elseif in_block then
+                        table.insert(content, line)
+                end
+        end
+
+        local buf = vim.api.nvim_create_buf(false, true)
+        vim.api.nvim_buf_set_lines(buf, 0, -1, false, content)
+        vim.bo[buf].modifiable = false
+        vim.bo[buf].bufhidden = 'wipe'
+
+        local max_width = 0
+        for _, line in ipairs(content) do
+                max_width = math.max(max_width, #line)
+        end
+        local width  = math.min(max_width + 2, vim.o.columns - 4)
+        local height = math.min(#content,       vim.o.lines   - 4)
+        local row    = math.floor((vim.o.lines   - height) / 2)
+        local col    = math.floor((vim.o.columns - width)  / 2)
+
+        local win = vim.api.nvim_open_win(buf, true, {
+                relative   = 'editor',
+                width      = width,
+                height     = height,
+                row        = row,
+                col        = col,
+                style      = 'minimal',
+                border     = 'rounded',
+                title      = ' Key Reference ',
+                title_pos  = 'center',
+        })
+        vim.wo[win].wrap = false
+
+        vim.keymap.set('n', 'q',     '<cmd>close<CR>', { buffer = buf, silent = true })
+        vim.keymap.set('n', '<Esc>', '<cmd>close<CR>', { buffer = buf, silent = true })
 end
 
 --
@@ -168,7 +220,9 @@ function ToggleClangTidy()
         clangd_enabled = not clangd_enabled
         local new_cmd = clangd_enabled and clangd_cmd_with_tidy or clangd_cmd_without_tidy
 
-        vim.lsp.stop_client( vim.lsp.get_active_clients( { name = "clangd" }), true)
+        for _, client in ipairs( vim.lsp.get_clients( { name = "clangd" })) do
+                vim.lsp.stop_client( client.id, true)
+        end
 
         require( 'lspconfig').clangd.setup(
                 {

@@ -77,18 +77,7 @@ return
                 {
                 "neovim/nvim-lspconfig",
                 config = function()
-                        local function on_attach( client, bufnr)
-                        local opts = { buffer = bufnr }
-                end
-
-                -- Optionally define default config for *all* servers
-                vim.lsp.config( "*",
-                        {
-                        on_attach = on_attach,
-                        -- You can also set default capabilities here if needed.
-                        -- But note: with the new API, capabilities are merged/extended automatically:
-                        --     [oai_citation:0‡Reddit](https://www.reddit.com/r/neovim/comments/1knwtis/the_new_lsp_api/?utm_source=chatgpt.com)
-                        })
+                -- Autocmd to set folding if supported
 
                 -- Autocmd to set folding if supported
                 vim.api.nvim_create_autocmd( "LspAttach",

@@ -66,6 +66,18 @@ return
                         DiagnosticHint  = '#64f79d',
                         }
 
+                local function claudeCodeStatus()
+                        local ok, claudecode = pcall( require, "claudecode")
+                        if not ok then return "" end
+                        if claudecode.is_claude_connected() then
+                                return "● Claude"
+                        end
+                        if claudecode.state and claudecode.state.server then
+                                return "○ Claude"
+                        end
+                        return ""
+                end
+
                 local auroraTheme =
                         {
                         normal =
@@ -195,6 +207,16 @@ return
                                         },
                                 lualine_x =
                                         {
+                                        {
+                                        claudeCodeStatus,
+                                        color = function()
+                                                local ok, claudecode = pcall( require, "claudecode")
+                                                if ok and claudecode.is_claude_connected() then
+                                                        return { fg = colors.goldenrod, bg = colors.DarkGreen }
+                                                end
+                                                return { fg = colors.LightGrey, bg = colors.DarkGreen }
+                                        end,
+                                        },
                                         {
                                         'branch',
                                         separator = { left = '' },
