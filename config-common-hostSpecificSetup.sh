@@ -1,5 +1,4 @@
 
-
 #
 # Host specific setup file
 # Common to bash and zsh
@@ -234,6 +233,49 @@ function hostSpecificSetup
                                 addmaclib -q ${NDDSHOME}/lib/x64Darwin17clang9.0/
                         fi
 
+                        ;;
+                "dougm-MacBookAir" )
+                        echo 'Welcome to MacBook Air Linux Mint'
+                        #
+                        # Linux on Macbook Air Laptop
+                        #
+                        if ! type newlist &>/dev/null
+                        then
+                                return
+                        fi
+
+                        #
+                        # Support for Qt, etc.
+                        #
+                        addpath -q /opt/Qt/6.11.2/gcc_64/bin
+                        addpath -q /bin/X11
+
+                        setxkbmap -option "ctrl:swap_lwin_lctl"
+                        setxkbmap -option 'ctrl:nocaps'
+
+                        export XDG_CONFIG_HOME=~/.config
+                        export EMSDK=/opt/emsdk
+
+                        #
+                        # check for local EPICS
+                        #
+                        export EPICS_BASE=${EPICS_BASE:-"/usr/local/epics/base"}
+                        if [[ -d "${EPICS_BASE}" ]];
+                        then
+                                EPICS_SETUP=${EPICS_BASE}/config/epicsSetup.bash
+                                if [[ -e $EPICS_SETUP ]];
+                                then
+                                        source $EPICS_SETUP
+                                else
+                                        export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"linux-x86_64"}
+                                        addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
+                                fi
+                        fi
+                        export EPICS_CA_ADDR_LIST='134.79.219.255 172.26.97.63'
+                        export EPICS_PVXS=${EPICS_BASE}/../pvxs-tls
+                        export EPICS_PVA_ADDR_LIST=127.0.0.1:5086
+                        export EPICS_PVA_AUTO_ADDR_LIST=NO
+                        export EPICS_PVA_BROADCAST_PORT=5086
                         ;;
 #NOSLAC                "PC102884" )
 #NOSLAC                        #

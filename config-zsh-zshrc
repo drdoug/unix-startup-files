@@ -202,6 +202,26 @@ function setupCommands
                                 fi
                         fi
 
+                        #
+                        # EPICS
+                        #
+                        export EPICS_BASE=${EPICS_BASE:-"/usr/local/epics/base"}
+
+                        EPICS_SETUP=${EPICS_BASE}/config/epicsSetup.bash
+                        if [[ -e $EPICS_SETUP ]];
+                        then
+                                source $EPICS_SETUP
+                        else
+                                export EPICS_HOST_ARCH=${EPICS_HOST_ARCH:-"linux-x86_64"}
+                                addpath -q ${EPICS_BASE}/bin/${EPICS_HOST_ARCH}/
+                        fi
+
+                        export EPICS_PVXS=${EPICS_PVXS:-"/usr/local/epics/pvxs"}
+                        if [[ -d $EPICS_PVXS ]];
+                        then
+                                addpath -q ${EPICS_PVXS}/bin/${EPICS_HOST_ARCH}/
+                        fi
+
                         ;;
                 "Darwin")
                         SYS_SPECIFIC="MacOS"
